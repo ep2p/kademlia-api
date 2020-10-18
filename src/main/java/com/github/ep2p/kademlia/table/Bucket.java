@@ -5,23 +5,25 @@
  * under the terms of the license (GNU LGPL) which comes with this package. */
 
 package com.github.ep2p.kademlia.table;
+
 import com.github.ep2p.kademlia.connection.ConnectionInfo;
 import com.github.ep2p.kademlia.node.Node;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class Bucket<C extends ConnectionInfo> implements Serializable {
   private static final long serialVersionUID = 3300560211925346757L;
   private int id;
-  private ArrayList<Integer> nodeIds;
-  private Map<Integer, Node<C>> nodeMap = new HashMap<>();
+  private List<Integer> nodeIds;
+  private Map<Integer, Node<C>> nodeMap = new ConcurrentHashMap<>();
 
   /* Create a bucket for prefix `id` */
   public Bucket(int id) {
-    this.nodeIds = new ArrayList<Integer>();
+    this.nodeIds = new CopyOnWriteArrayList<Integer>();
     this.id = id;
   }
 
@@ -47,6 +49,15 @@ public class Bucket<C extends ConnectionInfo> implements Serializable {
     nodeMap.put(node.getId(), node);
   }
 
+  public void remove(Node<C> node){
+    this.remove(node.getId());
+  }
+
+  public void remove(int nodeId){
+    nodeIds.remove(nodeIds.indexOf(nodeId));
+    nodeMap.remove(nodeId);
+  }
+
   /* Push a node to the front of a bucket */
   /* Called when a node is already in bucket and brings them to front of the bucket as they are a living node */
   public void pushToFront(int id) {
@@ -60,7 +71,7 @@ public class Bucket<C extends ConnectionInfo> implements Serializable {
     return nodeMap.get(nodeId);
   }
 
-  public ArrayList<Integer> getNodeIds() {
+  List<Integer> getNodeIds() {
     return nodeIds;
   }
 
