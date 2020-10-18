@@ -1,10 +1,12 @@
 package com.github.ep2p.kademlia.connection;
 
+import com.github.ep2p.kademlia.model.FindNodeAnswer;
+import com.github.ep2p.kademlia.model.PingAnswer;
 import com.github.ep2p.kademlia.node.Node;
 
 public interface NodeApi<C extends ConnectionInfo> {
-    void ping(Node<C> node, ResponseListener<Void> responseListener);
-    <R> void findNode(Node<C> node, ResponseListener<R> rResponseListener);
-    <K, V, R> void store(Node<C> node, K key, V value, ResponseListener<R> responseListener);
-    <K, R> void get(Node<C> node, K key, ResponseListener<R> responseListener);
+    PingAnswer ping(Node<C> node);
+    FindNodeAnswer<C> findNode(Node<C> node);
+    <K, V, R> R store(Node<C> node, K key, V value);
+    <K, R> R get(Node<C> node, K key);
 }

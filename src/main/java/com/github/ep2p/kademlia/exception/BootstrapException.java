@@ -7,8 +7,16 @@ import lombok.Getter;
 public class BootstrapException extends Exception {
     private final Node node;
 
-    public BootstrapException(Node node) {
-        super("Failed to contact bootstrap node");
+    public BootstrapException(Node node, String message, Exception e){
+        super(message, e);
         this.node = node;
+    }
+
+    public BootstrapException(Node node, String message){
+        this(node, message, null);
+    }
+
+    public BootstrapException(Node node) {
+        this(node, "Failed to contact bootstrap node");
     }
 }
