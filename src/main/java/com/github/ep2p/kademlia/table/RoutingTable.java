@@ -4,25 +4,31 @@
 /* This program is free software; you can redistribute it and/or modify it
  * under the terms of the license (GNU LGPL) which comes with this package. */
 
-package com.github.ep2p.kademlia;
+package com.github.ep2p.kademlia.table;
 
+
+import com.github.ep2p.kademlia.Common;
+import com.github.ep2p.kademlia.FindNodeAnswer;
+import com.github.ep2p.kademlia.connection.ConnectionInfo;
+import com.github.ep2p.kademlia.node.Node;
 
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.Vector;
 
-public class RoutingTable implements Serializable {
-  private static final long serialVersionUID = -6457490444295826198L;
+public class RoutingTable<C extends ConnectionInfo> implements Serializable {
+  private static final long serialVersionUID = 7920534415564909219L;
+
   /* Bucket list */
-  private Vector<Bucket> buckets;
+  private Vector<Bucket<C>> buckets;
   /* Id of the routing table owner */
   private int id;
 
   public RoutingTable(int id) {
     this.id = id;
-    buckets = new Vector<Bucket>();
+    buckets = new Vector<Bucket<C>>();
     for (int i = 0; i < Common.IDENTIFIER_SIZE + 1; i++) {
-      buckets.add(new Bucket(i));
+      buckets.add(new Bucket<C>(i));
     }
   }
 
@@ -52,20 +58,20 @@ public class RoutingTable implements Serializable {
   }
 
   /* Finds the corresponding bucket in a routing table for a given identifier */
-  public Bucket findBucket(int id) {
+  public Bucket<C> findBucket(int id) {
     int xorNumber = id ^ this.id;
     int prefix = this.getNodePrefix(xorNumber);
     return buckets.get(prefix);
   }
 
   /* Updates the routing table with a new value. */
-  public void update(int id) {
-    Bucket bucket = this.findBucket(id);
-    if (bucket.contains(id)) {
+  public void update(Node<C> node) {
+    Bucket<C> bucket = this.findBucket(node.getId());
+    if (bucket.contains(node)) {
       //If the element is already in the bucket, we update it.
-      bucket.pushToFront(id);
+      bucket.pushToFront(node.getId());
     } else {
-      bucket.add(id);
+      bucket.add(node);
       if (bucket.size() > Common.BUCKET_SIZE)  {
         //TODO: Ping the least seen guy and remove him if he is offline.
       }
@@ -75,7 +81,7 @@ public class RoutingTable implements Serializable {
   /* Returns the closest nodes we know to a given id */
   public FindNodeAnswer findClosest(int destinationId) {
     FindNodeAnswer findNodeAnswer = new FindNodeAnswer(destinationId);
-    Bucket bucket = this.findBucket(destinationId);
+    Bucket<C> bucket = this.findBucket(destinationId);
     BucketHelper.addToAnswer(bucket, findNodeAnswer, destinationId);
 
     // For every node (max common.BucketSize and lte identifier size) and add it to answer
@@ -83,12 +89,12 @@ public class RoutingTable implements Serializable {
                                     (bucket.getId() + i) <= Common.IDENTIFIER_SIZE); i++) {
       //Check the previous buckets
       if (bucket.getId() - i >= 0) {
-        Bucket bucketP = this.buckets.get(bucket.getId() - i);
+        Bucket<C> bucketP = this.buckets.get(bucket.getId() - i);
         BucketHelper.addToAnswer(bucketP, findNodeAnswer, destinationId);
       }
       //Check the next buckets
       if (bucket.getId() + i <= Common.IDENTIFIER_SIZE) {
-        Bucket bucketN = this.buckets.get(bucket.getId() + i);
+        Bucket<C> bucketN = this.buckets.get(bucket.getId() + i);
         BucketHelper.addToAnswer(bucketN, findNodeAnswer, destinationId);
       }
     }
@@ -102,18 +108,18 @@ public class RoutingTable implements Serializable {
     return findNodeAnswer;
   }
 
-  public Vector<Bucket> getBuckets() {
+  public Vector<Bucket<C>> getBuckets() {
     return buckets;
   }
 
   @Override
   public String toString() {
-    String string = "RoutingTable [ id=" + id + " " ;
-    for (int i = 0; i < buckets.size(); i++) {
-      if (buckets.get(i).size() > 0) {
-        string += buckets.get(i) + " ";
+    StringBuilder string = new StringBuilder("RoutingTable [ id=" + id + " ");
+    for (Bucket<C> bucket : buckets) {
+      if (bucket.size() > 0) {
+        string.append(bucket.getId()).append(" ");
       }
     }
-    return string;
+    return string.toString();
   }
 }
