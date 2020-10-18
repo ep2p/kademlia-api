@@ -4,7 +4,7 @@
 /* This program is free software; you can redistribute it and/or modify it
  * under the terms of the license (GNU LGPL) which comes with this package. */
 
-package com.github.ep2p.kademlia.kademlia;
+package com.github.ep2p.kademlia;
 
 public class Common {
   /* Common constants used all over the simulation */

@@ -1,5 +1,5 @@
-import com.github.ep2p.kademlia.kademlia.FindNodeAnswer;
-import com.github.ep2p.kademlia.kademlia.RoutingTable;
+import com.github.ep2p.kademlia.FindNodeAnswer;
+import com.github.ep2p.kademlia.RoutingTable;
 
 public class RoutingTableUnderstanding {
     public static void main(String[] args) {

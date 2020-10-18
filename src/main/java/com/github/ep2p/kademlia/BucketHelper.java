@@ -1,4 +1,4 @@
-package com.github.ep2p.kademlia.kademlia;
+package com.github.ep2p.kademlia;
 
 public class BucketHelper {
 
