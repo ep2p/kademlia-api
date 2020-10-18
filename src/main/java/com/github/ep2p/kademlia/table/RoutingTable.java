@@ -79,8 +79,8 @@ public class RoutingTable<C extends ConnectionInfo> implements Serializable {
   }
 
   /* Returns the closest nodes we know to a given id */
-  public FindNodeAnswer findClosest(int destinationId) {
-    FindNodeAnswer findNodeAnswer = new FindNodeAnswer(destinationId);
+  public FindNodeAnswer<C> findClosest(int destinationId) {
+    FindNodeAnswer<C> findNodeAnswer = new FindNodeAnswer<C>(destinationId);
     Bucket<C> bucket = this.findBucket(destinationId);
     BucketHelper.addToAnswer(bucket, findNodeAnswer, destinationId);
 

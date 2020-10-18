@@ -6,6 +6,7 @@
 
 package com.github.ep2p.kademlia;
 import com.github.ep2p.kademlia.connection.ConnectionInfo;
+import com.github.ep2p.kademlia.node.ExternalNode;
 
 import java.util.ArrayList;
 import java.util.Collections;
