@@ -7,7 +7,9 @@
 package com.github.ep2p.kademlia;
 
 public class Common {
+  public final static int ALPHA = 3;
   public final static int IDENTIFIER_SIZE = 6;
   /* Maximum size of the buckets */
   public final static int BUCKET_SIZE = 20;
+  public final static int JOIN_BUCKETS_QUERIES = 1;
 }

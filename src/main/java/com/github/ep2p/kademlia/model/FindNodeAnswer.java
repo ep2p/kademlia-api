@@ -8,12 +8,14 @@ package com.github.ep2p.kademlia.model;
 import com.github.ep2p.kademlia.Common;
 import com.github.ep2p.kademlia.connection.ConnectionInfo;
 import com.github.ep2p.kademlia.node.ExternalNode;
+import lombok.Getter;
 
 import java.util.ArrayList;
 import java.util.Collections;
 
 /* Answer to a "FIND_NODE" query. Contains the nodes closest to an id given */
-public class FindNodeAnswer<C extends ConnectionInfo> {
+@Getter
+public class FindNodeAnswer<C extends ConnectionInfo> extends Answer {
   private int destinationId;
   /* Closest nodes in the answer. */
   private ArrayList<ExternalNode<C>> nodes;
@@ -21,14 +23,6 @@ public class FindNodeAnswer<C extends ConnectionInfo> {
   public FindNodeAnswer(int destinationId) {
     this.destinationId = destinationId;
     nodes = new ArrayList<ExternalNode<C>>();
-  }
-
-  int getDestinationId() {
-    return destinationId;
-  }
-
-  public ArrayList<ExternalNode<C>> getNodes() {
-    return nodes;
   }
 
   public int size() {

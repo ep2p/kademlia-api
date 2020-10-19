@@ -72,9 +72,6 @@ public class RoutingTable<C extends ConnectionInfo> implements Serializable {
       bucket.pushToFront(node.getId());
     } else {
       bucket.add(node);
-      if (bucket.size() > Common.BUCKET_SIZE)  {
-        //TODO: Ping the least seen guy and remove him if he is offline.
-      }
     }
   }
 
