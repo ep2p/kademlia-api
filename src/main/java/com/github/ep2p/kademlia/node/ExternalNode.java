@@ -9,29 +9,19 @@ package com.github.ep2p.kademlia.node;
 import com.github.ep2p.kademlia.connection.ConnectionInfo;
 import lombok.Getter;
 
-import java.util.Objects;
-
 @Getter
-public class ExternalNode<C extends ConnectionInfo> implements Comparable<Object> {
-  private Node<C> node;
+public class ExternalNode<C extends ConnectionInfo> extends Node<C> implements Comparable<Object> {
   private int distance;
 
   public ExternalNode(Node<C> node, int distance) {
-    this.node = node;
+    setNode(node);
     this.distance = distance;
   }
 
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
-    ExternalNode<?> that = (ExternalNode<?>) o;
-    return Objects.equals(getNode(), that.getNode());
-  }
-
-  @Override
-  public int hashCode() {
-    return Objects.hash(getNode());
+  private void setNode(Node<C> node) {
+    this.setConnection(node.getConnection());
+    this.setId(node.getId());
+    this.setLastSeen(node.getLastSeen());
   }
 
   public int compareTo(Object o) {
@@ -41,7 +31,7 @@ public class ExternalNode<C extends ConnectionInfo> implements Comparable<Object
 
   @Override
   public String toString() {
-    return "Contact [id=" + node.getId() + ", distance=" + distance + "]";
+    return "Contact [id=" + getId() + ", distance=" + distance + "]";
   }
 
 }

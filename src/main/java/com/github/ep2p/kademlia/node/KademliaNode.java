@@ -1,6 +1,7 @@
 package com.github.ep2p.kademlia.node;
 
 import com.github.ep2p.kademlia.Common;
+import com.github.ep2p.kademlia.KadDistanceUtil;
 import com.github.ep2p.kademlia.connection.ConnectionInfo;
 import com.github.ep2p.kademlia.connection.NodeApi;
 import com.github.ep2p.kademlia.exception.BootstrapException;
@@ -10,7 +11,6 @@ import com.github.ep2p.kademlia.table.RoutingTable;
 import com.github.ep2p.kademlia.table.RoutingTableFactory;
 import lombok.Getter;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.*;
 import java.util.concurrent.locks.Lock;
@@ -37,7 +37,7 @@ public class KademliaNode<C extends ConnectionInfo> extends Node<C> {
         routingTable = routingTableFactory.getRoutingTable(nodeId);
         this.setId(nodeId);
         this.setConnection(connectionInfo);
-        referenceNodes = new ArrayList<>();
+        referenceNodes = new CopyOnWriteArrayList<>();
     }
 
     //first we have to use another node to join network
@@ -119,10 +119,10 @@ public class KademliaNode<C extends ConnectionInfo> extends Node<C> {
         int i;
         for (i = 0; i < Common.ALPHA && i < findNodeAnswer.size(); i++) {
             ExternalNode<C> externalNode = findNodeAnswer.getNodes().get(i);
-            if (externalNode.getNode().getId() != this.getId()) {
-                FindNodeAnswer<C> findNodeAnswer1 = nodeApi.findNode(externalNode.getNode(), destination);
+            if (externalNode.getId() != this.getId()) {
+                FindNodeAnswer<C> findNodeAnswer1 = nodeApi.findNode(externalNode, destination);
                 if(findNodeAnswer1.getDestinationId() == destination && findNodeAnswer1.isAlive()){
-                    routingTable.update(externalNode.getNode());
+                    routingTable.update(externalNode);
                     pingAndAddResults(findNodeAnswer.getNodes());
                 }
             }
@@ -132,9 +132,9 @@ public class KademliaNode<C extends ConnectionInfo> extends Node<C> {
 
     private void pingAndAddResults(List<ExternalNode<C>> externalNodes){
         externalNodes.forEach(externalNode -> {
-            PingAnswer pingAnswer = nodeApi.ping(externalNode.getNode());
+            PingAnswer pingAnswer = nodeApi.ping(externalNode);
             if(!pingAnswer.isAlive()){
-                routingTable.update(externalNode.getNode());
+                routingTable.update(externalNode);
             }
         });
     }
