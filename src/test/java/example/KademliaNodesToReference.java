@@ -3,6 +3,7 @@ package example;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+//More info: http://tutorials.jenkov.com/p2p/peer-routing-table.html
 public class KademliaNodesToReference {
     public static void main(String[] args) {
         // Node identifier size

@@ -96,15 +96,19 @@ public class KademliaNode<C extends ConnectionInfo> extends Node<C> {
     }
 
     private void start(){
+        //Find maximum n (where n is identifier size) nodes periodically, Check if they are available, otherwise remove them from routing table
         scheduledExecutorService.scheduleAtFixedRate(new Runnable() {
             @Override
             public void run() {
+                //Find maximum n (where n is identifier size) nodes
                 makeReferenceNodes();
+                //Check if they are available, otherwise remove them from routing table
                 pingAndAddResults(referenceNodes);
             }
         }, 0, 30, TimeUnit.SECONDS);
     }
 
+    //Gathers most important nodes to keep connection to (See KademliaNodesToReference)
     private void makeReferenceNodes(){
         List<Integer> distances = KadDistanceUtil.getNodesWithDistance(getId(), Common.IDENTIFIER_SIZE);
         distances.forEach(distance -> {
