@@ -78,6 +78,12 @@ public class RoutingTable<C extends ConnectionInfo> implements Serializable {
     }
   }
 
+  public void delete(Node<C> node) {
+    Bucket<C> bucket = this.findBucket(node.getId());
+    bucket.remove(node);
+  }
+
+
   /* Returns the closest nodes we know to a given id */
   public FindNodeAnswer<C> findClosest(int destinationId) {
     FindNodeAnswer<C> findNodeAnswer = new FindNodeAnswer<C>(destinationId);

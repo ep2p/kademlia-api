@@ -6,6 +6,7 @@ import com.github.ep2p.kademlia.node.Node;
 
 public interface NodeApi<C extends ConnectionInfo> {
     PingAnswer ping(Node<C> node);
+    void shutdownSignal(Node<C> node);
     FindNodeAnswer<C> findNode(Node<C> node, Integer destination);
     <K, V, R> R store(Node<C> node, K key, V value);
     <K, R> R get(Node<C> node, K key);

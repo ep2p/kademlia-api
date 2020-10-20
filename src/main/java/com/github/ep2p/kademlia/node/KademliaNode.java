@@ -5,6 +5,7 @@ import com.github.ep2p.kademlia.KadDistanceUtil;
 import com.github.ep2p.kademlia.connection.ConnectionInfo;
 import com.github.ep2p.kademlia.connection.NodeApi;
 import com.github.ep2p.kademlia.exception.BootstrapException;
+import com.github.ep2p.kademlia.exception.ShutdownException;
 import com.github.ep2p.kademlia.model.FindNodeAnswer;
 import com.github.ep2p.kademlia.model.PingAnswer;
 import com.github.ep2p.kademlia.table.RoutingTable;
@@ -13,8 +14,6 @@ import lombok.Getter;
 
 import java.util.List;
 import java.util.concurrent.*;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 import static com.github.ep2p.kademlia.Common.BOOTSTRAP_NODE_CALL_TIMEOUT_SEC;
 
@@ -28,8 +27,8 @@ public class KademliaNode<C extends ConnectionInfo> extends Node<C> {
     private final List<Node<C>> referenceNodes;
 
     //None-Accessible fields
-    private ExecutorService executor = Executors.newFixedThreadPool(2);
-    private Lock referenceNodeUpdateLock = new ReentrantLock();
+    private final ExecutorService executorService = Executors.newFixedThreadPool(1);
+    private final ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
 
     public KademliaNode(NodeApi<C> nodeApi, NodeIdFactory nodeIdFactory, C connectionInfo, RoutingTableFactory routingTableFactory) {
         this.nodeApi = nodeApi;
@@ -45,7 +44,7 @@ public class KademliaNode<C extends ConnectionInfo> extends Node<C> {
         routingTable.update(this);
         //find closest nodes from bootstrap node
         Integer nodeId = this.getId();
-        Future<FindNodeAnswer<C>> findNodeAnswerFuture = executor.submit(new Callable<FindNodeAnswer<C>>() {
+        Future<FindNodeAnswer<C>> findNodeAnswerFuture = executorService.submit(new Callable<FindNodeAnswer<C>>() {
             @Override
             public FindNodeAnswer<C> call() throws Exception {
                 return nodeApi.findNode(bootstrapNode, nodeId);
@@ -63,38 +62,58 @@ public class KademliaNode<C extends ConnectionInfo> extends Node<C> {
             //Get other closest nodes from alive nodes
             getClosestNodesFromAliveNodes(bootstrapNode);
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
+            executorService.shutdown();
             throw new BootstrapException(bootstrapNode, e.getMessage(), e);
         }
 
-        executor.submit(new Runnable() {
+        executorService.submit(new Runnable() {
             @Override
             public void run() {
                 //Get other closest nodes from alive nodes
                 getClosestNodesFromAliveNodes(bootstrapNode);
+                executorService.shutdown();
             }
         });
+    }
 
+    private void stop() throws ShutdownException {
+        ShutdownException shutdownException = null;
+        try {
+            scheduledExecutorService.shutdown();
+            executorService.shutdown();
+        }catch (Exception e){
+            shutdownException = new ShutdownException(e);
+        }
+
+        try {
+            referenceNodes.forEach(nodeApi::shutdownSignal);
+        }catch (Exception e){
+            shutdownException = new ShutdownException(e);
+        }
+
+        if(shutdownException != null)
+            throw shutdownException;
     }
 
     private void start(){
-
+        scheduledExecutorService.scheduleAtFixedRate(new Runnable() {
+            @Override
+            public void run() {
+                makeReferenceNodes();
+                pingAndAddResults(referenceNodes);
+            }
+        }, 0, 30, TimeUnit.SECONDS);
     }
 
     private void makeReferenceNodes(){
-        if (referenceNodeUpdateLock.tryLock()) {
-            try {
-                List<Integer> distances = KadDistanceUtil.getNodesWithDistance(getId(), Common.IDENTIFIER_SIZE);
-                distances.forEach(distance -> {
-                    FindNodeAnswer<C> findNodeAnswer = routingTable.findClosest(distance);
-                    if (findNodeAnswer.getNodes().size() > 0) {
-                        if(!referenceNodes.contains(findNodeAnswer.getNodes().get(0)))
-                            referenceNodes.add(findNodeAnswer.getNodes().get(0));
-                    }
-                });
-            }finally {
-                referenceNodeUpdateLock.unlock();
+        List<Integer> distances = KadDistanceUtil.getNodesWithDistance(getId(), Common.IDENTIFIER_SIZE);
+        distances.forEach(distance -> {
+            FindNodeAnswer<C> findNodeAnswer = routingTable.findClosest(distance);
+            if (findNodeAnswer.getNodes().size() > 0) {
+                if(!referenceNodes.contains(findNodeAnswer.getNodes().get(0)))
+                    referenceNodes.add(findNodeAnswer.getNodes().get(0));
             }
-        }
+        });
     }
 
     private void getClosestNodesFromAliveNodes(Node<C> bootstrapNode) {
@@ -134,15 +153,16 @@ public class KademliaNode<C extends ConnectionInfo> extends Node<C> {
         return i;
     }
 
-    private void pingAndAddResults(List<ExternalNode<C>> externalNodes){
+    private void pingAndAddResults(List<? extends Node<C>> externalNodes){
         externalNodes.forEach(externalNode -> {
             PingAnswer pingAnswer = nodeApi.ping(externalNode);
-            if(!pingAnswer.isAlive()){
+            if(pingAnswer.isAlive()){
                 routingTable.update(externalNode);
+            }else {
+                routingTable.delete(externalNode);
             }
         });
     }
-
 
 
 }
