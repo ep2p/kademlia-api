@@ -83,10 +83,13 @@ public class KademliaNode<C extends ConnectionInfo> extends Node<C> {
     private void makeReferenceNodes(){
         if (referenceNodeUpdateLock.tryLock()) {
             try {
-                for(int i = 1; i <= Common.IDENTIFIER_SIZE; i++){
-                    routingTable.findClosest(i);
-                    //todo
-                }
+                List<Integer> distances = KadDistanceUtil.getNodesWithDistance(getId(), Common.IDENTIFIER_SIZE);
+                distances.forEach(distance -> {
+                    FindNodeAnswer<C> findNodeAnswer = routingTable.findClosest(distance);
+                    if (findNodeAnswer.getNodes().size() > 0) {
+                        referenceNodes.add(findNodeAnswer.getNodes().get(0));
+                    }
+                });
             }finally {
                 referenceNodeUpdateLock.unlock();
             }

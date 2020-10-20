@@ -19,4 +19,13 @@ public class KadDistanceUtil {
         identifierToDistanceListMap.put(identifierSize, distances);
         return distances;
     }
+
+    public static synchronized List<Integer> getNodesWithDistance(int nodeId, int identifierSize) {
+        ArrayList<Integer> validNodes = new ArrayList<>();
+        getDistancesOfIdentifierSize(identifierSize).forEach(distance -> {
+            validNodes.add(nodeId ^ distance);
+        });
+
+        return validNodes;
+    }
 }
