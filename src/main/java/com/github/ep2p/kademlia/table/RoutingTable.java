@@ -14,6 +14,7 @@ import com.github.ep2p.kademlia.node.Node;
 
 import java.io.Serializable;
 import java.util.Collections;
+import java.util.Date;
 import java.util.Vector;
 
 public class RoutingTable<C extends ConnectionInfo> implements Serializable {
@@ -66,6 +67,8 @@ public class RoutingTable<C extends ConnectionInfo> implements Serializable {
 
   /* Updates the routing table with a new value. */
   public void update(Node<C> node) {
+    //Setting last seen date on node
+    node.setLastSeen(new Date());
     Bucket<C> bucket = this.findBucket(node.getId());
     if (bucket.contains(node)) {
       //If the element is already in the bucket, we update it.

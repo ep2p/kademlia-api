@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.io.Serializable;
+import java.util.Date;
 import java.util.Objects;
 
 @Getter
@@ -16,6 +17,7 @@ import java.util.Objects;
 public class Node<C extends ConnectionInfo> implements Serializable {
     protected int id;
     protected ConnectionInfo connection;
+    protected Date lastSeen;
 
     @Override
     public boolean equals(Object o) {

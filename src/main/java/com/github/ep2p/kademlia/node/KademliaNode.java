@@ -10,16 +10,26 @@ import com.github.ep2p.kademlia.table.RoutingTable;
 import com.github.ep2p.kademlia.table.RoutingTableFactory;
 import lombok.Getter;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.*;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import static com.github.ep2p.kademlia.Common.BOOTSTRAP_NODE_CALL_TIMEOUT_SEC;
 
-@Getter
 public class KademliaNode<C extends ConnectionInfo> extends Node<C> {
+    //Accessible fields
+    @Getter
     private final NodeApi<C> nodeApi;
+    @Getter
     private final RoutingTable<C> routingTable;
+    @Getter
+    private final List<Node<C>> referenceNodes;
+
+    //None-Accessible fields
     private ExecutorService executor = Executors.newFixedThreadPool(2);
+    private Lock referenceNodeUpdateLock = new ReentrantLock();
 
     public KademliaNode(NodeApi<C> nodeApi, NodeIdFactory nodeIdFactory, C connectionInfo, RoutingTableFactory routingTableFactory) {
         this.nodeApi = nodeApi;
@@ -27,6 +37,7 @@ public class KademliaNode<C extends ConnectionInfo> extends Node<C> {
         routingTable = routingTableFactory.getRoutingTable(nodeId);
         this.setId(nodeId);
         this.setConnection(connectionInfo);
+        referenceNodes = new ArrayList<>();
     }
 
     //first we have to use another node to join network
@@ -45,8 +56,12 @@ public class KademliaNode<C extends ConnectionInfo> extends Node<C> {
             FindNodeAnswer<C> findNodeAnswer = findNodeAnswerFuture.get(BOOTSTRAP_NODE_CALL_TIMEOUT_SEC, TimeUnit.SECONDS);
             if(!findNodeAnswer.isAlive())
                 throw new BootstrapException(bootstrapNode);
+            //Add bootstrap node to routing table
+            routingTable.update(bootstrapNode);
             //Ping each node from result and add it to table if alive
             pingAndAddResults(findNodeAnswer.getNodes());
+            //Get other closest nodes from alive nodes
+            getClosestNodesFromAliveNodes(bootstrapNode);
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
             throw new BootstrapException(bootstrapNode, e.getMessage(), e);
         }
@@ -61,8 +76,22 @@ public class KademliaNode<C extends ConnectionInfo> extends Node<C> {
 
     }
 
+    private void start(){
 
+    }
 
+    private void makeReferenceNodes(){
+        if (referenceNodeUpdateLock.tryLock()) {
+            try {
+                for(int i = 1; i <= Common.IDENTIFIER_SIZE; i++){
+                    routingTable.findClosest(i);
+                    //todo
+                }
+            }finally {
+                referenceNodeUpdateLock.unlock();
+            }
+        }
+    }
 
     private void getClosestNodesFromAliveNodes(Node<C> bootstrapNode) {
         int bucketId = routingTable.findBucket(bootstrapNode.getId()).getId();
@@ -101,11 +130,11 @@ public class KademliaNode<C extends ConnectionInfo> extends Node<C> {
         return i;
     }
 
-    private void pingAndAddResults(List<ExternalNode<C>> cExternalNodes){
-        cExternalNodes.forEach(cExternalNode -> {
-            PingAnswer pingAnswer = nodeApi.ping(cExternalNode.getNode());
+    private void pingAndAddResults(List<ExternalNode<C>> externalNodes){
+        externalNodes.forEach(externalNode -> {
+            PingAnswer pingAnswer = nodeApi.ping(externalNode.getNode());
             if(!pingAnswer.isAlive()){
-                routingTable.update(cExternalNode.getNode());
+                routingTable.update(externalNode.getNode());
             }
         });
     }
