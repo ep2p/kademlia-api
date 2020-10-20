@@ -87,7 +87,8 @@ public class KademliaNode<C extends ConnectionInfo> extends Node<C> {
                 distances.forEach(distance -> {
                     FindNodeAnswer<C> findNodeAnswer = routingTable.findClosest(distance);
                     if (findNodeAnswer.getNodes().size() > 0) {
-                        referenceNodes.add(findNodeAnswer.getNodes().get(0));
+                        if(!referenceNodes.contains(findNodeAnswer.getNodes().get(0)))
+                            referenceNodes.add(findNodeAnswer.getNodes().get(0));
                     }
                 });
             }finally {
