@@ -13,23 +13,23 @@ import lombok.Getter;
 import java.util.List;
 
 @Getter
-public class KademliaNode<C extends ConnectionInfo> {
+public class KademliaNode<C extends ConnectionInfo> extends Node<C> {
     private final NodeApi<C> nodeApi;
-    private final Node<C> selfNode;
     private final RoutingTable<C> routingTable;
 
     public KademliaNode(NodeApi<C> nodeApi, NodeIdFactory nodeIdFactory, C connectionInfo, RoutingTableFactory routingTableFactory) {
         this.nodeApi = nodeApi;
         Integer nodeId = nodeIdFactory.getNodeId();
-        selfNode = new Node<>(nodeId, connectionInfo);
         routingTable = routingTableFactory.getRoutingTable(nodeId);
+        this.setId(nodeId);
+        this.setConnection(connectionInfo);
     }
 
     //first we have to use another node to join network
     public void bootstrap(Node<C> bootstrapNode) throws BootstrapException {
-        routingTable.update(this.selfNode);
+        routingTable.update(this);
         //find closest nodes from bootstrap node
-        FindNodeAnswer<C> findNodeAnswer = nodeApi.findNode(bootstrapNode, this.selfNode.getId());
+        FindNodeAnswer<C> findNodeAnswer = nodeApi.findNode(bootstrapNode, this.getId());
         if(!findNodeAnswer.isAlive())
             throw new BootstrapException(bootstrapNode);
         //Ping each node from result and add it to table if alive
@@ -43,11 +43,11 @@ public class KademliaNode<C extends ConnectionInfo> {
         for (int i = 0; ((bucketId - i) > 0 ||
                 (bucketId + i) <= Common.IDENTIFIER_SIZE) && i < Common.JOIN_BUCKETS_QUERIES; i++) {
             if (bucketId - i > 0) {
-                int idInBucket = routingTable.getIdInPrefix(this.selfNode.getId(),bucketId - i);
+                int idInBucket = routingTable.getIdInPrefix(this.getId(),bucketId - i);
                 this.findNode(idInBucket);
             }
             if (bucketId + i <= Common.IDENTIFIER_SIZE) {
-                int idInBucket = routingTable.getIdInPrefix(this.selfNode.getId(),bucketId + i);
+                int idInBucket = routingTable.getIdInPrefix(this.getId(),bucketId + i);
                 this.findNode(idInBucket);
             }
         }
@@ -64,7 +64,7 @@ public class KademliaNode<C extends ConnectionInfo> {
         int i;
         for (i = 0; i < Common.ALPHA && i < findNodeAnswer.size(); i++) {
             ExternalNode<C> externalNode = findNodeAnswer.getNodes().get(i);
-            if (externalNode.getNode().getId() != this.selfNode.getId()) {
+            if (externalNode.getNode().getId() != this.getId()) {
                 FindNodeAnswer<C> findNodeAnswer1 = nodeApi.findNode(externalNode.getNode(), destination);
                 if(findNodeAnswer1.getDestinationId() == destination && findNodeAnswer1.isAlive()){
                     routingTable.update(externalNode.getNode());
