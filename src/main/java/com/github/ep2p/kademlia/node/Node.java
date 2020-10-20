@@ -19,6 +19,12 @@ public class Node<C extends ConnectionInfo> implements Serializable {
     protected ConnectionInfo connection;
     protected Date lastSeen;
 
+    protected void setNode(Node<C> node) {
+        this.setConnection(node.getConnection());
+        this.setId(node.getId());
+        this.setLastSeen(node.getLastSeen());
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

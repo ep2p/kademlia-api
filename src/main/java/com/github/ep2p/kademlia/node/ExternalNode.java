@@ -18,12 +18,6 @@ public class ExternalNode<C extends ConnectionInfo> extends Node<C> implements C
     this.distance = distance;
   }
 
-  private void setNode(Node<C> node) {
-    this.setConnection(node.getConnection());
-    this.setId(node.getId());
-    this.setLastSeen(node.getLastSeen());
-  }
-
   public int compareTo(Object o) {
     ExternalNode<C> c = (ExternalNode<C>) o;
     return Integer.compare(distance, c.distance);
