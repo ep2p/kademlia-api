@@ -11,11 +11,15 @@ import com.github.ep2p.kademlia.table.RoutingTableFactory;
 import lombok.Getter;
 
 import java.util.List;
+import java.util.concurrent.*;
+
+import static com.github.ep2p.kademlia.Common.BOOTSTRAP_NODE_CALL_TIMEOUT_SEC;
 
 @Getter
 public class KademliaNode<C extends ConnectionInfo> extends Node<C> {
     private final NodeApi<C> nodeApi;
     private final RoutingTable<C> routingTable;
+    private ExecutorService executor = Executors.newFixedThreadPool(2);
 
     public KademliaNode(NodeApi<C> nodeApi, NodeIdFactory nodeIdFactory, C connectionInfo, RoutingTableFactory routingTableFactory) {
         this.nodeApi = nodeApi;
@@ -29,14 +33,36 @@ public class KademliaNode<C extends ConnectionInfo> extends Node<C> {
     public void bootstrap(Node<C> bootstrapNode) throws BootstrapException {
         routingTable.update(this);
         //find closest nodes from bootstrap node
-        FindNodeAnswer<C> findNodeAnswer = nodeApi.findNode(bootstrapNode, this.getId());
-        if(!findNodeAnswer.isAlive())
-            throw new BootstrapException(bootstrapNode);
-        //Ping each node from result and add it to table if alive
-        pingAndAddResults(findNodeAnswer.getNodes());
-        //Get other closest nodes from alive nodes
-        getClosestNodesFromAliveNodes(bootstrapNode);
+        Integer nodeId = this.getId();
+        Future<FindNodeAnswer<C>> findNodeAnswerFuture = executor.submit(new Callable<FindNodeAnswer<C>>() {
+            @Override
+            public FindNodeAnswer<C> call() throws Exception {
+                return nodeApi.findNode(bootstrapNode, nodeId);
+            }
+        });
+
+        try {
+            FindNodeAnswer<C> findNodeAnswer = findNodeAnswerFuture.get(BOOTSTRAP_NODE_CALL_TIMEOUT_SEC, TimeUnit.SECONDS);
+            if(!findNodeAnswer.isAlive())
+                throw new BootstrapException(bootstrapNode);
+            //Ping each node from result and add it to table if alive
+            pingAndAddResults(findNodeAnswer.getNodes());
+        } catch (InterruptedException | ExecutionException | TimeoutException e) {
+            throw new BootstrapException(bootstrapNode, e.getMessage(), e);
+        }
+
+        executor.submit(new Runnable() {
+            @Override
+            public void run() {
+                //Get other closest nodes from alive nodes
+                getClosestNodesFromAliveNodes(bootstrapNode);
+            }
+        });
+
     }
+
+
+
 
     private void getClosestNodesFromAliveNodes(Node<C> bootstrapNode) {
         int bucketId = routingTable.findBucket(bootstrapNode.getId()).getId();
@@ -55,7 +81,7 @@ public class KademliaNode<C extends ConnectionInfo> extends Node<C> {
 
     private void findNode(int destination) {
         FindNodeAnswer<C> findNodeAnswer = routingTable.findClosest(destination);
-        int i = sendFindNodeToBest(findNodeAnswer);
+        sendFindNodeToBest(findNodeAnswer);
     }
 
     /** Sends a "FIND_NODE" request to the best "alpha" nodes in a node list */

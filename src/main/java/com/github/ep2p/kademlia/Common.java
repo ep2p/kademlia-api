@@ -7,6 +7,7 @@
 package com.github.ep2p.kademlia;
 
 public class Common {
+  public final static long BOOTSTRAP_NODE_CALL_TIMEOUT_SEC = 10000;
   public final static int ALPHA = 3;
   public final static int IDENTIFIER_SIZE = 6;
   /* Maximum size of the buckets */
