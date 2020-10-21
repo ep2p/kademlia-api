@@ -25,7 +25,7 @@ public class ExternalNode<C extends ConnectionInfo> extends Node<C> implements C
 
   @Override
   public String toString() {
-    return "Contact [id=" + getId() + ", distance=" + distance + "]";
+    return "ExternalNode [id=" + getId() + ", distance=" + distance + "]";
   }
 
 }

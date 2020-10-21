@@ -23,6 +23,7 @@ public class FindNodeAnswer<C extends ConnectionInfo> extends Answer {
   public FindNodeAnswer(int destinationId) {
     this.destinationId = destinationId;
     nodes = new ArrayList<ExternalNode<C>>();
+    setAlive(true);
   }
 
   public int size() {

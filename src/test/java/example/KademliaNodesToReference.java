@@ -7,7 +7,7 @@ import java.util.Arrays;
 public class KademliaNodesToReference {
     public static void main(String[] args) {
         // Node identifier size
-        int identifierSize = 128;
+        int identifierSize = 4;
 
         // Valid distances according to identifier size
         ArrayList<Integer> distances = new ArrayList<>();
@@ -16,7 +16,7 @@ public class KademliaNodesToReference {
         }
 
         // Your node id here. Must be in range of 0 -> (2 power identifierSize)
-        int nodeId = 1;
+        int nodeId = 0;
 
         // Extracting nodes with specified distance
         ArrayList<Integer> validNodes = new ArrayList<>();
