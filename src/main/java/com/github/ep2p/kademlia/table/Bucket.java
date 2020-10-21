@@ -61,8 +61,7 @@ public class Bucket<C extends ConnectionInfo> implements Serializable {
   /* Push a node to the front of a bucket */
   /* Called when a node is already in bucket and brings them to front of the bucket as they are a living node */
   public synchronized void pushToFront(int id) {
-    int i = nodeIds.indexOf(id);
-    nodeIds.remove(i);
+    nodeIds.remove((Integer) id);
     nodeIds.add(0, id);
   }
 
