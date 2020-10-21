@@ -4,6 +4,7 @@ import com.github.ep2p.kademlia.Common;
 import com.github.ep2p.kademlia.KadDistanceUtil;
 import com.github.ep2p.kademlia.connection.ConnectionInfo;
 import com.github.ep2p.kademlia.connection.NodeApi;
+import com.github.ep2p.kademlia.connection.P2PApi;
 import com.github.ep2p.kademlia.exception.BootstrapException;
 import com.github.ep2p.kademlia.exception.ShutdownException;
 import com.github.ep2p.kademlia.model.FindNodeAnswer;
@@ -11,20 +12,23 @@ import com.github.ep2p.kademlia.model.PingAnswer;
 import com.github.ep2p.kademlia.table.RoutingTable;
 import com.github.ep2p.kademlia.table.RoutingTableFactory;
 import lombok.Getter;
+import lombok.Setter;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.*;
 
 import static com.github.ep2p.kademlia.Common.BOOTSTRAP_NODE_CALL_TIMEOUT_SEC;
 
-public class KademliaNode<C extends ConnectionInfo> extends Node<C> {
+public class KademliaNode<C extends ConnectionInfo> extends Node<C> implements P2PApi<C> {
     //Accessible fields
     @Getter
     private final NodeApi<C> nodeApi;
     @Getter
     private final RoutingTable<C> routingTable;
     @Getter
-    private final List<Node<C>> referenceNodes;
+    private List<Node<C>> referencedNodes;
+    private KademliaNodeListener<C> kademliaNodeListener = new KademliaNodeListener.Default<C>();
 
     //None-Accessible fields
     private final ExecutorService executorService = Executors.newFixedThreadPool(1);
@@ -36,7 +40,7 @@ public class KademliaNode<C extends ConnectionInfo> extends Node<C> {
         routingTable = routingTableFactory.getRoutingTable(nodeId);
         this.setId(nodeId);
         this.setConnection(connectionInfo);
-        referenceNodes = new CopyOnWriteArrayList<>();
+        referencedNodes = new CopyOnWriteArrayList<>();
     }
 
     //first we have to use another node to join network
@@ -74,9 +78,34 @@ public class KademliaNode<C extends ConnectionInfo> extends Node<C> {
                 executorService.shutdown();
             }
         });
+        kademliaNodeListener.onBootstrapDone(this);
     }
 
-    private void stop() throws ShutdownException {
+    /* P2P API */
+    //A node wants to find closest nodes to itself using this node routingTable. Mostly called at bootstrap
+    @Override
+    public FindNodeAnswer<C> onFindNode(int externalNodeId){
+        return routingTable.findClosest(externalNodeId);
+    }
+
+    //A node has pinged current node, it means they are alive
+    @Override
+    public PingAnswer onPing(Node<C> node){
+        routingTable.update(node);
+        return new PingAnswer(getId());
+    }
+
+    //A referenced node has told this node that its leaving network
+    @Override
+    public void onShutdownSignal(Node<C> node){
+        referencedNodes.remove(node);
+        routingTable.delete(node);
+    }
+
+
+    /* Managing API */
+    public void stop() throws ShutdownException {
+        //Shutdown executors
         ShutdownException shutdownException = null;
         try {
             scheduledExecutorService.shutdown();
@@ -85,17 +114,23 @@ public class KademliaNode<C extends ConnectionInfo> extends Node<C> {
             shutdownException = new ShutdownException(e);
         }
 
+        //Tell referenced nodes that we are leaving network
         try {
-            referenceNodes.forEach(nodeApi::shutdownSignal);
+            referencedNodes.forEach(node -> {
+                if(node.getId() != this.getId())
+                    nodeApi.shutdownSignal(node);
+            });
         }catch (Exception e){
             shutdownException = new ShutdownException(e);
         }
+
+        kademliaNodeListener.onShutdownComplete(this);
 
         if(shutdownException != null)
             throw shutdownException;
     }
 
-    private void start(){
+    public void start(){
         //Find maximum n (where n is identifier size) nodes periodically, Check if they are available, otherwise remove them from routing table
         scheduledExecutorService.scheduleAtFixedRate(new Runnable() {
             @Override
@@ -103,21 +138,26 @@ public class KademliaNode<C extends ConnectionInfo> extends Node<C> {
                 //Find maximum n (where n is identifier size) nodes
                 makeReferenceNodes();
                 //Check if they are available, otherwise remove them from routing table
-                pingAndAddResults(referenceNodes);
+                pingAndAddResults(referencedNodes);
             }
         }, 0, 30, TimeUnit.SECONDS);
+        kademliaNodeListener.onStartupComplete(this);
     }
+
+    /* Helper methods */
 
     //Gathers most important nodes to keep connection to (See KademliaNodesToReference)
     private void makeReferenceNodes(){
+        referencedNodes = new CopyOnWriteArrayList<>();
         List<Integer> distances = KadDistanceUtil.getNodesWithDistance(getId(), Common.IDENTIFIER_SIZE);
         distances.forEach(distance -> {
             FindNodeAnswer<C> findNodeAnswer = routingTable.findClosest(distance);
             if (findNodeAnswer.getNodes().size() > 0) {
-                if(!referenceNodes.contains(findNodeAnswer.getNodes().get(0)))
-                    referenceNodes.add(findNodeAnswer.getNodes().get(0));
+                if(!referencedNodes.contains(findNodeAnswer.getNodes().get(0)))
+                    referencedNodes.add(findNodeAnswer.getNodes().get(0));
             }
         });
+        kademliaNodeListener.onReferencedNodesUpdate(this, referencedNodes);
     }
 
     private void getClosestNodesFromAliveNodes(Node<C> bootstrapNode) {
@@ -126,16 +166,16 @@ public class KademliaNode<C extends ConnectionInfo> extends Node<C> {
                 (bucketId + i) <= Common.IDENTIFIER_SIZE) && i < Common.JOIN_BUCKETS_QUERIES; i++) {
             if (bucketId - i > 0) {
                 int idInBucket = routingTable.getIdInPrefix(this.getId(),bucketId - i);
-                this.findNode(idInBucket);
+                this.findBestNodesCloseToDestination(idInBucket);
             }
             if (bucketId + i <= Common.IDENTIFIER_SIZE) {
                 int idInBucket = routingTable.getIdInPrefix(this.getId(),bucketId + i);
-                this.findNode(idInBucket);
+                this.findBestNodesCloseToDestination(idInBucket);
             }
         }
     }
 
-    private void findNode(int destination) {
+    private void findBestNodesCloseToDestination(int destination) {
         FindNodeAnswer<C> findNodeAnswer = routingTable.findClosest(destination);
         sendFindNodeToBest(findNodeAnswer);
     }
@@ -168,5 +208,8 @@ public class KademliaNode<C extends ConnectionInfo> extends Node<C> {
         });
     }
 
-
+    public void setKademliaNodeListener(KademliaNodeListener kademliaNodeListener) {
+        assert kademliaNodeListener != null;
+        this.kademliaNodeListener = kademliaNodeListener;
+    }
 }
