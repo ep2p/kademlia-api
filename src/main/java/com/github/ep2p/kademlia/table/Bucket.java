@@ -54,7 +54,7 @@ public class Bucket<C extends ConnectionInfo> implements Serializable {
   }
 
   public void remove(int nodeId){
-    nodeIds.remove(nodeIds.indexOf(nodeId));
+    nodeIds.remove((Integer) nodeId);
     nodeMap.remove(nodeId);
   }
 
