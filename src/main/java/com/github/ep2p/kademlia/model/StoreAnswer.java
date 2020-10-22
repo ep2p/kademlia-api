@@ -10,6 +10,6 @@ public class StoreAnswer<K> extends Answer {
     private Action action;
 
     public enum Action {
-        STORED, PASSED
+        STORED, PASSED, FAILED
     }
 }

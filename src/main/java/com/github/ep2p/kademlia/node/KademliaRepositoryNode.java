@@ -47,7 +47,9 @@ public class KademliaRepositoryNode<C extends ConnectionInfo, K, V> extends Kade
             return;
         }
 
-        findClosestNodesToGetData(this, key, callerNode);
+        GetAnswer<K, V> getAnswer = findClosestNodesToGetData(this, key, callerNode);
+        if(getAnswer == null)
+            getNodeApi().sendGetResults(this, requester, key, null);
     }
 
     /* Node Connection Api */
@@ -73,11 +75,13 @@ public class KademliaRepositoryNode<C extends ConnectionInfo, K, V> extends Kade
         //if current requester should persist data, store data and tell requester about it
         if(getId() == hash){
             kademliaRepository.store(key, value);
-            getNodeApi().sendStoreResults(this, requester, key);
+            getNodeApi().sendStoreResults(this, requester, key, true);
         //otherwise find closest nodes to store data
         } else {
             FindNodeAnswer<C> findNodeAnswer = getRoutingTable().findClosest(hash);
-            findClosestNodesToStoreData(this, findNodeAnswer.getNodes(), key, value);
+            if (findClosestNodesToStoreData(this, findNodeAnswer.getNodes(), key, value) == null) {
+                getNodeApi().sendStoreResults(this, requester, key, false);
+            }
         }
 
 
@@ -152,8 +156,8 @@ public class KademliaRepositoryNode<C extends ConnectionInfo, K, V> extends Kade
      * @param key Key itself
      */
     @Override
-    public void onStoredResult(Node<C> node, K key) {
-        getKademliaNodeListener().onKeyStoredResult(node, key);
+    public void onStoreResult(Node<C> node, K key, boolean successful) {
+        getKademliaNodeListener().onKeyStoredResult(node, key, successful);
     }
 
 
@@ -169,7 +173,7 @@ public class KademliaRepositoryNode<C extends ConnectionInfo, K, V> extends Kade
                 storeAnswer = getNewStoreAnswer(key, StoreAnswer.Action.STORED, this);
                 //if requester of storing is not current node, tell them about storing result
                 if(requester.getId() != getId()){
-                    getNodeApi().sendStoreResults(this, requester, key);
+                    getNodeApi().sendStoreResults(this, requester, key, true);
                 }
             }
             //otherwise try next close requester in routing table

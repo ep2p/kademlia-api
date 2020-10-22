@@ -12,5 +12,5 @@ public interface NodeApi<C extends ConnectionInfo> {
     <K, V> void storeAsync(Node<C> caller, Node<C> requester,  Node<C> node, K key, V value);
     <K> void getRequest(Node<C> caller, Node<C> requester, Node<C> node, K key);
     <K, V> void sendGetResults(Node<C> caller, Node<C> requester, K key, V value);
-    <K, V> void sendStoreResults(Node<C> caller, Node<C> requester, K key);
+    <K> void sendStoreResults(Node<C> caller, Node<C> requester, K key, boolean success);
 }

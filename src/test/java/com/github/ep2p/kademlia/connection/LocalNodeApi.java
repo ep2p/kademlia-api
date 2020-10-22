@@ -82,10 +82,10 @@ public class LocalNodeApi implements NodeApi<EmptyConnectionInfo>{
     }
 
     @Override
-    public <K, V> void sendStoreResults(Node<EmptyConnectionInfo> caller, Node<EmptyConnectionInfo> requester, K key) {
+    public <K> void sendStoreResults(Node<EmptyConnectionInfo> caller, Node<EmptyConnectionInfo> requester, K key, boolean success) {
         KademliaNode<EmptyConnectionInfo> kademliaNode = nodeMap.get(requester.getId());
         if(kademliaNode instanceof KademliaRepositoryNode){
-            ((KademliaRepositoryNode) kademliaNode).onStoredResult(caller, key);
+            ((KademliaRepositoryNode) kademliaNode).onStoreResult(caller, key, success);
         }
     }
 

@@ -5,6 +5,10 @@ public class StoreException extends Exception {
         super("Failed to store key value");
     }
 
+    public StoreException(String message) {
+        super(message);
+    }
+
     public StoreException(Exception e) {
         super(e);
     }

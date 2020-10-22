@@ -11,6 +11,6 @@ public class GetAnswer<K, V> extends Answer {
     private Action action;
 
     public enum Action {
-        PASSED, FOUND
+        PASSED, FOUND, FAILED
     }
 }

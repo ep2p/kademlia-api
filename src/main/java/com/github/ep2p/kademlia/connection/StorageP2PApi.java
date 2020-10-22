@@ -6,5 +6,5 @@ public interface StorageP2PApi<C extends ConnectionInfo, K, V> extends P2PApi<C>
     void onGetRequest(Node<C> callerNode, Node<C> requester, K key);
     void onStoreRequest(Node<C> caller, Node<C> requester, K key, V value);
     void onGetResult(Node<C> node, K key, V value);
-    void onStoredResult(Node<C> node, K key);
+    void onStoreResult(Node<C> node, K key, boolean successful);
 }
