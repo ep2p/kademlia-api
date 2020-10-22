@@ -31,7 +31,7 @@ Make sure your protocol supports requests for methods available in `com.github.e
 Create your implementation of `com.github.ep2p.kademlia.table.RoutingTableFactory` which can return a `new RoutingTable` based on input id, or read an `old RoutingTable` from disk and return that one.
 Notice that `RoutingTable` and its buckets are Serializable. So you will easily be able to write it to a file.
 
-## Kademlia Node
+## Kademlia Node Usage
 
 Currently there are 3 classes that can be used to create a kademlia node.
 
@@ -71,7 +71,7 @@ Also you can listen to some events that happen in node, such as start, shutdown,
 node.setKademliaNodeListener(...)
 ```
 
-## Usage
+## Installation
 
 Use jitpack to add library to your project. Maven example:
 
@@ -93,3 +93,15 @@ Add java-kademlia-api repository
     <version>1.0-SNAPSHOT</version>
 </dependency>
 ```
+
+## Acknowledgments
+
+Since this project is completely experimental (at least for now), I'd like to thank to some people around the internet that helped me gain some knowledge about Kademlia and its implementations beyond the paper.
+I know my implementation as a sample. nothing more.
+
+- A huge thank to  **Jakob Jenkov** for his great [tutorial](http://tutorials.jenkov.com/p2p/index.html) on p2p network and kademlia.
+- Stackoverflow Community
+    - **Joshua Kissoon** for his great explanation on [Adding new nodes to Kademlia, building Kademlia routing tables](https://stackoverflow.com/a/22740578/5197662)
+    - **Nawras** for asking [What exactly K-Bucket means in Kademlia DHT?](https://stackoverflow.com/q/54341261/5197662)
+- **Kasra Faghihi** ([@offbynull](https://github.com/offbynull)) for his very mathematical implementation of Kademlia.
+- And a great shout out to **SimGrid** Team, for keeping history of [their work on Kademlia](https://gitlab.inria.fr/simgrid/simgrid/-/tree/ce2e676ad127f782b9c959499ab1c042195e411a/examples/java/kademlia) which this repository is inspired by it to implement RoutingTables, Buckets and some more stuff. 
