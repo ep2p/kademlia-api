@@ -36,8 +36,8 @@ public class KademliaSyncRepositoryNode<C extends ConnectionInfo, K, V> extends 
             if(storeAnswer.getAction().equals(StoreAnswer.Action.STORED)){
                 return storeAnswer;
             }else {
-                newStoreAnswer.wait();
                 storeAnswer = answerMap.get(key);
+                while (storeAnswer.getAction() == null){}
             }
             return storeAnswer;
         }finally {
@@ -61,8 +61,8 @@ public class KademliaSyncRepositoryNode<C extends ConnectionInfo, K, V> extends 
             if(getAnswer.getAction().equals(GetAnswer.Action.FOUND)){
                 return getAnswer;
             }else {
-                newGetAnswer.wait();
                 getAnswer = getMap.get(key);
+                while (getAnswer.getAction() == null){}
             }
 
             return getAnswer;
@@ -80,7 +80,6 @@ public class KademliaSyncRepositoryNode<C extends ConnectionInfo, K, V> extends 
         getAnswer.setKey(key);
         getAnswer.setValue(value);
         getAnswer.setAction(value == null ? GetAnswer.Action.FAILED : GetAnswer.Action.FOUND);
-        getAnswer.notifyAll();
     }
 
     @Override
@@ -91,6 +90,5 @@ public class KademliaSyncRepositoryNode<C extends ConnectionInfo, K, V> extends 
         kStoreAnswer.setKey(key);
         kStoreAnswer.setNodeId(node.getId());
         kStoreAnswer.setAlive(true);
-        kStoreAnswer.notifyAll();
     }
 }

@@ -16,7 +16,7 @@ public class KademliaNodesToReference {
         }
 
         // Your node id here. Must be in range of 0 -> (2 power identifierSize)
-        int nodeId = 3;
+        int nodeId = 0;
 
         // Extracting nodes with specified distance
         ArrayList<Integer> validNodes = new ArrayList<>();

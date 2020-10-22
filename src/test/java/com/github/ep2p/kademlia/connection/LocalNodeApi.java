@@ -13,7 +13,9 @@ import java.util.concurrent.Executors;
 
 public class LocalNodeApi implements NodeApi<EmptyConnectionInfo>{
     private final static Map<Integer, KademliaNode<EmptyConnectionInfo>> nodeMap = new HashMap<>();
-    public static void registerNode(KademliaNode<EmptyConnectionInfo> node){
+
+    public static <E extends KademliaNode<EmptyConnectionInfo>> void registerNode(E node){
+        System.out.println("Registring node with id " + node.getId());
         nodeMap.putIfAbsent(node.getId(), node);
     }
 
@@ -60,8 +62,9 @@ public class LocalNodeApi implements NodeApi<EmptyConnectionInfo>{
                 }
             });
         }
-
-        throw new RuntimeException("Node not available");
+        if(kademliaNode == null){
+            throw new RuntimeException("Node "+ node.getId() +" not available");
+        }
     }
 
     @Override
