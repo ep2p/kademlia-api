@@ -3,7 +3,7 @@ package com.github.ep2p.kademlia.node;
 import com.github.ep2p.kademlia.Common;
 import com.github.ep2p.kademlia.connection.ConnectionInfo;
 import com.github.ep2p.kademlia.connection.NodeConnectionApi;
-import com.github.ep2p.kademlia.connection.StorageP2PApi;
+import com.github.ep2p.kademlia.connection.StorageNodeApi;
 import com.github.ep2p.kademlia.exception.GetException;
 import com.github.ep2p.kademlia.exception.StoreException;
 import com.github.ep2p.kademlia.model.FindNodeAnswer;
@@ -19,7 +19,7 @@ import java.util.List;
 
 import static com.github.ep2p.kademlia.Common.LAST_SEEN_SECONDS_TO_CONSIDER_ALIVE;
 
-public class KademliaRepositoryNode<C extends ConnectionInfo, K, V> extends KademliaNode<C> implements StorageP2PApi<C, K, V> {
+public class KademliaRepositoryNode<C extends ConnectionInfo, K, V> extends KademliaNode<C> implements StorageNodeApi<C, K, V> {
     @Getter
     private final KademliaRepository<K,V> kademliaRepository;
     private final BoundedHashUtil boundedHashUtil;

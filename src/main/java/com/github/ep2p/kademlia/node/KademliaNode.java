@@ -2,8 +2,8 @@ package com.github.ep2p.kademlia.node;
 
 import com.github.ep2p.kademlia.Common;
 import com.github.ep2p.kademlia.connection.ConnectionInfo;
+import com.github.ep2p.kademlia.connection.NodeApi;
 import com.github.ep2p.kademlia.connection.NodeConnectionApi;
-import com.github.ep2p.kademlia.connection.P2PApi;
 import com.github.ep2p.kademlia.exception.BootstrapException;
 import com.github.ep2p.kademlia.exception.ShutdownException;
 import com.github.ep2p.kademlia.model.FindNodeAnswer;
@@ -19,7 +19,7 @@ import java.util.concurrent.*;
 import static com.github.ep2p.kademlia.Common.BOOTSTRAP_NODE_CALL_TIMEOUT_SEC;
 import static com.github.ep2p.kademlia.Common.REFERENCED_NODES_UPDATE_PERIOD_SEC;
 
-public class KademliaNode<C extends ConnectionInfo> extends Node<C> implements P2PApi<C> {
+public class KademliaNode<C extends ConnectionInfo> extends Node<C> implements NodeApi<C> {
     //Accessible fields
     @Getter
     private final NodeConnectionApi<C> nodeConnectionApi;

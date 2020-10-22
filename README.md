@@ -23,9 +23,9 @@ default <K> void sendStoreResults(Node<C> caller, Node<C> requester, K key, bool
 
 Normally this Kademlia abstraction doesn't care about storing data. It only joins peers in the network. If you want to create something like DHT and store data, you need to implement these methods too.
 
-### P2PApi
+### NodeApi
 If you call any `NodeApi` methods on one end. on the other end you need to receive them and call appropriate method on you KademliaNode.
-Make sure your protocol supports requests for methods available in `com.github.ep2p.kademlia.connection.P2PApi` and also `com.github.ep2p.kademlia.connection.P2PStorageApi` if you are storing data as well.
+Make sure your protocol supports requests for methods available in `com.github.ep2p.kademlia.connection.NodeApi` and also `com.github.ep2p.kademlia.connection.P2PStorageApi` if you are storing data as well.
 
 ### RoutingTableFactory
 Create your implementation of `com.github.ep2p.kademlia.table.RoutingTableFactory` which can return a `new RoutingTable` based on input id, or read an `old RoutingTable` from disk and return that one.
