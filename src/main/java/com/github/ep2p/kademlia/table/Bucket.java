@@ -16,7 +16,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 public class Bucket<C extends ConnectionInfo> implements Serializable {
-  private static final long serialVersionUID = 3300560211925346757L;
+  private static final long serialVersionUID = -8295900946418424049L;
   private int id;
   private List<Integer> nodeIds;
   private Map<Integer, Node<C>> nodeMap = new ConcurrentHashMap<>();

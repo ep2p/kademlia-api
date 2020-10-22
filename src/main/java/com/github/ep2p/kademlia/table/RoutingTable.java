@@ -18,8 +18,7 @@ import java.util.Date;
 import java.util.Vector;
 
 public class RoutingTable<C extends ConnectionInfo> implements Serializable {
-  private static final long serialVersionUID = 7920534415564909219L;
-
+  private static final long serialVersionUID = 6192793470146376553L;
   /* Bucket list */
   private Vector<Bucket<C>> buckets;
   /* Id of the routing table owner */
