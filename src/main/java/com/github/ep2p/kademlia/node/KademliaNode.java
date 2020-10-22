@@ -65,6 +65,7 @@ public class KademliaNode<C extends ConnectionInfo> extends Node<C> implements N
                 throw new BootstrapException(bootstrapNode);
             //Add bootstrap node to routing table
             routingTable.update(bootstrapNode);
+            kademliaNodeListener.onNewNodeAvailable(this, bootstrapNode);
             //Ping each node from result and add it to table if alive
             pingAndAddResults(findNodeAnswer.getNodes());
             //Get other closest nodes from alive nodes
@@ -107,6 +108,7 @@ public class KademliaNode<C extends ConnectionInfo> extends Node<C> implements N
     @Override
     public PingAnswer onPing(Node<C> node){
         routingTable.update(node);
+        kademliaNodeListener.onNewNodeAvailable(this, node);
         return new PingAnswer(getId());
     }
 
@@ -214,6 +216,7 @@ public class KademliaNode<C extends ConnectionInfo> extends Node<C> implements N
                 FindNodeAnswer<C> findNodeAnswer1 = nodeConnectionApi.findNode(this, externalNode, destination);
                 if(findNodeAnswer1.getDestinationId() == destination && findNodeAnswer1.isAlive()){
                     routingTable.update(externalNode);
+                    kademliaNodeListener.onNewNodeAvailable(this, externalNode);
                     pingAndAddResults(findNodeAnswer.getNodes());
                 }
             }
