@@ -51,8 +51,46 @@ public class DataStorageTest {
         Assertions.assertEquals((int) getAnswer.getKey(), data.hashCode(), "GetAnswer key was " + storeAnswer.getAction());
         Assertions.assertEquals(getAnswer.getValue(), data, "GetAnswer value was " + storeAnswer.getAction());
 
-        System.out.println("Sucessfully retrieved `"+ data +"` from node " + getAnswer.getNodeId());
+        System.out.println("Successfully retrieved `"+ data +"` from node " + getAnswer.getNodeId());
 
+    }
+
+    @Test
+    public void canStoreWhenNetworkIsNotFull() throws InterruptedException, BootstrapException, StoreException, GetException {
+        LocalNodeApi nodeApi = new LocalNodeApi();
+        NodeIdFactory nodeIdFactory = new IncrementalNodeIdFactory();
+        RoutingTableFactory<EmptyConnectionInfo, Integer> routingTableFactory = new SimpleRoutingTableFactory();
+        Common.IDENTIFIER_SIZE = 4;
+        Common.REFERENCED_NODES_UPDATE_PERIOD_SEC = 2;
+
+        //bootstrap node
+        KademliaSyncRepositoryNode<EmptyConnectionInfo, Integer, String> node0 = new KademliaSyncRepositoryNode<>(nodeIdFactory.getNodeId(), routingTableFactory, nodeApi, new EmptyConnectionInfo(), new SampleRepository());
+        LocalNodeApi.registerNode(node0);
+        node0.start();
+
+
+        for(int i = 1; i < (Math.pow(2, Common.IDENTIFIER_SIZE) / 2); i++){
+            KademliaRepositoryNode<EmptyConnectionInfo, Integer, String> aNode = new KademliaRepositoryNode<>(i * 2, routingTableFactory, nodeApi, new EmptyConnectionInfo(), new SampleRepository());
+            LocalNodeApi.registerNode(aNode);
+            aNode.bootstrap(node0);
+        }
+
+        Thread.sleep(2000);
+
+        String data = "Eleuth";
+        StoreAnswer<Integer> storeAnswer = node0.store(data.hashCode(), data);
+        Assertions.assertEquals(storeAnswer.getAction(), StoreAnswer.Action.STORED, "StoreAnswer Action was " + storeAnswer.getAction());
+        Assertions.assertEquals((int) storeAnswer.getKey(), data.hashCode(), "StoreAnswer key was " + storeAnswer.getAction());
+        System.out.println("Successfully stored `" + data +"` on node " + storeAnswer.getNodeId());
+
+        Assertions.assertNull(node0.getKademliaRepository().get(data.hashCode()), "Invalid node is holding data");
+
+        GetAnswer<Integer, String> getAnswer = node0.get(data.hashCode());
+        Assertions.assertEquals(getAnswer.getAction(), GetAnswer.Action.FOUND, "GetAnswer Action was " + storeAnswer.getAction());
+        Assertions.assertEquals((int) getAnswer.getKey(), data.hashCode(), "GetAnswer key was " + storeAnswer.getAction());
+        Assertions.assertEquals(getAnswer.getValue(), data, "GetAnswer value was " + storeAnswer.getAction());
+
+        System.out.println("Successfully retrieved `"+ data +"` from node " + getAnswer.getNodeId());
     }
 
     public static void main(String[] args) {

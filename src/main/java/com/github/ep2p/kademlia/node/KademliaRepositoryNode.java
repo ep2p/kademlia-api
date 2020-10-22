@@ -63,14 +63,10 @@ public class KademliaRepositoryNode<C extends ConnectionInfo, K, V> extends Kade
      */
     @Override
     public void onStoreRequest(Node<C> requester, Node<C> caller, K key, V value) {
-        if(requester == null)
-            requester = this;
-
         if(caller != null){
             getRoutingTable().update(caller);
         }
 
-        StoreAnswer<K> storeAnswer = null;
         int hash = boundedHashUtil.hash(key.hashCode());
         //if current requester should persist data, store data and tell requester about it
         if(getId() == hash){
@@ -79,7 +75,7 @@ public class KademliaRepositoryNode<C extends ConnectionInfo, K, V> extends Kade
         //otherwise find closest nodes to store data
         } else {
             FindNodeAnswer<C> findNodeAnswer = getRoutingTable().findClosest(hash);
-            if (findClosestNodesToStoreData(this, findNodeAnswer.getNodes(), key, value) == null) {
+            if (findClosestNodesToStoreData(requester, findNodeAnswer.getNodes(), key, value) == null) {
                 getNodeApi().sendStoreResults(this, requester, key, false);
             }
         }
@@ -175,19 +171,22 @@ public class KademliaRepositoryNode<C extends ConnectionInfo, K, V> extends Kade
                 if(requester.getId() != getId()){
                     getNodeApi().sendStoreResults(this, requester, key, true);
                 }
-            }
-            //otherwise try next close requester in routing table
-            PingAnswer pingAnswer = null;
-            //if requester is alive, tell it to store the data
-            if(externalNode.getLastSeen().before(date) || (pingAnswer = getNodeApi().ping(this, externalNode)).isAlive()){
-                getNodeApi().storeAsync(this, requester, externalNode, key, value);
-                storeAnswer = getNewStoreAnswer(key, StoreAnswer.Action.PASSED, requester);
                 break;
+            }else {
+                //otherwise try next close requester in routing table
+                PingAnswer pingAnswer = null;
+                //if requester is alive, tell it to store the data
+                if(externalNode.getLastSeen().before(date) || (pingAnswer = getNodeApi().ping(this, externalNode)).isAlive()){
+                    getNodeApi().storeAsync(this, requester, externalNode, key, value);
+                    storeAnswer = getNewStoreAnswer(key, StoreAnswer.Action.PASSED, requester);
+                    break;
 
-            //otherwise remove the requester from routing table, since its offline
-            }else if(pingAnswer != null){
-                getRoutingTable().delete(externalNode);
+                    //otherwise remove the requester from routing table, since its offline
+                }else if(pingAnswer != null){
+                    getRoutingTable().delete(externalNode);
+                }
             }
+
         }
 
         return storeAnswer;
