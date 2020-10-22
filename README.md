@@ -1,3 +1,5 @@
+[![](https://jitpack.io/v/ep2p/eleuth-java-kademlia-api.svg)](https://jitpack.io/#ep2p/eleuth-java-kademlia-api)
+
 # Eleuth - Java Kademlia Api
 Java Kademlia API for Eleuth network.
 
@@ -90,7 +92,7 @@ Add java-kademlia-api repository
 <dependency>
     <groupId>com.github.ep2p</groupId>
     <artifactId>eleuth-java-kademlia-api</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.1.0-SNAPSHOT</version>
 </dependency>
 ```
 
