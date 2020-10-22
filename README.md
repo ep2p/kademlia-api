@@ -24,7 +24,7 @@ default <K> void sendStoreResults(Node<C> caller, Node<C> requester, K key, bool
 Normally this Kademlia abstraction doesn't care about storing data. It only joins peers in the network. If you want to create something like DHT and store data, you need to implement these methods too.
 
 ### NodeApi
-If you call any `NodeApi` methods on one end. on the other end you need to receive them and call appropriate method on you KademliaNode.
+If you call any Node Api methods on one end through `NodeConnectionApi`. on the other end you need to receive them and call appropriate method on you KademliaNode.
 Make sure your protocol supports requests for methods available in `com.github.ep2p.kademlia.connection.NodeApi` and also `com.github.ep2p.kademlia.connection.P2PStorageApi` if you are storing data as well.
 
 ### RoutingTableFactory
@@ -77,19 +77,19 @@ Use jitpack to add library to your project. Maven example:
 
 Add jitpack repository
 ```
-	<repositories>
-		<repository>
-		    <id>jitpack.io</id>
-		    <url>https://jitpack.io</url>
-		</repository>
-	</repositories>
+<repositories>
+	<repository>
+	    <id>jitpack.io</id>
+	    <url>https://jitpack.io</url>
+	</repository>
+</repositories>
 ```
 
 Add java-kademlia-api repository
 ```
-	<dependency>
-	    <groupId>com.github.ep2p</groupId>
-	    <artifactId>eleuth-java-kademlia-api</artifactId>
-	    <version>1.0-SNAPSHOT</version>
-	</dependency>
+<dependency>
+    <groupId>com.github.ep2p</groupId>
+    <artifactId>eleuth-java-kademlia-api</artifactId>
+    <version>1.0-SNAPSHOT</version>
+</dependency>
 ```
