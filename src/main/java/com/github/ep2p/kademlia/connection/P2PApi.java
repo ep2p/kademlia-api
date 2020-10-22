@@ -8,4 +8,6 @@ public interface P2PApi<C extends ConnectionInfo> {
     FindNodeAnswer<C> onFindNode(int externalNodeId);
     PingAnswer onPing(Node<C> node);
     void onShutdownSignal(Node<C> node);
+    //Calling this method is not mandatory
+    default <K, V> void onGetResult(Node<C> node, K key, V value){};
 }

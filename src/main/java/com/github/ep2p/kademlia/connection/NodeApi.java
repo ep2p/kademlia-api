@@ -8,6 +8,6 @@ public interface NodeApi<C extends ConnectionInfo> {
     PingAnswer ping(Node<C> caller, Node<C> node);
     void shutdownSignal(Node<C> caller, Node<C> node);
     FindNodeAnswer<C> findNode(Node<C> caller, Node<C> node, Integer destination);
-    <K, V, R> R store(Node<C> node, K key, V value);
-    <K, R> R get(Node<C> node, K key);
+    <K, V, R> R store(Node<C> caller, K key, V value);
+    <K, R> R get(Node<C> caller, Node<C> node, K key);
 }

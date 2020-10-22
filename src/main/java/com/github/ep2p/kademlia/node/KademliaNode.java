@@ -27,18 +27,17 @@ public class KademliaNode<C extends ConnectionInfo> extends Node<C> implements P
     private final RoutingTable<C> routingTable;
     @Getter
     private List<Node<C>> referencedNodes;
-    private KademliaNodeListener<C> kademliaNodeListener = new KademliaNodeListener.Default<C>();
+    protected KademliaNodeListener<C> kademliaNodeListener = new KademliaNodeListener.Default<C>();
 
     //None-Accessible fields
     private final ExecutorService executorService = Executors.newFixedThreadPool(1);
     private final ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
 
-    public KademliaNode(NodeApi<C> nodeApi, NodeIdFactory nodeIdFactory, C connectionInfo, RoutingTableFactory routingTableFactory) {
-        this.nodeApi = nodeApi;
-        Integer nodeId = nodeIdFactory.getNodeId();
-        routingTable = routingTableFactory.getRoutingTable(nodeId);
+    public KademliaNode(Integer nodeId, RoutingTableFactory routingTableFactory, NodeApi<C> nodeApi, C connectionInfo) {
         this.setId(nodeId);
         this.setConnection(connectionInfo);
+        this.nodeApi = nodeApi;
+        this.routingTable = routingTableFactory.getRoutingTable(nodeId);
         referencedNodes = new CopyOnWriteArrayList<>();
     }
 
@@ -145,10 +144,15 @@ public class KademliaNode<C extends ConnectionInfo> extends Node<C> implements P
         kademliaNodeListener.onStartupComplete(this);
     }
 
+    public final void setKademliaNodeListener(KademliaNodeListener kademliaNodeListener) {
+        assert kademliaNodeListener != null;
+        this.kademliaNodeListener = kademliaNodeListener;
+    }
+
     /* Helper methods */
 
     //Gathers most important nodes to keep connection to (See KademliaNodesToReference)
-    private void makeReferenceNodes(){
+    protected void makeReferenceNodes(){
         referencedNodes = new CopyOnWriteArrayList<>();
         List<Integer> distances = KadDistanceUtil.getNodesWithDistance(getId(), Common.IDENTIFIER_SIZE);
         distances.forEach(distance -> {
@@ -161,7 +165,7 @@ public class KademliaNode<C extends ConnectionInfo> extends Node<C> implements P
         kademliaNodeListener.onReferencedNodesUpdate(this, referencedNodes);
     }
 
-    private void getClosestNodesFromAliveNodes(Node<C> bootstrapNode) {
+    protected void getClosestNodesFromAliveNodes(Node<C> bootstrapNode) {
         int bucketId = routingTable.findBucket(bootstrapNode.getId()).getId();
         for (int i = 0; ((bucketId - i) > 0 ||
                 (bucketId + i) <= Common.IDENTIFIER_SIZE) && i < Common.JOIN_BUCKETS_QUERIES; i++) {
@@ -176,13 +180,13 @@ public class KademliaNode<C extends ConnectionInfo> extends Node<C> implements P
         }
     }
 
-    private void findBestNodesCloseToDestination(int destination) {
+    protected void findBestNodesCloseToDestination(int destination) {
         FindNodeAnswer<C> findNodeAnswer = routingTable.findClosest(destination);
         sendFindNodeToBest(findNodeAnswer);
     }
 
     /** Sends a "FIND_NODE" request to the best "alpha" nodes in a node list */
-    public int sendFindNodeToBest(FindNodeAnswer<C> findNodeAnswer) {
+    protected int sendFindNodeToBest(FindNodeAnswer<C> findNodeAnswer) {
         int destination = findNodeAnswer.getDestinationId();
         int i;
         for (i = 0; i < Common.ALPHA && i < findNodeAnswer.size(); i++) {
@@ -198,7 +202,7 @@ public class KademliaNode<C extends ConnectionInfo> extends Node<C> implements P
         return i;
     }
 
-    private void pingAndAddResults(List<? extends Node<C>> externalNodes){
+    protected void pingAndAddResults(List<? extends Node<C>> externalNodes){
         externalNodes.forEach(externalNode -> {
             PingAnswer pingAnswer = nodeApi.ping(this, externalNode);
             if(pingAnswer.isAlive()){
@@ -207,10 +211,5 @@ public class KademliaNode<C extends ConnectionInfo> extends Node<C> implements P
                 routingTable.delete(externalNode);
             }
         });
-    }
-
-    public void setKademliaNodeListener(KademliaNodeListener kademliaNodeListener) {
-        assert kademliaNodeListener != null;
-        this.kademliaNodeListener = kademliaNodeListener;
     }
 }
