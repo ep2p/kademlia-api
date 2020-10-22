@@ -1,4 +1,4 @@
-# eleuth-java-kademlia-api
+# Eleuth - Java Kademlia Api
 Java Kademlia API for Eleuth network.
 
 This API mainly focuses on routing table and peer choosing logic, and moves data persistence & networking to an abstraction layer.
@@ -69,4 +69,27 @@ node.start();
 Also you can listen to some events that happen in node, such as start, shutdown, data store and lookup results (specially if u are using `KademliaRepositoryNode`) by setting your listener on the node.
 ```
 node.setKademliaNodeListener(...)
+```
+
+## Usage
+
+Use jitpack to add library to your project. Maven example:
+
+Add jitpack repository
+```
+	<repositories>
+		<repository>
+		    <id>jitpack.io</id>
+		    <url>https://jitpack.io</url>
+		</repository>
+	</repositories>
+```
+
+Add java-kademlia-api repository
+```
+	<dependency>
+	    <groupId>com.github.ep2p</groupId>
+	    <artifactId>eleuth-java-kademlia-api</artifactId>
+	    <version>1.0-SNAPSHOT</version>
+	</dependency>
 ```
