@@ -1,7 +1,7 @@
 package com.github.ep2p.kademlia.node;
 
 import com.github.ep2p.kademlia.Common;
-import com.github.ep2p.kademlia.KadDistanceUtil;
+import com.github.ep2p.kademlia.util.KadDistanceUtil;
 import com.github.ep2p.kademlia.connection.ConnectionInfo;
 import com.github.ep2p.kademlia.connection.NodeApi;
 import com.github.ep2p.kademlia.connection.P2PApi;
@@ -12,9 +12,7 @@ import com.github.ep2p.kademlia.model.PingAnswer;
 import com.github.ep2p.kademlia.table.RoutingTable;
 import com.github.ep2p.kademlia.table.RoutingTableFactory;
 import lombok.Getter;
-import lombok.Setter;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.*;
 

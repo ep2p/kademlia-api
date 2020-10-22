@@ -1,4 +1,4 @@
-package com.github.ep2p.kademlia;
+package com.github.ep2p.kademlia.util;
 
 import java.util.ArrayList;
 import java.util.HashMap;
