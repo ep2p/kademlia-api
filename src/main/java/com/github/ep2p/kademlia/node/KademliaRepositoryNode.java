@@ -85,6 +85,12 @@ public class KademliaRepositoryNode<C extends ConnectionInfo, K, V> extends Kade
 
     /* Managing API */
 
+    /**
+     * @param key Key to store
+     * @param value Value to store
+     * @return Storing result "STORED: when current node stores data" , "PASSED: When storing request is passed to other nodes"
+     * @throws StoreException thrown when no responsible node was found
+     */
     public StoreAnswer<K> store(K key, V value) throws StoreException {
         StoreAnswer<K> storeAnswer = null;
         int hash = boundedHashUtil.hash(key.hashCode());

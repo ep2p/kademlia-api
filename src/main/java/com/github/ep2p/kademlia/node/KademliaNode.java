@@ -42,6 +42,10 @@ public class KademliaNode<C extends ConnectionInfo> extends Node<C> implements P
         referencedNodes = new CopyOnWriteArrayList<>();
     }
 
+    /**
+     * @param bootstrapNode Node to contact to use for bootstrapping current node
+     * @throws BootstrapException thrown when bootstrap gets timeout or bootstrap node is not available
+     */
     //first we have to use another node to join network
     public void bootstrap(Node<C> bootstrapNode) throws BootstrapException {
         routingTable.update(this);
@@ -83,20 +87,34 @@ public class KademliaNode<C extends ConnectionInfo> extends Node<C> implements P
     }
 
     /* P2P API */
-    //A node wants to find closest nodes to itself using this node routingTable. Mostly called at bootstrap
+
+
+    /**
+     * A node wants to find closest nodes to itself using this node routingTable. Mostly called at bootstrap
+     * @param externalNodeId node id for request
+     * @return answer of closest nodes
+     */
     @Override
     public FindNodeAnswer<C> onFindNode(int externalNodeId){
         return routingTable.findClosest(externalNodeId);
     }
 
-    //A node has pinged current node, it means they are alive
+    /**
+     * A node has pinged current node, it means they are alive
+     * @param node caller node
+     * @return Answer to ping
+     */
     @Override
     public PingAnswer onPing(Node<C> node){
         routingTable.update(node);
         return new PingAnswer(getId());
     }
 
-    //A referenced node has told this node that its leaving network
+
+    /**
+     * A referenced node has told this node that its leaving network
+     * @param node node that is shutting down
+     */
     @Override
     public void onShutdownSignal(Node<C> node){
         referencedNodes.remove(node);
