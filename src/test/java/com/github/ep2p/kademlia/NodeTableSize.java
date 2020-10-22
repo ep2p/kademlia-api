@@ -21,7 +21,7 @@ public class NodeTableSize {
         LocalNodeApi nodeApi = new LocalNodeApi();
         NodeIdFactory nodeIdFactory = new IncrementalNodeIdFactory();
         RoutingTableFactory<EmptyConnectionInfo, Integer> routingTableFactory = new SimpleRoutingTableFactory();
-        Common.IDENTIFIER_SIZE = 8;
+        Common.IDENTIFIER_SIZE = 9;
         Common.REFERENCED_NODES_UPDATE_PERIOD_SEC = 2;
 
         KademliaNode<EmptyConnectionInfo> node0 = new KademliaNode<>(nodeApi, nodeIdFactory, new EmptyConnectionInfo(), routingTableFactory);
