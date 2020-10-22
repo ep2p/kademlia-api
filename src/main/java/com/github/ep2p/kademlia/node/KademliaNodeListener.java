@@ -9,6 +9,7 @@ public interface KademliaNodeListener<C extends ConnectionInfo> {
     default void onBootstrapDone(KademliaNode<C> kademliaNode){}
     default void onShutdownComplete(KademliaNode<C> kademliaNode){}
     default void onStartupComplete(KademliaNode<C> kademliaNode){}
-    default <K, V> void onKeyLookupResult(K key, V value){}
+    default <K, V> void onKeyLookupResult(Node<C> node, K key, V value){}
+    default <K> void onKeyStoredResult(Node<C> node, K key){}
     class Default<C extends ConnectionInfo> implements KademliaNodeListener<C> {}
 }

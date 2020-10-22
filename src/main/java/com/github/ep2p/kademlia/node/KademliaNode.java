@@ -1,7 +1,6 @@
 package com.github.ep2p.kademlia.node;
 
 import com.github.ep2p.kademlia.Common;
-import com.github.ep2p.kademlia.util.KadDistanceUtil;
 import com.github.ep2p.kademlia.connection.ConnectionInfo;
 import com.github.ep2p.kademlia.connection.NodeApi;
 import com.github.ep2p.kademlia.connection.P2PApi;
@@ -11,6 +10,7 @@ import com.github.ep2p.kademlia.model.FindNodeAnswer;
 import com.github.ep2p.kademlia.model.PingAnswer;
 import com.github.ep2p.kademlia.table.RoutingTable;
 import com.github.ep2p.kademlia.table.RoutingTableFactory;
+import com.github.ep2p.kademlia.util.KadDistanceUtil;
 import lombok.Getter;
 
 import java.util.List;
@@ -27,7 +27,8 @@ public class KademliaNode<C extends ConnectionInfo> extends Node<C> implements P
     private final RoutingTable<C> routingTable;
     @Getter
     private List<Node<C>> referencedNodes;
-    protected KademliaNodeListener<C> kademliaNodeListener = new KademliaNodeListener.Default<C>();
+    @Getter
+    private KademliaNodeListener<C> kademliaNodeListener = new KademliaNodeListener.Default<C>();
 
     //None-Accessible fields
     private final ExecutorService executorService = Executors.newFixedThreadPool(1);

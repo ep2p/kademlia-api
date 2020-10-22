@@ -10,5 +10,9 @@ public class BoundedHashExample {
         System.out.println(hashed);
         hashed = i << -256 >>> -256;
         System.out.println(hashed);
+
+        int j = 5;
+        hashed = j << -8 >>> -8;
+        System.out.println(hashed);
     }
 }

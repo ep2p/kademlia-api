@@ -1,8 +1,8 @@
 package com.github.ep2p.kademlia.table;
 
-import com.github.ep2p.kademlia.node.ExternalNode;
-import com.github.ep2p.kademlia.model.FindNodeAnswer;
 import com.github.ep2p.kademlia.connection.ConnectionInfo;
+import com.github.ep2p.kademlia.model.FindNodeAnswer;
+import com.github.ep2p.kademlia.node.ExternalNode;
 
 public class BucketHelper {
 

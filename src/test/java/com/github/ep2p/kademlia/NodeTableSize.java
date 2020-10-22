@@ -7,13 +7,9 @@ import com.github.ep2p.kademlia.node.*;
 import com.github.ep2p.kademlia.table.Bucket;
 import com.github.ep2p.kademlia.table.RoutingTableFactory;
 import com.github.ep2p.kademlia.table.SimpleRoutingTableFactory;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class NodeTableSize {
 

@@ -3,18 +3,21 @@ package com.github.ep2p.kademlia.connection;
 import com.github.ep2p.kademlia.model.FindNodeAnswer;
 import com.github.ep2p.kademlia.model.PingAnswer;
 import com.github.ep2p.kademlia.node.KademliaNode;
+import com.github.ep2p.kademlia.node.KademliaRepositoryNode;
 import com.github.ep2p.kademlia.node.Node;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class LocalNodeApi implements NodeApi<EmptyConnectionInfo>{
     private final static Map<Integer, KademliaNode<EmptyConnectionInfo>> nodeMap = new HashMap<>();
-
-
     public static void registerNode(KademliaNode<EmptyConnectionInfo> node){
         nodeMap.putIfAbsent(node.getId(), node);
     }
+
+    private final ExecutorService executorService = Executors.newSingleThreadExecutor();
 
     @Override
     public PingAnswer ping(Node<EmptyConnectionInfo> caller, Node<EmptyConnectionInfo> node) {
@@ -47,12 +50,44 @@ public class LocalNodeApi implements NodeApi<EmptyConnectionInfo>{
     }
 
     @Override
-    public <K, V, R> R store(Node<EmptyConnectionInfo> node, K key, V value) {
-        return null;
+    public <K, V> void storeAsync(Node<EmptyConnectionInfo> caller, Node<EmptyConnectionInfo> requester, Node<EmptyConnectionInfo> node, K key, V value) {
+        KademliaNode<EmptyConnectionInfo> kademliaNode = nodeMap.get(node.getId());
+        if(kademliaNode instanceof KademliaRepositoryNode){
+            executorService.submit(new Runnable() {
+                @Override
+                public void run() {
+                    ((KademliaRepositoryNode) kademliaNode).onStoreRequest(requester, caller, key, value);
+                }
+            });
+        }
+
+        throw new RuntimeException("Node not available");
     }
 
     @Override
-    public <K, R> R get(Node<EmptyConnectionInfo> caller, Node<EmptyConnectionInfo> node, K key) {
-        return null;
+    public <K> void getRequest(Node<EmptyConnectionInfo> caller, Node<EmptyConnectionInfo> requester, Node<EmptyConnectionInfo> node, K key) {
+        KademliaNode<EmptyConnectionInfo> kademliaNode = nodeMap.get(node.getId());
+        if(kademliaNode instanceof KademliaRepositoryNode){
+            ((KademliaRepositoryNode) kademliaNode).onGetRequest(caller, requester, key);
+        }
     }
+
+
+    @Override
+    public <K, V> void sendGetResults(Node<EmptyConnectionInfo> caller, Node<EmptyConnectionInfo> requester, K key, V value) {
+        KademliaNode<EmptyConnectionInfo> kademliaNode = nodeMap.get(requester.getId());
+        if(kademliaNode instanceof KademliaRepositoryNode){
+            ((KademliaRepositoryNode) kademliaNode).onGetResult(caller, key, value);
+        }
+    }
+
+    @Override
+    public <K, V> void sendStoreResults(Node<EmptyConnectionInfo> caller, Node<EmptyConnectionInfo> requester, K key) {
+        KademliaNode<EmptyConnectionInfo> kademliaNode = nodeMap.get(requester.getId());
+        if(kademliaNode instanceof KademliaRepositoryNode){
+            ((KademliaRepositoryNode) kademliaNode).onStoredResult(caller, key);
+        }
+    }
+
+
 }
