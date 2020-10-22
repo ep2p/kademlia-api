@@ -52,7 +52,7 @@ public class LocalNodeApi implements NodeApi<EmptyConnectionInfo>{
     }
 
     @Override
-    public <K, R> R get(Node<EmptyConnectionInfo> node, K key) {
+    public <K, R> R get(Node<EmptyConnectionInfo> caller, Node<EmptyConnectionInfo> node, K key) {
         return null;
     }
 }

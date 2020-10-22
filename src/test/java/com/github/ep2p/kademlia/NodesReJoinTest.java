@@ -66,7 +66,7 @@ public class NodesReJoinTest {
         node7.stop();
         Thread.sleep((long)(1.1D * Common.REFERENCED_NODES_UPDATE_PERIOD_SEC * 1000L));
         Assertions.assertTrue(listDoesntContain(map.get(15), 7));
-        System.out.println("15 doesnt know 7 after it left network");
+        System.out.println("15 doesnt know 7 after it (7) left network");
 
 
         //When node7 comes back to network, node 15 should be informed and reference to it again
@@ -86,7 +86,7 @@ public class NodesReJoinTest {
         node7.start();
         Thread.sleep((long)(1.1D * Common.REFERENCED_NODES_UPDATE_PERIOD_SEC * 1000L));
         Assertions.assertTrue(listContainsAll(map.get(15), 14,13,11,7));
-        System.out.println("15 knows about 7 again after it rejoined");
+        System.out.println("15 knows about 7 again after it (7) rejoined");
     }
 
     private boolean listDoesntContain(List<Node<EmptyConnectionInfo>> referencedNodes, Integer... nodeIds){
