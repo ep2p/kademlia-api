@@ -28,7 +28,7 @@ public class KademliaNode<C extends ConnectionInfo> extends Node<C> implements N
     @Getter
     private List<Node<C>> referencedNodes;
     @Getter
-    private KademliaNodeListener<C> kademliaNodeListener = new KademliaNodeListener.Default<C>();
+    private KademliaNodeListener<C, ?, ?> kademliaNodeListener = new KademliaNodeListener.Default<C>();
 
     //None-Accessible fields
     private final ExecutorService executorService = Executors.newFixedThreadPool(1);

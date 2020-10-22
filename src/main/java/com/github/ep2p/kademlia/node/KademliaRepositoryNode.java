@@ -30,6 +30,11 @@ public class KademliaRepositoryNode<C extends ConnectionInfo, K, V> extends Kade
         boundedHashUtil = new BoundedHashUtil(Common.IDENTIFIER_SIZE);
     }
 
+    @Override
+    public KademliaNodeListener<C, K, V> getKademliaNodeListener() {
+        return (KademliaNodeListener<C, K, V>) super.getKademliaNodeListener();
+    }
+
     /* Node Connection API */
 
     /**
@@ -143,7 +148,7 @@ public class KademliaRepositoryNode<C extends ConnectionInfo, K, V> extends Kade
      */
     @Override
     public void onGetResult(Node<C> node, K key, V value) {
-        getKademliaNodeListener().onKeyLookupResult(node, key, value);
+        getKademliaNodeListener().onKeyLookupResult(this, node, key, value);
     }
 
     /**
@@ -153,7 +158,7 @@ public class KademliaRepositoryNode<C extends ConnectionInfo, K, V> extends Kade
      */
     @Override
     public void onStoreResult(Node<C> node, K key, boolean successful) {
-        getKademliaNodeListener().onKeyStoredResult(node, key, successful);
+        getKademliaNodeListener().onKeyStoredResult(this, node, key, successful);
     }
 
 

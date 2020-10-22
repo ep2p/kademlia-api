@@ -27,7 +27,7 @@ public class NodesJoiningUsingPreviousNodeTest {
 
         Map<Integer, List<Node<EmptyConnectionInfo>>> map = new ConcurrentHashMap<>();
 
-        KademliaNodeListener<EmptyConnectionInfo> listener = new KademliaNodeListener<EmptyConnectionInfo>() {
+        KademliaNodeListener<EmptyConnectionInfo, Void, Void> listener = new KademliaNodeListener<EmptyConnectionInfo, Void, Void>() {
             @Override
             public void onReferencedNodesUpdate(KademliaNode kademliaNode, List referencedNodes) {
                 map.put(kademliaNode.getId(), referencedNodes);
