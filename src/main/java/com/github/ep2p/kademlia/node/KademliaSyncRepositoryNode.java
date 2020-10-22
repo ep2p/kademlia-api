@@ -1,7 +1,7 @@
 package com.github.ep2p.kademlia.node;
 
 import com.github.ep2p.kademlia.connection.ConnectionInfo;
-import com.github.ep2p.kademlia.connection.NodeApi;
+import com.github.ep2p.kademlia.connection.NodeConnectionApi;
 import com.github.ep2p.kademlia.exception.GetException;
 import com.github.ep2p.kademlia.exception.StoreException;
 import com.github.ep2p.kademlia.model.GetAnswer;
@@ -16,8 +16,8 @@ public class KademliaSyncRepositoryNode<C extends ConnectionInfo, K, V> extends 
     private volatile Map<K, StoreAnswer<K>> answerMap = new HashMap<>();
     private volatile Map<K, GetAnswer<K, V>> getMap = new HashMap<>();
 
-    public KademliaSyncRepositoryNode(Integer nodeId, RoutingTableFactory routingTableFactory, NodeApi<C> nodeApi, C connectionInfo, KademliaRepository<K, V> kademliaRepository) {
-        super(nodeId, routingTableFactory, nodeApi, connectionInfo, kademliaRepository);
+    public KademliaSyncRepositoryNode(Integer nodeId, RoutingTableFactory routingTableFactory, NodeConnectionApi<C> nodeConnectionApi, C connectionInfo, KademliaRepository<K, V> kademliaRepository) {
+        super(nodeId, routingTableFactory, nodeConnectionApi, connectionInfo, kademliaRepository);
     }
 
     @SneakyThrows

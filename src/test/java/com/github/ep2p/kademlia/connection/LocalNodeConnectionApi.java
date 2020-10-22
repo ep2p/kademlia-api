@@ -11,7 +11,7 @@ import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class LocalNodeApi implements NodeApi<EmptyConnectionInfo>{
+public class LocalNodeConnectionApi implements NodeConnectionApi<EmptyConnectionInfo> {
     private final static Map<Integer, KademliaNode<EmptyConnectionInfo>> nodeMap = new HashMap<>();
 
     public static <E extends KademliaNode<EmptyConnectionInfo>> void registerNode(E node){

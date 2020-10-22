@@ -2,7 +2,7 @@ package com.github.ep2p.kademlia.node;
 
 import com.github.ep2p.kademlia.Common;
 import com.github.ep2p.kademlia.connection.ConnectionInfo;
-import com.github.ep2p.kademlia.connection.NodeApi;
+import com.github.ep2p.kademlia.connection.NodeConnectionApi;
 import com.github.ep2p.kademlia.connection.P2PApi;
 import com.github.ep2p.kademlia.exception.BootstrapException;
 import com.github.ep2p.kademlia.exception.ShutdownException;
@@ -22,7 +22,7 @@ import static com.github.ep2p.kademlia.Common.REFERENCED_NODES_UPDATE_PERIOD_SEC
 public class KademliaNode<C extends ConnectionInfo> extends Node<C> implements P2PApi<C> {
     //Accessible fields
     @Getter
-    private final NodeApi<C> nodeApi;
+    private final NodeConnectionApi<C> nodeConnectionApi;
     @Getter
     private final RoutingTable<C> routingTable;
     @Getter
@@ -34,10 +34,10 @@ public class KademliaNode<C extends ConnectionInfo> extends Node<C> implements P
     private final ExecutorService executorService = Executors.newFixedThreadPool(1);
     private final ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
 
-    public KademliaNode(Integer nodeId, RoutingTableFactory routingTableFactory, NodeApi<C> nodeApi, C connectionInfo) {
+    public KademliaNode(Integer nodeId, RoutingTableFactory routingTableFactory, NodeConnectionApi<C> nodeConnectionApi, C connectionInfo) {
         this.setId(nodeId);
         this.setConnection(connectionInfo);
-        this.nodeApi = nodeApi;
+        this.nodeConnectionApi = nodeConnectionApi;
         this.routingTable = routingTableFactory.getRoutingTable(nodeId);
         referencedNodes = new CopyOnWriteArrayList<>();
     }
@@ -55,7 +55,7 @@ public class KademliaNode<C extends ConnectionInfo> extends Node<C> implements P
         Future<FindNodeAnswer<C>> findNodeAnswerFuture = executorService.submit(new Callable<FindNodeAnswer<C>>() {
             @Override
             public FindNodeAnswer<C> call() throws Exception {
-                return nodeApi.findNode(selfNode, bootstrapNode, nodeId);
+                return nodeConnectionApi.findNode(selfNode, bootstrapNode, nodeId);
             }
         });
 
@@ -137,7 +137,7 @@ public class KademliaNode<C extends ConnectionInfo> extends Node<C> implements P
         try {
             referencedNodes.forEach(node -> {
                 if(node.getId() != this.getId())
-                    nodeApi.shutdownSignal(this, node);
+                    nodeConnectionApi.shutdownSignal(this, node);
             });
         }catch (Exception e){
             shutdownException = new ShutdownException(e);
@@ -211,7 +211,7 @@ public class KademliaNode<C extends ConnectionInfo> extends Node<C> implements P
         for (i = 0; i < Common.ALPHA && i < findNodeAnswer.size(); i++) {
             ExternalNode<C> externalNode = findNodeAnswer.getNodes().get(i);
             if (externalNode.getId() != this.getId()) {
-                FindNodeAnswer<C> findNodeAnswer1 = nodeApi.findNode(this, externalNode, destination);
+                FindNodeAnswer<C> findNodeAnswer1 = nodeConnectionApi.findNode(this, externalNode, destination);
                 if(findNodeAnswer1.getDestinationId() == destination && findNodeAnswer1.isAlive()){
                     routingTable.update(externalNode);
                     pingAndAddResults(findNodeAnswer.getNodes());
@@ -223,7 +223,7 @@ public class KademliaNode<C extends ConnectionInfo> extends Node<C> implements P
 
     protected void pingAndAddResults(List<? extends Node<C>> externalNodes){
         externalNodes.forEach(externalNode -> {
-            PingAnswer pingAnswer = nodeApi.ping(this, externalNode);
+            PingAnswer pingAnswer = nodeConnectionApi.ping(this, externalNode);
             if(pingAnswer.isAlive()){
                 routingTable.update(externalNode);
             }else {

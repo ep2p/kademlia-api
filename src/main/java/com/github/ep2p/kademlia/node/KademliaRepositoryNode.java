@@ -2,7 +2,7 @@ package com.github.ep2p.kademlia.node;
 
 import com.github.ep2p.kademlia.Common;
 import com.github.ep2p.kademlia.connection.ConnectionInfo;
-import com.github.ep2p.kademlia.connection.NodeApi;
+import com.github.ep2p.kademlia.connection.NodeConnectionApi;
 import com.github.ep2p.kademlia.connection.StorageP2PApi;
 import com.github.ep2p.kademlia.exception.GetException;
 import com.github.ep2p.kademlia.exception.StoreException;
@@ -24,8 +24,8 @@ public class KademliaRepositoryNode<C extends ConnectionInfo, K, V> extends Kade
     private final KademliaRepository<K,V> kademliaRepository;
     private final BoundedHashUtil boundedHashUtil;
 
-    public KademliaRepositoryNode(Integer nodeId, RoutingTableFactory routingTableFactory, NodeApi<C> nodeApi, C connectionInfo, KademliaRepository<K, V> kademliaRepository) {
-        super(nodeId, routingTableFactory, nodeApi, connectionInfo);
+    public KademliaRepositoryNode(Integer nodeId, RoutingTableFactory routingTableFactory, NodeConnectionApi<C> nodeConnectionApi, C connectionInfo, KademliaRepository<K, V> kademliaRepository) {
+        super(nodeId, routingTableFactory, nodeConnectionApi, connectionInfo);
         this.kademliaRepository = kademliaRepository;
         boundedHashUtil = new BoundedHashUtil(Common.IDENTIFIER_SIZE);
     }
@@ -43,13 +43,13 @@ public class KademliaRepositoryNode<C extends ConnectionInfo, K, V> extends Kade
         //Check repository for key, if it exists return it
         V value = kademliaRepository.get(key);
         if(value != null){
-            getNodeApi().sendGetResults(this, requester, key, value);
+            getNodeConnectionApi().sendGetResults(this, requester, key, value);
             return;
         }
 
         GetAnswer<K, V> getAnswer = findClosestNodesToGetData(this, key, callerNode);
         if(getAnswer == null)
-            getNodeApi().sendGetResults(this, requester, key, null);
+            getNodeConnectionApi().sendGetResults(this, requester, key, null);
     }
 
     /* Node Connection Api */
@@ -71,12 +71,12 @@ public class KademliaRepositoryNode<C extends ConnectionInfo, K, V> extends Kade
         //if current requester should persist data, store data and tell requester about it
         if(getId() == hash){
             kademliaRepository.store(key, value);
-            getNodeApi().sendStoreResults(this, requester, key, true);
+            getNodeConnectionApi().sendStoreResults(this, requester, key, true);
         //otherwise find closest nodes to store data
         } else {
             FindNodeAnswer<C> findNodeAnswer = getRoutingTable().findClosest(hash);
             if (findClosestNodesToStoreData(requester, findNodeAnswer.getNodes(), key, value) == null) {
-                getNodeApi().sendStoreResults(this, requester, key, false);
+                getNodeConnectionApi().sendStoreResults(this, requester, key, false);
             }
         }
 
@@ -169,15 +169,15 @@ public class KademliaRepositoryNode<C extends ConnectionInfo, K, V> extends Kade
                 storeAnswer = getNewStoreAnswer(key, StoreAnswer.Action.STORED, this);
                 //if requester of storing is not current node, tell them about storing result
                 if(requester.getId() != getId()){
-                    getNodeApi().sendStoreResults(this, requester, key, true);
+                    getNodeConnectionApi().sendStoreResults(this, requester, key, true);
                 }
                 break;
             }else {
                 //otherwise try next close requester in routing table
                 PingAnswer pingAnswer = null;
                 //if requester is alive, tell it to store the data
-                if(externalNode.getLastSeen().before(date) || (pingAnswer = getNodeApi().ping(this, externalNode)).isAlive()){
-                    getNodeApi().storeAsync(this, requester, externalNode, key, value);
+                if(externalNode.getLastSeen().before(date) || (pingAnswer = getNodeConnectionApi().ping(this, externalNode)).isAlive()){
+                    getNodeConnectionApi().storeAsync(this, requester, externalNode, key, value);
                     storeAnswer = getNewStoreAnswer(key, StoreAnswer.Action.PASSED, requester);
                     break;
 
@@ -211,8 +211,8 @@ public class KademliaRepositoryNode<C extends ConnectionInfo, K, V> extends Kade
 
             PingAnswer pingAnswer = null;
             //if node is alive, ask for data
-            if(externalNode.getLastSeen().before(date) || (pingAnswer = getNodeApi().ping(this, externalNode)).isAlive()){
-                getNodeApi().getRequest(this, requester, externalNode, key);
+            if(externalNode.getLastSeen().before(date) || (pingAnswer = getNodeConnectionApi().ping(this, externalNode)).isAlive()){
+                getNodeConnectionApi().getRequest(this, requester, externalNode, key);
                 getAnswer = getNewGetAnswer(key, null, GetAnswer.Action.PASSED, this);
                 break;
 

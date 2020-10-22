@@ -1,7 +1,7 @@
 package com.github.ep2p.kademlia;
 
 import com.github.ep2p.kademlia.connection.EmptyConnectionInfo;
-import com.github.ep2p.kademlia.connection.LocalNodeApi;
+import com.github.ep2p.kademlia.connection.LocalNodeConnectionApi;
 import com.github.ep2p.kademlia.exception.BootstrapException;
 import com.github.ep2p.kademlia.node.*;
 import com.github.ep2p.kademlia.table.RoutingTableFactory;
@@ -19,7 +19,7 @@ public class NodesJoiningUsingPreviousNodeTest {
 
     @Test
     public void canPeersJoinNetwork() throws BootstrapException, InterruptedException {
-        LocalNodeApi nodeApi = new LocalNodeApi();
+        LocalNodeConnectionApi nodeApi = new LocalNodeConnectionApi();
         NodeIdFactory nodeIdFactory = new IncrementalNodeIdFactory();
         RoutingTableFactory<EmptyConnectionInfo, Integer> routingTableFactory = new SimpleRoutingTableFactory();
         Common.IDENTIFIER_SIZE = 4;
@@ -35,13 +35,13 @@ public class NodesJoiningUsingPreviousNodeTest {
         };
 
         KademliaNode<EmptyConnectionInfo> previousNode = new KademliaNode<>(nodeIdFactory.getNodeId(), routingTableFactory, nodeApi, new EmptyConnectionInfo());
-        LocalNodeApi.registerNode(previousNode);
+        LocalNodeConnectionApi.registerNode(previousNode);
         previousNode.setKademliaNodeListener(listener);
         previousNode.start();
 
         for(int i = 1; i < Math.pow(2, Common.IDENTIFIER_SIZE); i++){
             KademliaNode<EmptyConnectionInfo> nextNode = new KademliaNode<>(nodeIdFactory.getNodeId(), routingTableFactory, nodeApi, new EmptyConnectionInfo());
-            LocalNodeApi.registerNode(nextNode);
+            LocalNodeConnectionApi.registerNode(nextNode);
             nextNode.setKademliaNodeListener(listener);
             nextNode.bootstrap(previousNode);
             previousNode = nextNode;

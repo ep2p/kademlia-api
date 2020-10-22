@@ -1,7 +1,7 @@
 package com.github.ep2p.kademlia;
 
 import com.github.ep2p.kademlia.connection.EmptyConnectionInfo;
-import com.github.ep2p.kademlia.connection.LocalNodeApi;
+import com.github.ep2p.kademlia.connection.LocalNodeConnectionApi;
 import com.github.ep2p.kademlia.exception.BootstrapException;
 import com.github.ep2p.kademlia.exception.ShutdownException;
 import com.github.ep2p.kademlia.node.*;
@@ -20,7 +20,7 @@ public class NodesReJoinTest {
 
     @Test
     public void canPeersLeaveAndRejoin() throws BootstrapException, InterruptedException, ShutdownException {
-        LocalNodeApi nodeApi = new LocalNodeApi();
+        LocalNodeConnectionApi nodeApi = new LocalNodeConnectionApi();
         NodeIdFactory nodeIdFactory = new IncrementalNodeIdFactory();
         RoutingTableFactory<EmptyConnectionInfo, Integer> routingTableFactory = new SimpleRoutingTableFactory();
         Common.IDENTIFIER_SIZE = 4;
@@ -36,7 +36,7 @@ public class NodesReJoinTest {
         };
 
         KademliaNode<EmptyConnectionInfo> node0 = new KademliaNode<>(nodeIdFactory.getNodeId(), routingTableFactory, nodeApi, new EmptyConnectionInfo());
-        LocalNodeApi.registerNode(node0);
+        LocalNodeConnectionApi.registerNode(node0);
         node0.setKademliaNodeListener(listener);
         node0.start();
 
@@ -44,7 +44,7 @@ public class NodesReJoinTest {
 
         for(int i = 1; i < Math.pow(2, Common.IDENTIFIER_SIZE); i++){
             KademliaNode<EmptyConnectionInfo> aNode = new KademliaNode<>(nodeIdFactory.getNodeId(), routingTableFactory, nodeApi, new EmptyConnectionInfo());
-            LocalNodeApi.registerNode(aNode);
+            LocalNodeConnectionApi.registerNode(aNode);
             aNode.setKademliaNodeListener(listener);
             aNode.bootstrap(node0);
             if(i == 7)

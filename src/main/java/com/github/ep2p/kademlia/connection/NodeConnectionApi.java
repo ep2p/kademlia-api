@@ -5,7 +5,7 @@ import com.github.ep2p.kademlia.model.PingAnswer;
 import com.github.ep2p.kademlia.node.Node;
 
 //API for nodes to talk to each other
-public interface NodeApi<C extends ConnectionInfo> {
+public interface NodeConnectionApi<C extends ConnectionInfo> {
     PingAnswer ping(Node<C> caller, Node<C> node);
     void shutdownSignal(Node<C> caller, Node<C> node);
     FindNodeAnswer<C> findNode(Node<C> caller, Node<C> node, Integer destination);

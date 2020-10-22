@@ -10,8 +10,8 @@ Therefore, its your responsibility to choose how you want your nodes contact eac
 Create your implementation of `com.github.ep2p.kademlia.connection.ConnectionInfo` which can represent connection information for each node to contact.
 This can simply be `ip` and `port` for a TCP/UDP connection. Keep your implementation simple and Serializable.
 
-### NodeApi
-Create your implementation of `com.github.ep2p.kademlia.connection.NodeApi` based on earlier implemented ConnectionInfo. This API is called when a node wants to send requests/data to other nodes.
+### NodeConnectionApi
+Create your implementation of `com.github.ep2p.kademlia.connection.NodeConnectionApi` based on earlier implemented ConnectionInfo. This API is called when a node wants to send requests/data to other nodes.
 
 Note that there are 4 methods which their implementation is not mandatory:
 ```
@@ -21,7 +21,7 @@ default <K, V> void sendGetResults(Node<C> caller, Node<C> requester, K key, V v
 default <K> void sendStoreResults(Node<C> caller, Node<C> requester, K key, boolean success){}
 ```
 
-Normally this Kademlia absstraction doesn't care about storing data. It only joins peers in the network. If you want to create something like DHT and store data, you need to implement these methods too.
+Normally this Kademlia abstraction doesn't care about storing data. It only joins peers in the network. If you want to create something like DHT and store data, you need to implement these methods too.
 
 ### P2PApi
 If you call any `NodeApi` methods on one end. on the other end you need to receive them and call appropriate method on you KademliaNode.
@@ -38,17 +38,17 @@ Currently there are 3 classes that can be used to create a kademlia node.
 To create a KademliaNode **without capability of storing data**, try:
 
 ```
-KademliaNode<?> node = new KademliaNode<>(yourNodeId, routingTableFactory, nodeApi, connectionInfoImplForThisNode);
+KademliaNode<?> node = new KademliaNode<>(yourNodeId, routingTableFactory, nodeConnectionApi, connectionInfoImplForThisNode);
 ```
 
 And to create a KademliaNode **capable of storing data**, try:
 
 ```
-KademliaRepositoryNode<?, Integer, String> aNode = new KademliaRepositoryNode<>(yourNodeId, routingTableFactory, nodeApi, connectionInfoImplForThisNode, repository);
+KademliaRepositoryNode<?, Integer, String> aNode = new KademliaRepositoryNode<>(yourNodeId, routingTableFactory, nodeConnectionApi, connectionInfoImplForThisNode, repository);
 ```
 or
 ```
-KademliaSyncRepositoryNode<?, Integer, String> aNode = new KademliaSyncRepositoryNode<>(yourNodeId, routingTableFactory, nodeApi, connectionInfoImplForThisNode, repository);
+KademliaSyncRepositoryNode<?, Integer, String> aNode = new KademliaSyncRepositoryNode<>(yourNodeId, routingTableFactory, nodeConnectionApi, connectionInfoImplForThisNode, repository);
 ```
 Where `Integer` is data storage key type, `String` is data storage value type, and `repository` is data storage implementation. It's a good practice to keep storage outside ram and avoid data loss on node shutdowns, but the choice is yours.
 
