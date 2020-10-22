@@ -41,8 +41,8 @@ public class KademliaRepositoryNode<C extends ConnectionInfo, K, V> extends Kade
     @Override
     public void onGetRequest(Node<C> callerNode, Node<C> requester, K key){
         //Check repository for key, if it exists return it
-        V value = kademliaRepository.get(key);
-        if(value != null){
+        if(kademliaRepository.contains(key)){
+            V value = kademliaRepository.get(key);
             getNodeConnectionApi().sendGetResults(this, requester, key, value);
             return;
         }
@@ -117,8 +117,8 @@ public class KademliaRepositoryNode<C extends ConnectionInfo, K, V> extends Kade
      */
     public GetAnswer<K, V> get(K key) throws GetException {
         //Check repository for key, if it exists return it
-        V value = kademliaRepository.get(key);
-        if(value != null){
+        if(kademliaRepository.contains(key)){
+            V value = kademliaRepository.get(key);
             return getNewGetAnswer(key, value, GetAnswer.Action.FOUND, this);
         }
 

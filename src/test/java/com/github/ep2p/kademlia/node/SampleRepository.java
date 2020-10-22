@@ -1,6 +1,8 @@
 package com.github.ep2p.kademlia.node;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class SampleRepository implements KademliaRepository<Integer, String> {
@@ -19,5 +21,15 @@ public class SampleRepository implements KademliaRepository<Integer, String> {
     @Override
     public void remove(Integer key) {
         data.remove(key);
+    }
+
+    @Override
+    public boolean contains(Integer key) {
+        return data.containsKey(key);
+    }
+
+    @Override
+    public List<Integer> getKeys() {
+        return new ArrayList<>(data.keySet());
     }
 }
