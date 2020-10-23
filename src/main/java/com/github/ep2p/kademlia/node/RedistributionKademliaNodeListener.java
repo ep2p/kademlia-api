@@ -16,8 +16,9 @@ public class RedistributionKademliaNodeListener<C extends ConnectionInfo, K, V> 
     private final ShutdownDistributionListener<C> shutdownDistributionListener;
 
 
-    public RedistributionKademliaNodeListener(boolean distributeOnShutdown, ShutdownDistributionListener<C> shutdownDistributionListener) {
-        this.distributeOnShutdown = distributeOnShutdown;
+    public RedistributionKademliaNodeListener(ShutdownDistributionListener<C> shutdownDistributionListener) {
+        this.distributeOnShutdown = true;
+        assert shutdownDistributionListener != null;
         this.shutdownDistributionListener = shutdownDistributionListener;
     }
 

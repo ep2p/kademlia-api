@@ -1,6 +1,6 @@
 package com.github.ep2p.kademlia.connection;
 
-import com.github.ep2p.kademlia.exception.FailPingException;
+import com.github.ep2p.kademlia.exception.NodeIsOfflineException;
 import com.github.ep2p.kademlia.model.FindNodeAnswer;
 import com.github.ep2p.kademlia.model.PingAnswer;
 import com.github.ep2p.kademlia.node.KademliaNode;
@@ -32,7 +32,7 @@ public class LocalNodeConnectionApi implements NodeConnectionApi<EmptyConnection
         }
         try {
             return kademliaNode.onPing(caller);
-        } catch (FailPingException e) {
+        } catch (NodeIsOfflineException e) {
             return new PingAnswer(node.getId(), false);
         }
     }
