@@ -27,7 +27,7 @@ public class DataStorageReDistributionTest {
         KademliaNodeListener<EmptyConnectionInfo, Integer, String> redistributionKademliaNodeListener = new RedistributionKademliaNodeListener<EmptyConnectionInfo, Integer, String>();
 
         //bootstrap node
-        KademliaSyncRepositoryNode<EmptyConnectionInfo, Integer, String> node0 = new KademliaSyncRepositoryNode<>(nodeIdFactory.getNodeId(), routingTableFactory, nodeApi, new EmptyConnectionInfo(), new SampleRepository());
+        KademliaSyncRepositoryNode<EmptyConnectionInfo, Integer, String> node0 = new KademliaSyncRepositoryNode<>(nodeIdFactory.getNodeId(), routingTableFactory.getRoutingTable(0), nodeApi, new EmptyConnectionInfo(), new SampleRepository());
         LocalNodeConnectionApi.registerNode(node0);
         node0.setKademliaNodeListener(redistributionKademliaNodeListener);
         node0.start();
@@ -36,7 +36,7 @@ public class DataStorageReDistributionTest {
 
 
         for(int i = 1; i < (Math.pow(2, Common.IDENTIFIER_SIZE) / 2); i++){
-            KademliaRepositoryNode<EmptyConnectionInfo, Integer, String> aNode = new KademliaRepositoryNode<>(i * 2, routingTableFactory, nodeApi, new EmptyConnectionInfo(), new SampleRepository());
+            KademliaRepositoryNode<EmptyConnectionInfo, Integer, String> aNode = new KademliaRepositoryNode<>(i * 2, routingTableFactory.getRoutingTable(i*2), nodeApi, new EmptyConnectionInfo(), new SampleRepository());
             LocalNodeConnectionApi.registerNode(aNode);
             aNode.setKademliaNodeListener(redistributionKademliaNodeListener);
             aNode.bootstrap(node0);
@@ -61,7 +61,7 @@ public class DataStorageReDistributionTest {
         System.out.println("Successfully retrieved `"+ data +"` from node " + getAnswer.getNodeId());
         System.out.println("Making node 11 and checking if data re-distributes");
 
-        KademliaRepositoryNode<EmptyConnectionInfo, Integer, String> aNode = new KademliaRepositoryNode<>(11, routingTableFactory, nodeApi, new EmptyConnectionInfo(), new SampleRepository());
+        KademliaRepositoryNode<EmptyConnectionInfo, Integer, String> aNode = new KademliaRepositoryNode<>(11, routingTableFactory.getRoutingTable(11), nodeApi, new EmptyConnectionInfo(), new SampleRepository());
         LocalNodeConnectionApi.registerNode(aNode);
         aNode.bootstrap(node0);
 

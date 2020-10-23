@@ -3,7 +3,9 @@ package com.github.ep2p.kademlia;
 import com.github.ep2p.kademlia.connection.EmptyConnectionInfo;
 import com.github.ep2p.kademlia.connection.LocalNodeConnectionApi;
 import com.github.ep2p.kademlia.exception.BootstrapException;
-import com.github.ep2p.kademlia.node.*;
+import com.github.ep2p.kademlia.node.KademliaNode;
+import com.github.ep2p.kademlia.node.KademliaNodeListener;
+import com.github.ep2p.kademlia.node.Node;
 import com.github.ep2p.kademlia.table.RoutingTableFactory;
 import com.github.ep2p.kademlia.table.SimpleRoutingTableFactory;
 import org.junit.jupiter.api.Assertions;
@@ -20,7 +22,6 @@ public class NodesJoiningUsingPreviousNodeTest {
     @Test
     public void canPeersJoinNetwork() throws BootstrapException, InterruptedException {
         LocalNodeConnectionApi nodeApi = new LocalNodeConnectionApi();
-        NodeIdFactory nodeIdFactory = new IncrementalNodeIdFactory();
         RoutingTableFactory<EmptyConnectionInfo, Integer> routingTableFactory = new SimpleRoutingTableFactory();
         Common.IDENTIFIER_SIZE = 4;
         Common.REFERENCED_NODES_UPDATE_PERIOD_SEC = 5;
@@ -34,13 +35,13 @@ public class NodesJoiningUsingPreviousNodeTest {
             }
         };
 
-        KademliaNode<EmptyConnectionInfo> previousNode = new KademliaNode<>(nodeIdFactory.getNodeId(), routingTableFactory, nodeApi, new EmptyConnectionInfo());
+        KademliaNode<EmptyConnectionInfo> previousNode = new KademliaNode<>(0, routingTableFactory.getRoutingTable(0), nodeApi, new EmptyConnectionInfo());
         LocalNodeConnectionApi.registerNode(previousNode);
         previousNode.setKademliaNodeListener(listener);
         previousNode.start();
 
         for(int i = 1; i < Math.pow(2, Common.IDENTIFIER_SIZE); i++){
-            KademliaNode<EmptyConnectionInfo> nextNode = new KademliaNode<>(nodeIdFactory.getNodeId(), routingTableFactory, nodeApi, new EmptyConnectionInfo());
+            KademliaNode<EmptyConnectionInfo> nextNode = new KademliaNode<>(i, routingTableFactory.getRoutingTable(i), nodeApi, new EmptyConnectionInfo());
             LocalNodeConnectionApi.registerNode(nextNode);
             nextNode.setKademliaNodeListener(listener);
             nextNode.bootstrap(previousNode);

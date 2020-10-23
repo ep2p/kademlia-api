@@ -27,9 +27,9 @@ Normally this Kademlia abstraction doesn't care about storing data. It only join
 If you call any Node Api methods on one end through `NodeConnectionApi`. on the other end you need to receive them and call appropriate method on you KademliaNode.
 Make sure your protocol supports requests for methods available in `com.github.ep2p.kademlia.connection.NodeApi` and also `com.github.ep2p.kademlia.connection.P2PStorageApi` if you are storing data as well.
 
-### RoutingTableFactory
-Create your implementation of `com.github.ep2p.kademlia.table.RoutingTableFactory` which can return a `new RoutingTable` based on input id, or read an `old RoutingTable` from disk and return that one.
-Notice that `RoutingTable` and its buckets are Serializable. So you will easily be able to write it to a file.
+### RoutingTable
+Notice that `RoutingTable` and its buckets are Serializable. So you will easily be able to write it to a file. When you are creating and instance of your node, you can pass a new routing table or use one from disk.
+At this stage, there is no helper class for writing routing table on disk.
 
 ## Kademlia Node Usage
 
@@ -38,17 +38,17 @@ Currently there are 3 classes that can be used to create a kademlia node.
 To create a KademliaNode **without capability of storing data**, try:
 
 ```
-KademliaNode<?> node = new KademliaNode<>(yourNodeId, routingTableFactory, nodeConnectionApi, connectionInfoImplForThisNode);
+KademliaNode<?> node = new KademliaNode<>(yourNodeId, routingTable, nodeConnectionApi, connectionInfoImplForThisNode);
 ```
 
 And to create a KademliaNode **capable of storing data**, try:
 
 ```
-KademliaRepositoryNode<?, Integer, String> aNode = new KademliaRepositoryNode<>(yourNodeId, routingTableFactory, nodeConnectionApi, connectionInfoImplForThisNode, repository);
+KademliaRepositoryNode<?, Integer, String> aNode = new KademliaRepositoryNode<>(yourNodeId, routingTable, nodeConnectionApi, connectionInfoImplForThisNode, repository);
 ```
 or
 ```
-KademliaSyncRepositoryNode<?, Integer, String> aNode = new KademliaSyncRepositoryNode<>(yourNodeId, routingTableFactory, nodeConnectionApi, connectionInfoImplForThisNode, repository);
+KademliaSyncRepositoryNode<?, Integer, String> aNode = new KademliaSyncRepositoryNode<>(yourNodeId, routingTable, nodeConnectionApi, connectionInfoImplForThisNode, repository);
 ```
 Where `Integer` is data storage key type, `String` is data storage value type, and `repository` is data storage implementation. It's a good practice to keep storage outside ram and avoid data loss on node shutdowns, but the choice is yours.
 

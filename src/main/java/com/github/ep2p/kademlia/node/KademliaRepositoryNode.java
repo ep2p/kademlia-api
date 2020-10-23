@@ -10,7 +10,7 @@ import com.github.ep2p.kademlia.model.FindNodeAnswer;
 import com.github.ep2p.kademlia.model.GetAnswer;
 import com.github.ep2p.kademlia.model.PingAnswer;
 import com.github.ep2p.kademlia.model.StoreAnswer;
-import com.github.ep2p.kademlia.table.RoutingTableFactory;
+import com.github.ep2p.kademlia.table.RoutingTable;
 import com.github.ep2p.kademlia.util.BoundedHashUtil;
 import lombok.Getter;
 
@@ -24,8 +24,8 @@ public class KademliaRepositoryNode<C extends ConnectionInfo, K, V> extends Kade
     private final KademliaRepository<K,V> kademliaRepository;
     private final BoundedHashUtil boundedHashUtil;
 
-    public KademliaRepositoryNode(Integer nodeId, RoutingTableFactory routingTableFactory, NodeConnectionApi<C> nodeConnectionApi, C connectionInfo, KademliaRepository<K, V> kademliaRepository) {
-        super(nodeId, routingTableFactory, nodeConnectionApi, connectionInfo);
+    public KademliaRepositoryNode(Integer nodeId, RoutingTable<C> routingTable, NodeConnectionApi<C> nodeConnectionApi, C connectionInfo, KademliaRepository<K, V> kademliaRepository) {
+        super(nodeId, routingTable, nodeConnectionApi, connectionInfo);
         this.kademliaRepository = kademliaRepository;
         boundedHashUtil = new BoundedHashUtil(Common.IDENTIFIER_SIZE);
     }
@@ -69,7 +69,7 @@ public class KademliaRepositoryNode<C extends ConnectionInfo, K, V> extends Kade
     @Override
     public void onStoreRequest(Node<C> requester, Node<C> caller, K key, V value) {
         if(caller != null){
-            getRoutingTable().update(caller);
+            addNode(caller);
         }
 
         int hash = boundedHashUtil.hash(key.hashCode());

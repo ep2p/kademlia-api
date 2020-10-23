@@ -7,10 +7,11 @@ import com.github.ep2p.kademlia.table.RoutingTable;
 import com.github.ep2p.kademlia.util.BoundedHashUtil;
 
 public class RedistributionKademliaNodeListener<C extends ConnectionInfo, K, V> implements KademliaNodeListener<C, K, V> {
+    private final BoundedHashUtil boundedHashUtil = new BoundedHashUtil(Common.IDENTIFIER_SIZE);
+
     @Override
     public void onNewNodeAvailable(KademliaNode<C> kademliaNode, Node<C> node) {
         KademliaRepositoryNode<C, K, V> kademliaRepositoryNode = (KademliaRepositoryNode<C, K, V>) kademliaNode;
-        BoundedHashUtil boundedHashUtil = new BoundedHashUtil(Common.IDENTIFIER_SIZE);
         RoutingTable<C> routingTable = kademliaRepositoryNode.getRoutingTable();
         kademliaRepositoryNode.getKademliaRepository().getKeys().forEach(key -> {
             assert key instanceof Integer;

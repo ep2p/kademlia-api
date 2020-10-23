@@ -64,16 +64,18 @@ public class RoutingTable<C extends ConnectionInfo> implements Serializable {
     return buckets.get(prefix);
   }
 
-  /* Updates the routing table with a new value. */
-  public void update(Node<C> node) {
+  /* Updates the routing table with a new value. Returns true if node didnt exist in table before */
+  public boolean update(Node<C> node) {
     //Setting last seen date on node
     node.setLastSeen(new Date());
     Bucket<C> bucket = this.findBucket(node.getId());
     if (bucket.contains(node)) {
       //If the element is already in the bucket, we update it.
       bucket.pushToFront(node.getId());
+      return false;
     } else {
       bucket.add(node);
+      return true;
     }
   }
 
