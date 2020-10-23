@@ -34,13 +34,13 @@ public class NodesJoiningTest {
         };
 
         KademliaNode<EmptyConnectionInfo> node0 = new KademliaNode<>(nodeIdFactory.getNodeId(), routingTableFactory.getRoutingTable(0), nodeApi, new EmptyConnectionInfo());
-        LocalNodeConnectionApi.registerNode(node0);
+        nodeApi.registerNode(node0);
         node0.setKademliaNodeListener(listener);
         node0.start();
 
         for(int i = 1; i < Math.pow(2, Common.IDENTIFIER_SIZE); i++){
             KademliaNode<EmptyConnectionInfo> nextNode = new KademliaNode<>(i, routingTableFactory.getRoutingTable(i), nodeApi, new EmptyConnectionInfo());
-            LocalNodeConnectionApi.registerNode(nextNode);
+            nodeApi.registerNode(nextNode);
             nextNode.setKademliaNodeListener(listener);
             nextNode.bootstrap(node0);
         }

@@ -1,10 +1,7 @@
 package com.github.ep2p.kademlia.node;
 
 import com.github.ep2p.kademlia.connection.ConnectionInfo;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -14,6 +11,7 @@ import java.util.Objects;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@ToString
 public class Node<C extends ConnectionInfo> implements Serializable {
     protected int id;
     protected ConnectionInfo connection;

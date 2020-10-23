@@ -18,14 +18,14 @@ public class NodeTableSize {
         Common.REFERENCED_NODES_UPDATE_PERIOD_SEC = 2;
 
         KademliaNode<EmptyConnectionInfo> node0 = new KademliaNode<>(0, new RoutingTable<>(0), nodeApi, new EmptyConnectionInfo());
-        LocalNodeConnectionApi.registerNode(node0);
+        nodeApi.registerNode(node0);
         node0.start();
 
         KademliaNode<EmptyConnectionInfo> lastNode = null;
 
         for(int i = 1; i < Math.pow(2, Common.IDENTIFIER_SIZE); i++){
             KademliaNode<EmptyConnectionInfo> nextNode = new KademliaNode<>(i, new RoutingTable<>(i), nodeApi, new EmptyConnectionInfo());
-            LocalNodeConnectionApi.registerNode(nextNode);
+            nodeApi.registerNode(nextNode);
             nextNode.bootstrap(node0);
             if(i == Math.pow(2, Common.IDENTIFIER_SIZE) - 1){
                 lastNode = nextNode;

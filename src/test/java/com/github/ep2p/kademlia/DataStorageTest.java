@@ -26,13 +26,13 @@ public class DataStorageTest {
 
         //bootstrap node
         KademliaSyncRepositoryNode<EmptyConnectionInfo, Integer, String> node0 = new KademliaSyncRepositoryNode<>(nodeIdFactory.getNodeId(), routingTableFactory.getRoutingTable(0), nodeApi, new EmptyConnectionInfo(), new SampleRepository());
-        LocalNodeConnectionApi.registerNode(node0);
+        nodeApi.registerNode(node0);
         node0.start();
 
 
         for(int i = 1; i < Math.pow(2, Common.IDENTIFIER_SIZE); i++){
             KademliaRepositoryNode<EmptyConnectionInfo, Integer, String> aNode = new KademliaRepositoryNode<>(i, routingTableFactory.getRoutingTable(i), nodeApi, new EmptyConnectionInfo(), new SampleRepository());
-            LocalNodeConnectionApi.registerNode(aNode);
+            nodeApi.registerNode(aNode);
             aNode.bootstrap(node0);
         }
 
@@ -65,13 +65,13 @@ public class DataStorageTest {
 
         //bootstrap node
         KademliaSyncRepositoryNode<EmptyConnectionInfo, Integer, String> node0 = new KademliaSyncRepositoryNode<>(nodeIdFactory.getNodeId(), routingTableFactory.getRoutingTable(0), nodeApi, new EmptyConnectionInfo(), new SampleRepository());
-        LocalNodeConnectionApi.registerNode(node0);
+        nodeApi.registerNode(node0);
         node0.start();
 
 
         for(int i = 1; i < (Math.pow(2, Common.IDENTIFIER_SIZE) / 2); i++){
             KademliaRepositoryNode<EmptyConnectionInfo, Integer, String> aNode = new KademliaRepositoryNode<>(i * 2, routingTableFactory.getRoutingTable(i * 2), nodeApi, new EmptyConnectionInfo(), new SampleRepository());
-            LocalNodeConnectionApi.registerNode(aNode);
+            nodeApi.registerNode(aNode);
             aNode.bootstrap(node0);
         }
 

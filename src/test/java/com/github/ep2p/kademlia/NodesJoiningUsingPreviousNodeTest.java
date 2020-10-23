@@ -36,13 +36,13 @@ public class NodesJoiningUsingPreviousNodeTest {
         };
 
         KademliaNode<EmptyConnectionInfo> previousNode = new KademliaNode<>(0, routingTableFactory.getRoutingTable(0), nodeApi, new EmptyConnectionInfo());
-        LocalNodeConnectionApi.registerNode(previousNode);
+        nodeApi.registerNode(previousNode);
         previousNode.setKademliaNodeListener(listener);
         previousNode.start();
 
         for(int i = 1; i < Math.pow(2, Common.IDENTIFIER_SIZE); i++){
             KademliaNode<EmptyConnectionInfo> nextNode = new KademliaNode<>(i, routingTableFactory.getRoutingTable(i), nodeApi, new EmptyConnectionInfo());
-            LocalNodeConnectionApi.registerNode(nextNode);
+            nodeApi.registerNode(nextNode);
             nextNode.setKademliaNodeListener(listener);
             nextNode.bootstrap(previousNode);
             previousNode = nextNode;

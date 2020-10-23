@@ -7,20 +7,26 @@ import com.github.ep2p.kademlia.node.KademliaNode;
 import com.github.ep2p.kademlia.node.KademliaRepositoryNode;
 import com.github.ep2p.kademlia.node.Node;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class LocalNodeConnectionApi implements NodeConnectionApi<EmptyConnectionInfo> {
-    private final static Map<Integer, KademliaNode<EmptyConnectionInfo>> nodeMap = new HashMap<>();
+    private final Map<Integer, KademliaNode<EmptyConnectionInfo>> nodeMap = new ConcurrentHashMap<>();
 
-    public static <E extends KademliaNode<EmptyConnectionInfo>> void registerNode(E node){
+    public <E extends KademliaNode<EmptyConnectionInfo>> void registerNode(E node){
         System.out.println("Registring node with id " + node.getId());
         nodeMap.putIfAbsent(node.getId(), node);
     }
 
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
+
+    public LocalNodeConnectionApi() {
+        synchronized (nodeMap){
+            nodeMap.clear();
+        }
+    }
 
     @Override
     public PingAnswer ping(Node<EmptyConnectionInfo> caller, Node<EmptyConnectionInfo> node) {
@@ -62,6 +68,7 @@ public class LocalNodeConnectionApi implements NodeConnectionApi<EmptyConnection
 
     @Override
     public <K, V> void storeAsync(Node<EmptyConnectionInfo> caller, Node<EmptyConnectionInfo> requester, Node<EmptyConnectionInfo> node, K key, V value) {
+        System.out.println("storeAsync("+caller.getId()+", "+requester.getId()+", "+node.getId()+", "+key+", "+value+")");
         KademliaNode<EmptyConnectionInfo> kademliaNode = nodeMap.get(node.getId());
         if(kademliaNode instanceof KademliaRepositoryNode){
             executorService.submit(new Runnable() {
@@ -78,6 +85,7 @@ public class LocalNodeConnectionApi implements NodeConnectionApi<EmptyConnection
 
     @Override
     public <K> void getRequest(Node<EmptyConnectionInfo> caller, Node<EmptyConnectionInfo> requester, Node<EmptyConnectionInfo> node, K key) {
+        System.out.println("getRequest("+caller.getId()+", "+requester.getId()+", "+node.getId()+", "+key+")");
         KademliaNode<EmptyConnectionInfo> kademliaNode = nodeMap.get(node.getId());
         if(kademliaNode instanceof KademliaRepositoryNode){
             ((KademliaRepositoryNode) kademliaNode).onGetRequest(caller, requester, key);
@@ -87,6 +95,7 @@ public class LocalNodeConnectionApi implements NodeConnectionApi<EmptyConnection
 
     @Override
     public <K, V> void sendGetResults(Node<EmptyConnectionInfo> caller, Node<EmptyConnectionInfo> requester, K key, V value) {
+        System.out.println("sendGetResults("+caller.getId()+", "+requester.getId()+", "+key+", "+value+")");
         KademliaNode<EmptyConnectionInfo> kademliaNode = nodeMap.get(requester.getId());
         if(kademliaNode instanceof KademliaRepositoryNode){
             ((KademliaRepositoryNode) kademliaNode).onGetResult(caller, key, value);
@@ -95,6 +104,7 @@ public class LocalNodeConnectionApi implements NodeConnectionApi<EmptyConnection
 
     @Override
     public <K> void sendStoreResults(Node<EmptyConnectionInfo> caller, Node<EmptyConnectionInfo> requester, K key, boolean success) {
+        System.out.println("sendStoreResults("+caller.getId()+", "+requester.getId()+", "+key+", "+success+")");
         KademliaNode<EmptyConnectionInfo> kademliaNode = nodeMap.get(requester.getId());
         if(kademliaNode instanceof KademliaRepositoryNode){
             ((KademliaRepositoryNode) kademliaNode).onStoreResult(caller, key, success);

@@ -77,7 +77,7 @@ public class KademliaRepositoryNode<C extends ConnectionInfo, K, V> extends Kade
         //otherwise find closest nodes to store data
         } else {
             FindNodeAnswer<C> findNodeAnswer = getRoutingTable().findClosest(hash);
-            if (findClosestNodesToStoreData(requester, findNodeAnswer.getNodes(), key, value) == null) {
+            if (findClosestNodesToStoreData(requester, findNodeAnswer.getNodes(), key, value, caller) == null) {
                 getNodeConnectionApi().sendStoreResults(this, requester, key, false);
             }
         }
@@ -100,7 +100,7 @@ public class KademliaRepositoryNode<C extends ConnectionInfo, K, V> extends Kade
             storeAnswer = getNewStoreAnswer(key, StoreAnswer.Action.STORED, this);
         }else {
             FindNodeAnswer<C> findNodeAnswer = getRoutingTable().findClosest(hash);
-            storeAnswer = findClosestNodesToStoreData(this, findNodeAnswer.getNodes(), key, value);
+            storeAnswer = findClosestNodesToStoreData(this, findNodeAnswer.getNodes(), key, value, null);
         }
 
         if(storeAnswer == null){
@@ -159,7 +159,7 @@ public class KademliaRepositoryNode<C extends ConnectionInfo, K, V> extends Kade
 
     /* --- */
 
-    protected StoreAnswer<K> findClosestNodesToStoreData(Node<C> requester, List<ExternalNode<C>> externalNodeList, K key, V value){
+    protected StoreAnswer<K> findClosestNodesToStoreData(Node<C> requester, List<ExternalNode<C>> externalNodeList, K key, V value, Node<C> nodeToIgnore){
         Date date = getDateOfSecondsAgo(LAST_SEEN_SECONDS_TO_CONSIDER_ALIVE);
         StoreAnswer<K> storeAnswer = null;
         for (ExternalNode<C> externalNode : externalNodeList) {
@@ -173,6 +173,10 @@ public class KademliaRepositoryNode<C extends ConnectionInfo, K, V> extends Kade
                 }
                 break;
             }else {
+                if(nodeToIgnore != null && nodeToIgnore.getId() == externalNode.getId()){
+                    System.out.println("Should ignore " + nodeToIgnore.getId());
+                    continue;
+                }
                 //otherwise try next close requester in routing table
                 PingAnswer pingAnswer = null;
                 //if external node is alive, tell it to store the data

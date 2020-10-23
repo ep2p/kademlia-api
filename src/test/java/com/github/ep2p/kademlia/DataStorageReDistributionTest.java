@@ -29,7 +29,7 @@ public class DataStorageReDistributionTest {
 
         //bootstrap node
         KademliaSyncRepositoryNode<EmptyConnectionInfo, Integer, String> node0 = new KademliaSyncRepositoryNode<>(nodeIdFactory.getNodeId(), routingTableFactory.getRoutingTable(0), nodeApi, new EmptyConnectionInfo(), new SampleRepository());
-        LocalNodeConnectionApi.registerNode(node0);
+        nodeApi.registerNode(node0);
         node0.setKademliaNodeListener(redistributionKademliaNodeListener);
         node0.start();
 
@@ -38,7 +38,7 @@ public class DataStorageReDistributionTest {
 
         for(int i = 1; i < (Math.pow(2, Common.IDENTIFIER_SIZE) / 2); i++){
             KademliaRepositoryNode<EmptyConnectionInfo, Integer, String> aNode = new KademliaRepositoryNode<>(i * 2, routingTableFactory.getRoutingTable(i*2), nodeApi, new EmptyConnectionInfo(), new SampleRepository());
-            LocalNodeConnectionApi.registerNode(aNode);
+            nodeApi.registerNode(aNode);
             aNode.setKademliaNodeListener(redistributionKademliaNodeListener);
             aNode.bootstrap(node0);
         }
@@ -63,7 +63,7 @@ public class DataStorageReDistributionTest {
         System.out.println("Making node 11 and checking if data re-distributes");
 
         KademliaRepositoryNode<EmptyConnectionInfo, Integer, String> aNode = new KademliaRepositoryNode<>(11, routingTableFactory.getRoutingTable(11), nodeApi, new EmptyConnectionInfo(), new SampleRepository());
-        LocalNodeConnectionApi.registerNode(aNode);
+        nodeApi.registerNode(aNode);
         aNode.bootstrap(node0);
 
         Thread.sleep(2000);
@@ -81,6 +81,7 @@ public class DataStorageReDistributionTest {
     @Test
     public void canRedistributeDataOnShutdown() throws BootstrapException, StoreException, InterruptedException, GetException, ShutdownException {
         LocalNodeConnectionApi nodeApi = new LocalNodeConnectionApi();
+        Thread.sleep(100);
         NodeIdFactory nodeIdFactory = new IncrementalNodeIdFactory();
         RoutingTableFactory<EmptyConnectionInfo, Integer> routingTableFactory = new SimpleRoutingTableFactory();
         Common.IDENTIFIER_SIZE = 4;
@@ -95,21 +96,21 @@ public class DataStorageReDistributionTest {
 
         //bootstrap node
         KademliaSyncRepositoryNode<EmptyConnectionInfo, Integer, String> node0 = new KademliaSyncRepositoryNode<>(nodeIdFactory.getNodeId(), routingTableFactory.getRoutingTable(0), nodeApi, new EmptyConnectionInfo(), new SampleRepository());
-        LocalNodeConnectionApi.registerNode(node0);
+        nodeApi.registerNode(node0);
         node0.setKademliaNodeListener(redistributionKademliaNodeListener);
         node0.start();
 
 
         for(int i = 1; i < (Math.pow(2, Common.IDENTIFIER_SIZE) / 2); i++){
             KademliaRepositoryNode<EmptyConnectionInfo, Integer, String> aNode = new KademliaRepositoryNode<>(i * 2, routingTableFactory.getRoutingTable(i*2), nodeApi, new EmptyConnectionInfo(), new SampleRepository());
-            LocalNodeConnectionApi.registerNode(aNode);
+            nodeApi.registerNode(aNode);
             aNode.setKademliaNodeListener(redistributionKademliaNodeListener);
             aNode.bootstrap(node0);
         }
 
         KademliaRepositoryNode<EmptyConnectionInfo, Integer, String> node11 = new KademliaRepositoryNode<>(11, routingTableFactory.getRoutingTable(11), nodeApi, new EmptyConnectionInfo(), new SampleRepository());
         node11.setKademliaNodeListener(redistributionKademliaNodeListener);
-        LocalNodeConnectionApi.registerNode(node11);
+        nodeApi.registerNode(node11);
         node11.bootstrap(node0);
 
         Thread.sleep(2000);
