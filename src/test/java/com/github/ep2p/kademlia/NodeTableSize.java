@@ -3,31 +3,28 @@ package com.github.ep2p.kademlia;
 import com.github.ep2p.kademlia.connection.EmptyConnectionInfo;
 import com.github.ep2p.kademlia.connection.LocalNodeConnectionApi;
 import com.github.ep2p.kademlia.exception.BootstrapException;
-import com.github.ep2p.kademlia.node.*;
+import com.github.ep2p.kademlia.node.KademliaNode;
+import com.github.ep2p.kademlia.node.KademliaNodeListener;
 import com.github.ep2p.kademlia.table.Bucket;
-import com.github.ep2p.kademlia.table.RoutingTableFactory;
-import com.github.ep2p.kademlia.table.SimpleRoutingTableFactory;
+import com.github.ep2p.kademlia.table.RoutingTable;
 
-import java.util.Arrays;
 import java.util.List;
 
 public class NodeTableSize {
 
     public static void main(String[] args) throws BootstrapException, InterruptedException {
         LocalNodeConnectionApi nodeApi = new LocalNodeConnectionApi();
-        NodeIdFactory nodeIdFactory = new IncrementalNodeIdFactory();
-        RoutingTableFactory<EmptyConnectionInfo, Integer> routingTableFactory = new SimpleRoutingTableFactory();
         Common.IDENTIFIER_SIZE = 9;
         Common.REFERENCED_NODES_UPDATE_PERIOD_SEC = 2;
 
-        KademliaNode<EmptyConnectionInfo> node0 = new KademliaNode<>(nodeIdFactory.getNodeId(), routingTableFactory, nodeApi, new EmptyConnectionInfo());
+        KademliaNode<EmptyConnectionInfo> node0 = new KademliaNode<>(0, new RoutingTable<>(0), nodeApi, new EmptyConnectionInfo());
         LocalNodeConnectionApi.registerNode(node0);
         node0.start();
 
         KademliaNode<EmptyConnectionInfo> lastNode = null;
 
         for(int i = 1; i < Math.pow(2, Common.IDENTIFIER_SIZE); i++){
-            KademliaNode<EmptyConnectionInfo> nextNode = new KademliaNode<>(nodeIdFactory.getNodeId(), routingTableFactory, nodeApi, new EmptyConnectionInfo());
+            KademliaNode<EmptyConnectionInfo> nextNode = new KademliaNode<>(i, new RoutingTable<>(i), nodeApi, new EmptyConnectionInfo());
             LocalNodeConnectionApi.registerNode(nextNode);
             nextNode.bootstrap(node0);
             if(i == Math.pow(2, Common.IDENTIFIER_SIZE) - 1){
@@ -58,15 +55,6 @@ public class NodeTableSize {
 
         System.out.println(i);
 
-    }
-
-    private boolean listContainsAll(List<Node<EmptyConnectionInfo>> referencedNodes, Integer... nodeIds){
-        List<Integer> nodeIdsToContain = Arrays.asList(nodeIds);
-        for (Node<EmptyConnectionInfo> referencedNode : referencedNodes) {
-            if(!nodeIdsToContain.contains(referencedNode.getId()))
-                return false;
-        }
-        return true;
     }
 
 }

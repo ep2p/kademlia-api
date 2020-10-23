@@ -53,7 +53,7 @@ public class KademliaRepositoryNode<C extends ConnectionInfo, K, V> extends Kade
             return;
         }
 
-        GetAnswer<K, V> getAnswer = findClosestNodesToGetData(this, key, callerNode);
+        GetAnswer<K, V> getAnswer = findClosestNodesToGetData(requester, key, callerNode);
         if(getAnswer == null)
             getNodeConnectionApi().sendGetResults(this, requester, key, null);
     }
@@ -175,13 +175,13 @@ public class KademliaRepositoryNode<C extends ConnectionInfo, K, V> extends Kade
             }else {
                 //otherwise try next close requester in routing table
                 PingAnswer pingAnswer = null;
-                //if requester is alive, tell it to store the data
+                //if external node is alive, tell it to store the data
                 if(externalNode.getLastSeen().before(date) || (pingAnswer = getNodeConnectionApi().ping(this, externalNode)).isAlive()){
                     getNodeConnectionApi().storeAsync(this, requester, externalNode, key, value);
                     storeAnswer = getNewStoreAnswer(key, StoreAnswer.Action.PASSED, requester);
                     break;
 
-                    //otherwise remove the requester from routing table, since its offline
+                    //otherwise remove the external node from routing table, since its offline
                 }else if(pingAnswer != null){
                     getRoutingTable().delete(externalNode);
                 }
@@ -206,7 +206,7 @@ public class KademliaRepositoryNode<C extends ConnectionInfo, K, V> extends Kade
         Date date = getDateOfSecondsAgo(LAST_SEEN_SECONDS_TO_CONSIDER_ALIVE);
         for (ExternalNode<C> externalNode : findNodeAnswer.getNodes()) {
             //ignore self because we already checked if current node holds the data or not
-            if(externalNode.getId() == getId() || (externalNode.equals(nodeToIgnore)))
+            if(externalNode.getId() == getId() || (nodeToIgnore != null && externalNode.getId() == nodeToIgnore.getId()))
                 continue;
 
             PingAnswer pingAnswer = null;

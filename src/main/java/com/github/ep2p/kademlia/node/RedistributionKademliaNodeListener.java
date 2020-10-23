@@ -56,11 +56,10 @@ public class RedistributionKademliaNodeListener<C extends ConnectionInfo, K, V> 
             kademliaRepositoryNode.getKademliaRepository().getKeys().forEach(key -> {
                 assert key instanceof Integer;
                 Date date = getDateOfSecondsAgo(Common.LAST_SEEN_SECONDS_TO_CONSIDER_ALIVE);
-                for (Node<C> node : kademliaNode.getReferencedNodes()) {
-                    if(node.getLastSeen().before(date) && kademliaRepositoryNode.getReferencedNodes().contains(node)){
+                for (Node<C> node : routingTable.findClosest(boundedHashUtil.hash((Integer) key)).getNodes()) {
+                    try {
                         kademliaRepositoryNode.getNodeConnectionApi().storeAsync(kademliaNode, kademliaNode, node, key, kademliaRepositoryNode.getKademliaRepository().get(key));
-                        break;
-                    }
+                    }catch (Exception ignored){}
                 }
             });
             shutdownDistributionListener.onFinish(kademliaRepositoryNode);

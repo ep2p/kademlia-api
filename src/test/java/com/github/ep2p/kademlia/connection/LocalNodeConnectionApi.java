@@ -53,7 +53,11 @@ public class LocalNodeConnectionApi implements NodeConnectionApi<EmptyConnection
             findNodeAnswer.setAlive(false);
             return findNodeAnswer;
         }
-        return kademliaNode.onFindNode(destination == null ? caller.getId() : destination);
+        try {
+            return kademliaNode.onFindNode(destination == null ? caller.getId() : destination);
+        } catch (NodeIsOfflineException e) {
+            return new FindNodeAnswer<>(0);
+        }
     }
 
     @Override

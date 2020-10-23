@@ -49,7 +49,6 @@ public class KademliaNode<C extends ConnectionInfo> extends Node<C> implements N
      */
     //first we have to use another node to join network
     public void bootstrap(Node<C> bootstrapNode) throws BootstrapException {
-        routingTable.update(this);
         //find closest nodes from bootstrap node
         Integer nodeId = this.getId();
         Node<C> selfNode = this;
@@ -156,6 +155,8 @@ public class KademliaNode<C extends ConnectionInfo> extends Node<C> implements N
     }
 
     public void start(){
+        setRunning(true);
+        routingTable.update(this);
         //Find maximum n (where n is identifier size) nodes periodically, Check if they are available, otherwise remove them from routing table
         scheduledExecutorService.scheduleAtFixedRate(new Runnable() {
             @Override
