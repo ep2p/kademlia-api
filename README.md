@@ -72,6 +72,19 @@ Also you can listen to some events that happen in node, such as start, shutdown,
 ```
 node.setKademliaNodeListener(...)
 ```
+Once you get used to API, this listener can be a big help in making some changes to your nodes behaviour. See next section, Re-Distribution.
+
+## Re-Distribution
+
+There are situations where best node to hold a data is not available on network, So closest node will be chosen to keep the data. After certain time, a node with closer id to `key hash` might appear and it would be good practice to pass the data to the new node since it has closer id.
+
+Or there are situations where a node is shutting down and it's good practice for this node to pass all its data to other nodes.
+
+Of course one important parameter here is size of values as it will take much longer to pass large values to other nodes and you must prevent application shutdown till this re-distribution ends.
+
+For these cases, you can use or extend `com.github.ep2p.kademlia.node.RedistributionKademliaNodeListener` as your listener. It will handle data redistribution when new nodes appear. Also by passing `ShutdownDistributionListener` it handles data redistribution when node is shutting down.
+
+---
 
 ## Installation
 
