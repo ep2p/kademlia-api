@@ -1,5 +1,8 @@
 package com.github.ep2p.kademlia.util;
 
+import com.github.ep2p.kademlia.connection.ConnectionInfo;
+import com.github.ep2p.kademlia.node.Node;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -27,5 +30,21 @@ public class KadDistanceUtil {
         });
 
         return validNodes;
+    }
+
+    public static <C extends ConnectionInfo> Node<C> getClosest(List<Node<C>> nodes, int distance){
+        assert nodes.size() > 0;
+
+        Node<C> node = nodes.get(0);
+        int nDistance = nodes.get(0).getId() ^ distance;
+        for (Node<C> cNode : nodes) {
+            int tempDistance = cNode.getId() ^ distance;
+            if(tempDistance < nDistance){
+                nDistance = tempDistance;
+                node = cNode;
+            }
+        }
+
+        return node;
     }
 }

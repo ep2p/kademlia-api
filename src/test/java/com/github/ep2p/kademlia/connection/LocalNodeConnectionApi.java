@@ -1,5 +1,6 @@
 package com.github.ep2p.kademlia.connection;
 
+import com.github.ep2p.kademlia.exception.FailPingException;
 import com.github.ep2p.kademlia.model.FindNodeAnswer;
 import com.github.ep2p.kademlia.model.PingAnswer;
 import com.github.ep2p.kademlia.node.KademliaNode;
@@ -29,7 +30,11 @@ public class LocalNodeConnectionApi implements NodeConnectionApi<EmptyConnection
             pingAnswer.setAlive(false);
             return pingAnswer;
         }
-        return kademliaNode.onPing(caller);
+        try {
+            return kademliaNode.onPing(caller);
+        } catch (FailPingException e) {
+            return new PingAnswer(node.getId(), false);
+        }
     }
 
     @Override
@@ -58,7 +63,7 @@ public class LocalNodeConnectionApi implements NodeConnectionApi<EmptyConnection
             executorService.submit(new Runnable() {
                 @Override
                 public void run() {
-                    ((KademliaRepositoryNode) kademliaNode).onStoreRequest(requester, caller, key, value);
+                    ((KademliaRepositoryNode) kademliaNode).onStoreRequest(caller, requester, key, value);
                 }
             });
         }

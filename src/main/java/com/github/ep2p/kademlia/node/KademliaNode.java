@@ -5,6 +5,7 @@ import com.github.ep2p.kademlia.connection.ConnectionInfo;
 import com.github.ep2p.kademlia.connection.NodeApi;
 import com.github.ep2p.kademlia.connection.NodeConnectionApi;
 import com.github.ep2p.kademlia.exception.BootstrapException;
+import com.github.ep2p.kademlia.exception.FailPingException;
 import com.github.ep2p.kademlia.exception.ShutdownException;
 import com.github.ep2p.kademlia.model.FindNodeAnswer;
 import com.github.ep2p.kademlia.model.PingAnswer;
@@ -104,7 +105,7 @@ public class KademliaNode<C extends ConnectionInfo> extends Node<C> implements N
      * @return Answer to ping
      */
     @Override
-    public PingAnswer onPing(Node<C> node){
+    public PingAnswer onPing(Node<C> node) throws FailPingException {
         addNode(node);
         return new PingAnswer(getId());
     }

@@ -5,4 +5,9 @@ public class PingAnswer extends Answer {
         setNodeId(nodeId);
         setAlive(true);
     }
+
+    public PingAnswer(int nodeId, boolean alive) {
+        setNodeId(nodeId);
+        setAlive(false);
+    }
 }

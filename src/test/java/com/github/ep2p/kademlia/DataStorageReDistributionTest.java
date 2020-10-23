@@ -24,7 +24,7 @@ public class DataStorageReDistributionTest {
         Common.IDENTIFIER_SIZE = 4;
         Common.REFERENCED_NODES_UPDATE_PERIOD_SEC = 2;
 
-        KademliaNodeListener<EmptyConnectionInfo, Integer, String> redistributionKademliaNodeListener = new RedistributionKademliaNodeListener<EmptyConnectionInfo, Integer, String>();
+        KademliaNodeListener<EmptyConnectionInfo, Integer, String> redistributionKademliaNodeListener = new RedistributionKademliaNodeListener<EmptyConnectionInfo, Integer, String>(distributeOnShutdown, shutdownDistributionListener);
 
         //bootstrap node
         KademliaSyncRepositoryNode<EmptyConnectionInfo, Integer, String> node0 = new KademliaSyncRepositoryNode<>(nodeIdFactory.getNodeId(), routingTableFactory.getRoutingTable(0), nodeApi, new EmptyConnectionInfo(), new SampleRepository());

@@ -18,6 +18,7 @@ import java.util.Date;
 import java.util.List;
 
 import static com.github.ep2p.kademlia.Common.LAST_SEEN_SECONDS_TO_CONSIDER_ALIVE;
+import static com.github.ep2p.kademlia.util.DateUtil.getDateOfSecondsAgo;
 
 public class KademliaRepositoryNode<C extends ConnectionInfo, K, V> extends KademliaNode<C> implements StorageNodeApi<C, K, V> {
     @Getter
@@ -61,17 +62,13 @@ public class KademliaRepositoryNode<C extends ConnectionInfo, K, V> extends Kade
 
     /**
      * Called when store request enters this requester
-     * @param requester Node that requested to store the data
      * @param caller Node that passed this request to current node
+     * @param requester Node that requested to store the data
      * @param key Data key
      * @param value Data value
      */
     @Override
-    public void onStoreRequest(Node<C> requester, Node<C> caller, K key, V value) {
-        if(caller != null){
-            addNode(caller);
-        }
-
+    public void onStoreRequest(Node<C> caller, Node<C> requester, K key, V value) {
         int hash = boundedHashUtil.hash(key.hashCode());
         //if current requester should persist data, store data and tell requester about it
         if(getId() == hash){
@@ -84,8 +81,6 @@ public class KademliaRepositoryNode<C extends ConnectionInfo, K, V> extends Kade
                 getNodeConnectionApi().sendStoreResults(this, requester, key, false);
             }
         }
-
-
     }
 
     /* Managing API */
@@ -165,7 +160,7 @@ public class KademliaRepositoryNode<C extends ConnectionInfo, K, V> extends Kade
     /* --- */
 
     protected StoreAnswer<K> findClosestNodesToStoreData(Node<C> requester, List<ExternalNode<C>> externalNodeList, K key, V value){
-        Date date = dateOfNSecondsAgo(LAST_SEEN_SECONDS_TO_CONSIDER_ALIVE);
+        Date date = getDateOfSecondsAgo(LAST_SEEN_SECONDS_TO_CONSIDER_ALIVE);
         StoreAnswer<K> storeAnswer = null;
         for (ExternalNode<C> externalNode : externalNodeList) {
             //if current requester is closest requester store the value
@@ -208,7 +203,7 @@ public class KademliaRepositoryNode<C extends ConnectionInfo, K, V> extends Kade
         GetAnswer<K, V> getAnswer = null;
         int hash = boundedHashUtil.hash(key.hashCode());
         FindNodeAnswer<C> findNodeAnswer = getRoutingTable().findClosest(hash);
-        Date date = dateOfNSecondsAgo(LAST_SEEN_SECONDS_TO_CONSIDER_ALIVE);
+        Date date = getDateOfSecondsAgo(LAST_SEEN_SECONDS_TO_CONSIDER_ALIVE);
         for (ExternalNode<C> externalNode : findNodeAnswer.getNodes()) {
             //ignore self because we already checked if current node holds the data or not
             if(externalNode.getId() == getId() || (externalNode.equals(nodeToIgnore)))
@@ -230,10 +225,6 @@ public class KademliaRepositoryNode<C extends ConnectionInfo, K, V> extends Kade
         return getAnswer;
     }
 
-
-    private Date dateOfNSecondsAgo(int n){
-        return new Date(new Date().getTime() - (n * 1000));
-    }
 
     private GetAnswer<K, V> getNewGetAnswer(K k, V v, GetAnswer.Action action, Node<C> node){
         GetAnswer<K, V> getAnswer = new GetAnswer<>();
