@@ -6,43 +6,73 @@ import com.github.ep2p.kademlia.exception.GetException;
 import com.github.ep2p.kademlia.exception.StoreException;
 import com.github.ep2p.kademlia.model.GetAnswer;
 import com.github.ep2p.kademlia.model.StoreAnswer;
+import com.github.ep2p.kademlia.model.WatchableStoreAnswer;
 import com.github.ep2p.kademlia.table.RoutingTable;
 import lombok.SneakyThrows;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+
+import static com.github.ep2p.kademlia.model.StoreAnswer.Result.TIMEOUT;
 
 public class KademliaSyncRepositoryNode<C extends ConnectionInfo, K, V> extends KademliaRepositoryNode<C,K,V> {
-    private volatile Map<K, StoreAnswer<K>> answerMap = new HashMap<>();
+    private volatile Map<K, WatchableStoreAnswer<K>> storeMap = new HashMap<>();
+    private volatile Map<K, Lock> storeLockMap = new HashMap<>();
     private volatile Map<K, GetAnswer<K, V>> getMap = new HashMap<>();
 
     public KademliaSyncRepositoryNode(Integer nodeId, RoutingTable<C> routingTable, NodeConnectionApi<C> nodeConnectionApi, C connectionInfo, KademliaRepository<K, V> kademliaRepository) {
         super(nodeId, routingTable, nodeConnectionApi, connectionInfo, kademliaRepository);
     }
 
-    @SneakyThrows
-    @Override
-    public StoreAnswer<K> store(K key, V value) throws StoreException {
-        StoreAnswer<K> newStoreAnswer = new StoreAnswer<>();
+    public StoreAnswer<K> store(K key, V value, long timeout, TimeUnit timeUnit) throws StoreException, InterruptedException {
+        Lock keyLock = new ReentrantLock();
         synchronized (this){
-            StoreAnswer<K> kStoreAnswer = answerMap.putIfAbsent(key, newStoreAnswer);
-            if(kStoreAnswer != null){
-                newStoreAnswer = kStoreAnswer;
+            Lock oldLock = storeLockMap.putIfAbsent(key, keyLock);
+            if(oldLock != null){
+                keyLock = oldLock;
             }
         }
-
-        try {
-            StoreAnswer<K> storeAnswer = super.store(key, value);
-            if(storeAnswer.getAction().equals(StoreAnswer.Action.STORED)){
-                return storeAnswer;
+        if (keyLock.tryLock()) {
+            try {
+                StoreAnswer<K> storeAnswer = super.store(key, value);
+                if(storeAnswer.getResult().equals(StoreAnswer.Result.STORED)){
+                    return storeAnswer;
+                }else {
+                    WatchableStoreAnswer<K> watchableStoreAnswer = new WatchableStoreAnswer<>();
+                    watchableStoreAnswer.setResult(TIMEOUT);
+                    storeMap.putIfAbsent(key, watchableStoreAnswer);
+                    if(timeUnit == null)
+                        watchableStoreAnswer.watch();
+                    else
+                        watchableStoreAnswer.watch(timeout, timeUnit);
+                    storeMap.remove(key);
+                    return watchableStoreAnswer;
+                }
+            }finally {
+                keyLock.unlock();
+                storeLockMap.remove(key);
+            }
+        }else {
+            WatchableStoreAnswer<K> kWatchableStoreAnswer = storeMap.get(key);
+            if(kWatchableStoreAnswer != null){
+                if(timeUnit == null)
+                    kWatchableStoreAnswer.watch();
+                else
+                    kWatchableStoreAnswer.watch(timeout, timeUnit);
+                return kWatchableStoreAnswer;
             }else {
-                storeAnswer = answerMap.get(key);
-                while (storeAnswer.getAction() == null){}
+                throw new StoreException("Key is already under process!");
             }
-            return storeAnswer;
-        }finally {
-            answerMap.remove(key);
         }
+    }
+
+    @Override
+    @SneakyThrows
+    public StoreAnswer<K> store(K key, V value) throws StoreException {
+        return this.store(key, value, 0, null);
     }
 
     @SneakyThrows
@@ -58,11 +88,11 @@ public class KademliaSyncRepositoryNode<C extends ConnectionInfo, K, V> extends 
 
         try {
             GetAnswer<K, V> getAnswer = super.get(key);
-            if(getAnswer.getAction().equals(GetAnswer.Action.FOUND)){
+            if(getAnswer.getResult().equals(GetAnswer.Result.FOUND)){
                 return getAnswer;
             }else {
                 getAnswer = getMap.get(key);
-                while (getAnswer.getAction() == null){}
+                while (getAnswer.getResult() == null){}
             }
 
             return getAnswer;
@@ -79,16 +109,18 @@ public class KademliaSyncRepositoryNode<C extends ConnectionInfo, K, V> extends 
         getAnswer.setAlive(true);
         getAnswer.setKey(key);
         getAnswer.setValue(value);
-        getAnswer.setAction(value == null ? GetAnswer.Action.FAILED : GetAnswer.Action.FOUND);
+        getAnswer.setResult(value == null ? GetAnswer.Result.FAILED : GetAnswer.Result.FOUND);
     }
 
+    @SneakyThrows
     @Override
     public void onStoreResult(Node<C> node, K key, boolean successful) {
         super.onStoreResult(node, key, successful);
-        StoreAnswer<K> kStoreAnswer = answerMap.get(key);
-        kStoreAnswer.setAction(successful ? StoreAnswer.Action.STORED : StoreAnswer.Action.FAILED);
+        WatchableStoreAnswer<K> kStoreAnswer = storeMap.get(key);
+        kStoreAnswer.setResult(successful ? StoreAnswer.Result.STORED : StoreAnswer.Result.FAILED);
         kStoreAnswer.setKey(key);
         kStoreAnswer.setNodeId(node.getId());
         kStoreAnswer.setAlive(true);
+        kStoreAnswer.release();
     }
 }

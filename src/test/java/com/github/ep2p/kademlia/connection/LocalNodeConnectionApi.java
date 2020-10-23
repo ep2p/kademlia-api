@@ -13,14 +13,14 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class LocalNodeConnectionApi implements NodeConnectionApi<EmptyConnectionInfo> {
-    private final Map<Integer, KademliaNode<EmptyConnectionInfo>> nodeMap = new ConcurrentHashMap<>();
+    protected final Map<Integer, KademliaNode<EmptyConnectionInfo>> nodeMap = new ConcurrentHashMap<>();
 
     public <E extends KademliaNode<EmptyConnectionInfo>> void registerNode(E node){
         System.out.println("Registring node with id " + node.getId());
         nodeMap.putIfAbsent(node.getId(), node);
     }
 
-    private final ExecutorService executorService = Executors.newSingleThreadExecutor();
+    protected final ExecutorService executorService = Executors.newSingleThreadExecutor();
 
     public LocalNodeConnectionApi() {
         synchronized (nodeMap){
@@ -74,6 +74,12 @@ public class LocalNodeConnectionApi implements NodeConnectionApi<EmptyConnection
             executorService.submit(new Runnable() {
                 @Override
                 public void run() {
+                    try {
+                        //Fake network latency
+                        Thread.sleep(100);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
                     ((KademliaRepositoryNode) kademliaNode).onStoreRequest(caller, requester, key, value);
                 }
             });

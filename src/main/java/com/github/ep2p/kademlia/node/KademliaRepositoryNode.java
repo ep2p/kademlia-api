@@ -99,7 +99,7 @@ public class KademliaRepositoryNode<C extends ConnectionInfo, K, V> extends Kade
         //if current requester should persist data, do it immediatly
         if(getId() == hash) {
             kademliaRepository.store(key, value);
-            storeAnswer = getNewStoreAnswer(key, StoreAnswer.Action.STORED, this);
+            storeAnswer = getNewStoreAnswer(key, StoreAnswer.Result.STORED, this);
         }else {
             FindNodeAnswer<C> findNodeAnswer = getRoutingTable().findClosest(hash);
             storeAnswer = findClosestNodesToStoreData(this, findNodeAnswer.getNodes(), key, value, null);
@@ -123,7 +123,7 @@ public class KademliaRepositoryNode<C extends ConnectionInfo, K, V> extends Kade
         //Check repository for key, if it exists return it
         if(kademliaRepository.contains(key)){
             V value = kademliaRepository.get(key);
-            return getNewGetAnswer(key, value, GetAnswer.Action.FOUND, this);
+            return getNewGetAnswer(key, value, GetAnswer.Result.FOUND, this);
         }
 
         GetAnswer<K,V> getAnswer = null;
@@ -170,7 +170,7 @@ public class KademliaRepositoryNode<C extends ConnectionInfo, K, V> extends Kade
             //if current requester is closest requester store the value
             if(externalNode.getId() == getId()){
                 kademliaRepository.store(key, value);
-                storeAnswer = getNewStoreAnswer(key, StoreAnswer.Action.STORED, this);
+                storeAnswer = getNewStoreAnswer(key, StoreAnswer.Result.STORED, this);
                 //if requester of storing is not current node, tell them about storing result
                 if(requester.getId() != getId()){
                     getNodeConnectionApi().sendStoreResults(this, requester, key, true);
@@ -186,7 +186,7 @@ public class KademliaRepositoryNode<C extends ConnectionInfo, K, V> extends Kade
                 //if external node is alive, tell it to store the data
                 if(externalNode.getLastSeen().before(date) || (pingAnswer = getNodeConnectionApi().ping(this, externalNode)).isAlive()){
                     getNodeConnectionApi().storeAsync(this, requester, externalNode, key, value);
-                    storeAnswer = getNewStoreAnswer(key, StoreAnswer.Action.PASSED, requester);
+                    storeAnswer = getNewStoreAnswer(key, StoreAnswer.Result.PASSED, requester);
                     break;
 
                     //otherwise remove the external node from routing table, since its offline
@@ -221,7 +221,7 @@ public class KademliaRepositoryNode<C extends ConnectionInfo, K, V> extends Kade
             //if node is alive, ask for data
             if(externalNode.getLastSeen().before(date) || (pingAnswer = getNodeConnectionApi().ping(this, externalNode)).isAlive()){
                 getNodeConnectionApi().getRequest(this, requester, externalNode, key);
-                getAnswer = getNewGetAnswer(key, null, GetAnswer.Action.PASSED, this);
+                getAnswer = getNewGetAnswer(key, null, GetAnswer.Result.PASSED, this);
                 break;
 
             //otherwise remove the node from routing table, since its offline
@@ -234,9 +234,9 @@ public class KademliaRepositoryNode<C extends ConnectionInfo, K, V> extends Kade
     }
 
 
-    private GetAnswer<K, V> getNewGetAnswer(K k, V v, GetAnswer.Action action, Node<C> node){
+    private GetAnswer<K, V> getNewGetAnswer(K k, V v, GetAnswer.Result result, Node<C> node){
         GetAnswer<K, V> getAnswer = new GetAnswer<>();
-        getAnswer.setAction(action);
+        getAnswer.setResult(result);
         getAnswer.setKey(k);
         getAnswer.setValue(v);
         getAnswer.setAlive(true);
@@ -244,12 +244,12 @@ public class KademliaRepositoryNode<C extends ConnectionInfo, K, V> extends Kade
         return getAnswer;
     }
 
-    private StoreAnswer<K> getNewStoreAnswer(K k, StoreAnswer.Action action, Node<C> node){
+    private StoreAnswer<K> getNewStoreAnswer(K k, StoreAnswer.Result result, Node<C> node){
         StoreAnswer<K> storeAnswer = new StoreAnswer<>();
         storeAnswer.setAlive(true);
         storeAnswer.setNodeId(node.getId());
         storeAnswer.setKey(k);
-        storeAnswer.setAction(action);
+        storeAnswer.setResult(result);
         return storeAnswer;
     }
 

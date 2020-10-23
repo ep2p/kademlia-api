@@ -7,9 +7,9 @@ import lombok.Setter;
 @Setter
 public class StoreAnswer<K> extends Answer {
     private K key;
-    private Action action;
+    private Result result;
 
-    public enum Action {
-        STORED, PASSED, FAILED
+    public enum Result {
+        STORED, PASSED, FAILED, TIMEOUT
     }
 }

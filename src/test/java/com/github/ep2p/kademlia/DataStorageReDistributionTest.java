@@ -47,16 +47,16 @@ public class DataStorageReDistributionTest {
 
         String data = "Eleuth";
         StoreAnswer<Integer> storeAnswer = node0.store(data.hashCode(), data);
-        Assertions.assertEquals(storeAnswer.getAction(), StoreAnswer.Action.STORED, "StoreAnswer Action was " + storeAnswer.getAction());
-        Assertions.assertEquals((int) storeAnswer.getKey(), data.hashCode(), "StoreAnswer key was " + storeAnswer.getAction());
+        Assertions.assertEquals(storeAnswer.getResult(), StoreAnswer.Result.STORED, "StoreAnswer Result was " + storeAnswer.getResult());
+        Assertions.assertEquals((int) storeAnswer.getKey(), data.hashCode(), "StoreAnswer key was " + storeAnswer.getResult());
         System.out.println("Successfully stored `" + data +"` on node " + storeAnswer.getNodeId());
 
         Assertions.assertNull(node0.getKademliaRepository().get(data.hashCode()), "Invalid node is holding data");
 
         GetAnswer<Integer, String> getAnswer = node0.get(data.hashCode());
-        Assertions.assertEquals(getAnswer.getAction(), GetAnswer.Action.FOUND, "GetAnswer Action was " + storeAnswer.getAction());
-        Assertions.assertEquals((int) getAnswer.getKey(), data.hashCode(), "GetAnswer key was " + storeAnswer.getAction());
-        Assertions.assertEquals(getAnswer.getValue(), data, "GetAnswer value was " + storeAnswer.getAction());
+        Assertions.assertEquals(getAnswer.getResult(), GetAnswer.Result.FOUND, "GetAnswer Result was " + storeAnswer.getResult());
+        Assertions.assertEquals((int) getAnswer.getKey(), data.hashCode(), "GetAnswer key was " + storeAnswer.getResult());
+        Assertions.assertEquals(getAnswer.getValue(), data, "GetAnswer value was " + storeAnswer.getResult());
         Assertions.assertEquals((int) getAnswer.getNodeId(), 10, "Holder node id was " + storeAnswer.getNodeId());
 
         System.out.println("Successfully retrieved `"+ data +"` from node " + getAnswer.getNodeId());
@@ -68,9 +68,9 @@ public class DataStorageReDistributionTest {
 
         Thread.sleep(2000);
         getAnswer = node0.get(data.hashCode());
-        Assertions.assertEquals(getAnswer.getAction(), GetAnswer.Action.FOUND, "GetAnswer Action was " + storeAnswer.getAction());
-        Assertions.assertEquals((int) getAnswer.getKey(), data.hashCode(), "GetAnswer key was " + storeAnswer.getAction());
-        Assertions.assertEquals(getAnswer.getValue(), data, "GetAnswer value was " + storeAnswer.getAction());
+        Assertions.assertEquals(getAnswer.getResult(), GetAnswer.Result.FOUND, "GetAnswer Result was " + storeAnswer.getResult());
+        Assertions.assertEquals((int) getAnswer.getKey(), data.hashCode(), "GetAnswer key was " + storeAnswer.getResult());
+        Assertions.assertEquals(getAnswer.getValue(), data, "GetAnswer value was " + storeAnswer.getResult());
         Assertions.assertEquals((int) getAnswer.getNodeId(), 11, "Holder node id was " + storeAnswer.getNodeId());
 
         System.out.println("Successfully retrieved `"+ data +"` from node " + getAnswer.getNodeId());
@@ -117,15 +117,15 @@ public class DataStorageReDistributionTest {
 
         String data = "Eleuth";
         StoreAnswer<Integer> storeAnswer = node0.store(data.hashCode(), data);
-        Assertions.assertEquals(storeAnswer.getAction(), StoreAnswer.Action.STORED, "StoreAnswer Action was " + storeAnswer.getAction());
-        Assertions.assertEquals((int) storeAnswer.getKey(), data.hashCode(), "StoreAnswer key was " + storeAnswer.getAction());
+        Assertions.assertEquals(storeAnswer.getResult(), StoreAnswer.Result.STORED, "StoreAnswer Result was " + storeAnswer.getResult());
+        Assertions.assertEquals((int) storeAnswer.getKey(), data.hashCode(), "StoreAnswer key was " + storeAnswer.getResult());
         System.out.println("Successfully stored `" + data +"` on node " + storeAnswer.getNodeId());
         Assertions.assertNull(node0.getKademliaRepository().get(data.hashCode()), "Invalid node is holding data");
 
         GetAnswer<Integer, String> getAnswer = node0.get(data.hashCode());
-        Assertions.assertEquals(getAnswer.getAction(), GetAnswer.Action.FOUND, "GetAnswer Action was " + storeAnswer.getAction());
-        Assertions.assertEquals((int) getAnswer.getKey(), data.hashCode(), "GetAnswer key was " + storeAnswer.getAction());
-        Assertions.assertEquals(getAnswer.getValue(), data, "GetAnswer value was " + storeAnswer.getAction());
+        Assertions.assertEquals(getAnswer.getResult(), GetAnswer.Result.FOUND, "GetAnswer Result was " + storeAnswer.getResult());
+        Assertions.assertEquals((int) getAnswer.getKey(), data.hashCode(), "GetAnswer key was " + storeAnswer.getResult());
+        Assertions.assertEquals(getAnswer.getValue(), data, "GetAnswer value was " + storeAnswer.getResult());
         Assertions.assertEquals((int) getAnswer.getNodeId(), 11, "Holder node id was " + storeAnswer.getNodeId());
         System.out.println("Successfully retrieved `"+ data +"` from node " + getAnswer.getNodeId());
         System.out.println("Shutting down node 11 and checking if data re-distributes");
@@ -133,9 +133,9 @@ public class DataStorageReDistributionTest {
 
         Thread.sleep(5000);
         getAnswer = node0.get(data.hashCode());
-        Assertions.assertEquals(getAnswer.getAction(), GetAnswer.Action.FOUND, "GetAnswer Action was " + storeAnswer.getAction());
-        Assertions.assertEquals((int) getAnswer.getKey(), data.hashCode(), "GetAnswer key was " + storeAnswer.getAction());
-        Assertions.assertEquals(getAnswer.getValue(), data, "GetAnswer value was " + storeAnswer.getAction());
+        Assertions.assertEquals(getAnswer.getResult(), GetAnswer.Result.FOUND, "GetAnswer Result was " + storeAnswer.getResult());
+        Assertions.assertEquals((int) getAnswer.getKey(), data.hashCode(), "GetAnswer key was " + storeAnswer.getResult());
+        Assertions.assertEquals(getAnswer.getValue(), data, "GetAnswer value was " + storeAnswer.getResult());
         Assertions.assertEquals((int) getAnswer.getNodeId(), 10, "Holder node id was " + storeAnswer.getNodeId());
 
         System.out.println("Successfully retrieved `"+ data +"` from node " + getAnswer.getNodeId());

@@ -2,6 +2,7 @@ package com.github.ep2p.kademlia;
 
 import com.github.ep2p.kademlia.connection.EmptyConnectionInfo;
 import com.github.ep2p.kademlia.connection.LocalNodeConnectionApi;
+import com.github.ep2p.kademlia.connection.LongRunningLocalNodeConnectionApi;
 import com.github.ep2p.kademlia.exception.BootstrapException;
 import com.github.ep2p.kademlia.exception.GetException;
 import com.github.ep2p.kademlia.exception.StoreException;
@@ -10,14 +11,17 @@ import com.github.ep2p.kademlia.model.StoreAnswer;
 import com.github.ep2p.kademlia.node.*;
 import com.github.ep2p.kademlia.table.RoutingTableFactory;
 import com.github.ep2p.kademlia.table.SimpleRoutingTableFactory;
-import com.github.ep2p.kademlia.util.BoundedHashUtil;
+import lombok.SneakyThrows;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public class DataStorageTest {
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
+
+public class DataStorageMTTest {
 
     @Test
-    public void canStoreDataInNetwork() throws BootstrapException, StoreException, InterruptedException, GetException {
+    public void canStoreDataWhenCalledInMultipleThreads() throws BootstrapException, StoreException, InterruptedException, GetException {
         LocalNodeConnectionApi nodeApi = new LocalNodeConnectionApi();
         NodeIdFactory nodeIdFactory = new IncrementalNodeIdFactory();
         RoutingTableFactory<EmptyConnectionInfo, Integer> routingTableFactory = new SimpleRoutingTableFactory();
@@ -39,7 +43,25 @@ public class DataStorageTest {
         Thread.sleep(2000);
 
         String data = "Eleuth";
-        StoreAnswer<Integer> storeAnswer = node0.store(data.hashCode(), data);
+        AtomicReference<StoreAnswer<Integer>> atomicReference = new AtomicReference<>();
+        for (int i = 0; i < 10; i++){
+            Thread thread = new Thread(new Runnable() {
+                @SneakyThrows
+                @Override
+                public void run() {
+                    try {
+                        StoreAnswer<Integer> storeAnswer = node0.store(data.hashCode(), data);
+                        atomicReference.set(storeAnswer);
+                    }catch (StoreException e){
+                        e.printStackTrace();
+                    }
+                }
+            });
+            thread.start();
+            Thread.sleep(20);
+        }
+        Thread.sleep(3000);
+        StoreAnswer<Integer> storeAnswer = atomicReference.get();
         Assertions.assertEquals(storeAnswer.getResult(), StoreAnswer.Result.STORED, "StoreAnswer Result was " + storeAnswer.getResult());
         Assertions.assertEquals((int) storeAnswer.getKey(), data.hashCode(), "StoreAnswer key was " + storeAnswer.getResult());
         System.out.println("Successfully stored `" + data +"` on node " + storeAnswer.getNodeId());
@@ -56,8 +78,8 @@ public class DataStorageTest {
     }
 
     @Test
-    public void canStoreWhenNetworkIsNotFull() throws InterruptedException, BootstrapException, StoreException, GetException {
-        LocalNodeConnectionApi nodeApi = new LocalNodeConnectionApi();
+    public void getsValidTimeoutOnLongStore() throws BootstrapException, StoreException, InterruptedException, GetException {
+        LongRunningLocalNodeConnectionApi nodeApi = new LongRunningLocalNodeConnectionApi();
         NodeIdFactory nodeIdFactory = new IncrementalNodeIdFactory();
         RoutingTableFactory<EmptyConnectionInfo, Integer> routingTableFactory = new SimpleRoutingTableFactory();
         Common.IDENTIFIER_SIZE = 4;
@@ -69,8 +91,8 @@ public class DataStorageTest {
         node0.start();
 
 
-        for(int i = 1; i < (Math.pow(2, Common.IDENTIFIER_SIZE) / 2); i++){
-            KademliaRepositoryNode<EmptyConnectionInfo, Integer, String> aNode = new KademliaRepositoryNode<>(i * 2, routingTableFactory.getRoutingTable(i * 2), nodeApi, new EmptyConnectionInfo(), new SampleRepository());
+        for(int i = 1; i < Math.pow(2, Common.IDENTIFIER_SIZE); i++){
+            KademliaRepositoryNode<EmptyConnectionInfo, Integer, String> aNode = new KademliaRepositoryNode<>(i, routingTableFactory.getRoutingTable(i), nodeApi, new EmptyConnectionInfo(), new SampleRepository());
             nodeApi.registerNode(aNode);
             aNode.bootstrap(node0);
         }
@@ -78,35 +100,22 @@ public class DataStorageTest {
         Thread.sleep(2000);
 
         String data = "Eleuth";
-        StoreAnswer<Integer> storeAnswer = node0.store(data.hashCode(), data);
-        Assertions.assertEquals(storeAnswer.getResult(), StoreAnswer.Result.STORED, "StoreAnswer Result was " + storeAnswer.getResult());
-        Assertions.assertEquals((int) storeAnswer.getKey(), data.hashCode(), "StoreAnswer key was " + storeAnswer.getResult());
-        System.out.println("Successfully stored `" + data +"` on node " + storeAnswer.getNodeId());
+        StoreAnswer<Integer> storeAnswer = node0.store(data.hashCode(), data, 100, TimeUnit.MILLISECONDS);
+        Assertions.assertEquals(storeAnswer.getResult(), StoreAnswer.Result.TIMEOUT, "Could not get timeout from store answer");
 
-        Assertions.assertNull(node0.getKademliaRepository().get(data.hashCode()), "Invalid node is holding data");
-
-        GetAnswer<Integer, String> getAnswer = node0.get(data.hashCode());
-        Assertions.assertEquals(getAnswer.getResult(), GetAnswer.Result.FOUND, "GetAnswer Result was " + storeAnswer.getResult());
-        Assertions.assertEquals((int) getAnswer.getKey(), data.hashCode(), "GetAnswer key was " + storeAnswer.getResult());
-        Assertions.assertEquals(getAnswer.getValue(), data, "GetAnswer value was " + storeAnswer.getResult());
-
-        System.out.println("Successfully retrieved `"+ data +"` from node " + getAnswer.getNodeId());
     }
+
 
     public static void main(String[] args) {
-        BoundedHashUtil boundedHashUtil = new BoundedHashUtil(4);
-        String test1 = "hehehe";
-        String test2 = "World";
-        String test3 = "Whats";
-        String test4 = "Upside down";
-        String test5 = "Eleuth";
-        String test6 = "EP2p";
-        System.out.println(test1 + " " + boundedHashUtil.hash(test1.hashCode()));
-        System.out.println(test2 + " " + boundedHashUtil.hash(test2.hashCode()));
-        System.out.println(test3 + " " + boundedHashUtil.hash(test3.hashCode()));
-        System.out.println(test4 + " " + boundedHashUtil.hash(test4.hashCode()));
-        System.out.println(test5 + " " + boundedHashUtil.hash(test5.hashCode()));
-        System.out.println(test6 + " " + boundedHashUtil.hash(test6.hashCode()));
+        test(1L, TimeUnit.SECONDS);
+        test(1L, TimeUnit.DAYS);
     }
+
+    private static void test(long input, TimeUnit timeUnit){
+        System.out.println(timeUnit.convert(input, TimeUnit.MILLISECONDS) + "");
+        System.out.println(timeUnit.toMillis(input) + "");
+        System.out.println("----");
+    }
+
 
 }

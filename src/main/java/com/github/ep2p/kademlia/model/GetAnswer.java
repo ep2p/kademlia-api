@@ -8,9 +8,9 @@ import lombok.Setter;
 public class GetAnswer<K, V> extends Answer {
     private K key;
     private V value;
-    private Action action;
+    private Result result;
 
-    public enum Action {
-        PASSED, FOUND, FAILED
+    public enum Result {
+        PASSED, FOUND, FAILED, TIMEOUT
     }
 }
