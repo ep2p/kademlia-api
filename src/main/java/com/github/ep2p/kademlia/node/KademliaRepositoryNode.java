@@ -92,6 +92,8 @@ public class KademliaRepositoryNode<C extends ConnectionInfo, K, V> extends Kade
      * @throws StoreException thrown when no responsible node was found
      */
     public StoreAnswer<K> store(K key, V value) throws StoreException {
+        if(!isRunning())
+            throw new StoreException("Node is shutting down");
         StoreAnswer<K> storeAnswer = null;
         int hash = boundedHashUtil.hash(key.hashCode());
         //if current requester should persist data, do it immediatly
@@ -116,6 +118,8 @@ public class KademliaRepositoryNode<C extends ConnectionInfo, K, V> extends Kade
      * @throws GetException No responsible node found for key
      */
     public GetAnswer<K, V> get(K key) throws GetException {
+        if(!isRunning())
+            throw new GetException("Node is shutting down");
         //Check repository for key, if it exists return it
         if(kademliaRepository.contains(key)){
             V value = kademliaRepository.get(key);

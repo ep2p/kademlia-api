@@ -10,6 +10,7 @@ public interface KademliaNodeListener<C extends ConnectionInfo, K, V> {
     default void onBootstrapDone(KademliaNode<C> kademliaNode){}
     default void onNewNodeAvailable(KademliaNode<C> kademliaNode, Node<C> node){}
     default void onShutdownComplete(KademliaNode<C> kademliaNode){}
+    default void onBeforeShutdown(KademliaNode<C> kademliaNode){}
     default void onStartupComplete(KademliaNode<C> kademliaNode){}
     default void onPing(KademliaNode<C> kademliaNode, Node<C> node) throws NodeIsOfflineException {}
     default void onKeyLookupResult(KademliaNode<C> kademliaNode, Node<C> node, K key, V value){}

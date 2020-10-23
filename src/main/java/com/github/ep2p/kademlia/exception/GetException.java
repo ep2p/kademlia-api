@@ -8,4 +8,8 @@ public class GetException extends Exception {
     public GetException(Exception e) {
         super(e);
     }
+
+    public GetException(String message) {
+        super(message);
+    }
 }

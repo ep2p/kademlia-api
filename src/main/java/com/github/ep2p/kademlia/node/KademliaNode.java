@@ -129,6 +129,7 @@ public class KademliaNode<C extends ConnectionInfo> extends Node<C> implements N
     /* Managing API */
     public void stop() throws ShutdownException {
         setRunning(false);
+        kademliaNodeListener.onBeforeShutdown(this);
         //Shutdown executors
         ShutdownException shutdownException = null;
         try {

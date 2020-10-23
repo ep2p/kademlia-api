@@ -49,7 +49,7 @@ public class RedistributionKademliaNodeListener<C extends ConnectionInfo, K, V> 
     }
 
     @Override
-    public void onShutdownComplete(KademliaNode<C> kademliaNode) {
+    public void onBeforeShutdown(KademliaNode<C> kademliaNode) {
         if(distributeOnShutdown){
             KademliaRepositoryNode<C, K, V> kademliaRepositoryNode = (KademliaRepositoryNode<C, K, V>) kademliaNode;
             RoutingTable<C> routingTable = kademliaRepositoryNode.getRoutingTable();
