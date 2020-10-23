@@ -29,6 +29,7 @@ public class KademliaNode<C extends ConnectionInfo> extends Node<C> implements N
     private List<Node<C>> referencedNodes;
     @Getter
     private KademliaNodeListener<C, ?, ?> kademliaNodeListener = new KademliaNodeListener.Default<C>();
+    private volatile boolean running;
 
     //None-Accessible fields
     private final ExecutorService executorService = Executors.newFixedThreadPool(1);
@@ -95,7 +96,9 @@ public class KademliaNode<C extends ConnectionInfo> extends Node<C> implements N
      * @return answer of closest nodes
      */
     @Override
-    public FindNodeAnswer<C> onFindNode(int externalNodeId){
+    public FindNodeAnswer<C> onFindNode(int externalNodeId) throws NodeIsOfflineException {
+        if(!isRunning())
+            throw new NodeIsOfflineException();
         return routingTable.findClosest(externalNodeId);
     }
 
@@ -106,6 +109,8 @@ public class KademliaNode<C extends ConnectionInfo> extends Node<C> implements N
      */
     @Override
     public PingAnswer onPing(Node<C> node) throws NodeIsOfflineException {
+        if(!isRunning())
+            throw new NodeIsOfflineException();
         addNode(node);
         return new PingAnswer(getId());
     }
@@ -124,6 +129,7 @@ public class KademliaNode<C extends ConnectionInfo> extends Node<C> implements N
 
     /* Managing API */
     public void stop() throws ShutdownException {
+        setRunning(false);
         //Shutdown executors
         ShutdownException shutdownException = null;
         try {
@@ -168,8 +174,15 @@ public class KademliaNode<C extends ConnectionInfo> extends Node<C> implements N
         this.kademliaNodeListener = kademliaNodeListener;
     }
 
+    public boolean isRunning(){
+        return running;
+    }
 
     /* Helper methods */
+
+    protected void setRunning(boolean running){
+        this.running = running;
+    }
 
     protected void addNode(Node<C> node){
         if (routingTable.update(node)) {
