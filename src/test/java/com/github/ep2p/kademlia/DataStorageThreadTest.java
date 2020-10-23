@@ -18,7 +18,7 @@ import org.junit.jupiter.api.Test;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
-public class DataStorageMTTest {
+public class DataStorageThreadTest {
 
     @Test
     public void canStoreDataWhenCalledInMultipleThreads() throws BootstrapException, StoreException, InterruptedException, GetException {
@@ -105,16 +105,38 @@ public class DataStorageMTTest {
 
     }
 
+    @Test
+    public void getsValidTimeoutOnLongGetRequest() throws InterruptedException, BootstrapException, StoreException, GetException {
+        LongRunningLocalNodeConnectionApi nodeApi = new LongRunningLocalNodeConnectionApi(); //important
+        NodeIdFactory nodeIdFactory = new IncrementalNodeIdFactory();
+        RoutingTableFactory<EmptyConnectionInfo, Integer> routingTableFactory = new SimpleRoutingTableFactory();
+        Common.IDENTIFIER_SIZE = 4;
+        Common.REFERENCED_NODES_UPDATE_PERIOD_SEC = 2;
 
-    public static void main(String[] args) {
-        test(1L, TimeUnit.SECONDS);
-        test(1L, TimeUnit.DAYS);
-    }
+        //bootstrap node
+        KademliaSyncRepositoryNode<EmptyConnectionInfo, Integer, String> node0 = new KademliaSyncRepositoryNode<>(nodeIdFactory.getNodeId(), routingTableFactory.getRoutingTable(0), nodeApi, new EmptyConnectionInfo(), new SampleRepository());
+        nodeApi.registerNode(node0);
+        node0.start();
 
-    private static void test(long input, TimeUnit timeUnit){
-        System.out.println(timeUnit.convert(input, TimeUnit.MILLISECONDS) + "");
-        System.out.println(timeUnit.toMillis(input) + "");
-        System.out.println("----");
+
+        for(int i = 1; i < (Math.pow(2, Common.IDENTIFIER_SIZE) / 2); i++){
+            KademliaRepositoryNode<EmptyConnectionInfo, Integer, String> aNode = new KademliaRepositoryNode<>(i * 2, routingTableFactory.getRoutingTable(i * 2), nodeApi, new EmptyConnectionInfo(), new SampleRepository());
+            nodeApi.registerNode(aNode);
+            aNode.bootstrap(node0);
+        }
+
+        Thread.sleep(2000);
+
+        String data = "Eleuth";
+        StoreAnswer<Integer> storeAnswer = node0.store(data.hashCode(), data);
+        Assertions.assertEquals(storeAnswer.getResult(), StoreAnswer.Result.STORED, "StoreAnswer Result was " + storeAnswer.getResult());
+        Assertions.assertEquals((int) storeAnswer.getKey(), data.hashCode(), "StoreAnswer key was " + storeAnswer.getResult());
+        System.out.println("Successfully stored `" + data +"` on node " + storeAnswer.getNodeId());
+
+        Assertions.assertNull(node0.getKademliaRepository().get(data.hashCode()), "Invalid node is holding data");
+
+        GetAnswer<Integer, String> getAnswer = node0.get(data.hashCode(), 100, TimeUnit.MILLISECONDS);
+        Assertions.assertEquals(getAnswer.getResult(), GetAnswer.Result.TIMEOUT, "GetAnswer Result was " + storeAnswer.getResult());
     }
 
 

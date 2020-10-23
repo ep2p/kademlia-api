@@ -81,7 +81,6 @@ public class DataStorageReDistributionTest {
     @Test
     public void canRedistributeDataOnShutdown() throws BootstrapException, StoreException, InterruptedException, GetException, ShutdownException {
         LocalNodeConnectionApi nodeApi = new LocalNodeConnectionApi();
-        Thread.sleep(100);
         NodeIdFactory nodeIdFactory = new IncrementalNodeIdFactory();
         RoutingTableFactory<EmptyConnectionInfo, Integer> routingTableFactory = new SimpleRoutingTableFactory();
         Common.IDENTIFIER_SIZE = 4;

@@ -94,7 +94,18 @@ public class LocalNodeConnectionApi implements NodeConnectionApi<EmptyConnection
         System.out.println("getRequest("+caller.getId()+", "+requester.getId()+", "+node.getId()+", "+key+")");
         KademliaNode<EmptyConnectionInfo> kademliaNode = nodeMap.get(node.getId());
         if(kademliaNode instanceof KademliaRepositoryNode){
-            ((KademliaRepositoryNode) kademliaNode).onGetRequest(caller, requester, key);
+            executorService.submit(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        //Fake network latency
+                        Thread.sleep(100);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    ((KademliaRepositoryNode) kademliaNode).onGetRequest(caller, requester, key);
+                }
+            });
         }
     }
 
