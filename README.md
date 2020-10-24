@@ -1,6 +1,6 @@
 [![](https://jitpack.io/v/ep2p/eleuth-java-kademlia-api.svg)](https://jitpack.io/#ep2p/eleuth-java-kademlia-api)
 
-# Eleuth - Java Kademlia Api
+# Kademlia Api
 Java Kademlia API for Eleuth network.
 
 This API mainly focuses on routing table and peer choosing logic, and moves data persistence & networking to an abstraction layer.
