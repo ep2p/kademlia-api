@@ -1,4 +1,4 @@
-[![](https://jitpack.io/v/ep2p/eleuth-java-kademlia-api.svg)](https://jitpack.io/#ep2p/eleuth-java-kademlia-api)
+[![](https://jitpack.io/v/ep2p/kademlia-api.svg)](https://jitpack.io/#ep2p/kademlia-api)
 
 # Kademlia Api
 Java Kademlia API for Eleuth network.
@@ -93,10 +93,10 @@ Use jitpack to add library to your project. Maven example:
 Add jitpack repository
 ```
 <repositories>
-<repository>
-    <id>jitpack.io</id>
-    <url>https://jitpack.io</url>
-</repository>
+    <repository>
+        <id>jitpack.io</id>
+        <url>https://jitpack.io</url>
+    </repository>
 </repositories>
 ```
 
@@ -104,7 +104,7 @@ Add java-kademlia-api repository
 ```
 <dependency>
     <groupId>com.github.ep2p</groupId>
-    <artifactId>eleuth-java-kademlia-api</artifactId>
+    <artifactId>kademlia-api</artifactId>
     <version>1.2.0-SNAPSHOT</version>
 </dependency>
 ```
