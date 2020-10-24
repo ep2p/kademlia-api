@@ -1,2 +1,0 @@
-1. Ping the least seen guy and remove him if he is offline. (when bucket size exceeds max)
-2. When new nodes are added to routing table, see if there should be any data to move to them

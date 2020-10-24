@@ -70,7 +70,6 @@ public class KademliaNode<C extends ConnectionInfo> extends Node<C> implements N
             //Get other closest nodes from alive nodes
             getClosestNodesFromAliveNodes(bootstrapNode);
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            executorService.shutdown();
             throw new BootstrapException(bootstrapNode, e.getMessage(), e);
         }
 
@@ -79,7 +78,6 @@ public class KademliaNode<C extends ConnectionInfo> extends Node<C> implements N
             public void run() {
                 //Get other closest nodes from alive nodes
                 getClosestNodesFromAliveNodes(bootstrapNode);
-                executorService.shutdown();
             }
         });
         kademliaNodeListener.onBootstrapDone(this);
@@ -244,13 +242,15 @@ public class KademliaNode<C extends ConnectionInfo> extends Node<C> implements N
     }
 
     protected void pingAndAddResults(List<? extends Node<C>> externalNodes){
-        externalNodes.forEach(externalNode -> {
+        for (Node<C> externalNode : externalNodes) {
+            if(externalNode.getId() == getId())
+                continue;
             PingAnswer pingAnswer = nodeConnectionApi.ping(this, externalNode);
             if(pingAnswer.isAlive()){
                 addNode(externalNode);
             }else {
                 routingTable.delete(externalNode);
             }
-        });
+        }
     }
 }

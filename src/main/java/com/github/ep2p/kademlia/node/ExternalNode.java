@@ -8,10 +8,15 @@ package com.github.ep2p.kademlia.node;
 
 import com.github.ep2p.kademlia.connection.ConnectionInfo;
 import lombok.Getter;
+import lombok.Setter;
 
 @Getter
+@Setter
 public class ExternalNode<C extends ConnectionInfo> extends Node<C> implements Comparable<Object> {
   private int distance;
+
+  public ExternalNode() {
+  }
 
   public ExternalNode(Node<C> node, int distance) {
     setNode(node);

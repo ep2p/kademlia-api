@@ -101,12 +101,14 @@ public class DataStorageTest {
         String test4 = "Upside down";
         String test5 = "Eleuth";
         String test6 = "EP2p";
+        String test7 = "3";
         System.out.println(test1 + " " + boundedHashUtil.hash(test1.hashCode()));
         System.out.println(test2 + " " + boundedHashUtil.hash(test2.hashCode()));
         System.out.println(test3 + " " + boundedHashUtil.hash(test3.hashCode()));
         System.out.println(test4 + " " + boundedHashUtil.hash(test4.hashCode()));
         System.out.println(test5 + " " + boundedHashUtil.hash(test5.hashCode()));
         System.out.println(test6 + " " + boundedHashUtil.hash(test6.hashCode()));
+        System.out.println(test7 + " " + boundedHashUtil.hash(test7.hashCode()));
     }
 
 }

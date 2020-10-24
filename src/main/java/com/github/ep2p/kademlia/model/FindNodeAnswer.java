@@ -20,6 +20,11 @@ public class FindNodeAnswer<C extends ConnectionInfo> extends Answer {
   /* Closest nodes in the answer. */
   private ArrayList<ExternalNode<C>> nodes;
 
+  public FindNodeAnswer() {
+    nodes = new ArrayList<ExternalNode<C>>();
+    setAlive(true);
+  }
+
   public FindNodeAnswer(int destinationId) {
     this.destinationId = destinationId;
     nodes = new ArrayList<ExternalNode<C>>();
