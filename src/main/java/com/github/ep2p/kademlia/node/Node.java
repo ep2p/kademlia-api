@@ -14,11 +14,11 @@ import java.util.Objects;
 @ToString
 public class Node<C extends ConnectionInfo> implements Serializable {
     protected int id;
-    protected ConnectionInfo connection;
+    protected C connectionInfo;
     protected Date lastSeen;
 
     protected void setNode(Node<C> node) {
-        this.setConnection(node.getConnection());
+        this.setConnectionInfo(node.getConnectionInfo());
         this.setId(node.getId());
         this.setLastSeen(node.getLastSeen());
     }
@@ -29,11 +29,11 @@ public class Node<C extends ConnectionInfo> implements Serializable {
         if (o == null || getClass() != o.getClass()) return false;
         Node<?> node = (Node<?>) o;
         return getId() == node.getId() &&
-                Objects.equals(getConnection(), node.getConnection());
+                Objects.equals(getConnectionInfo(), node.getConnectionInfo());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getId(), getConnection());
+        return Objects.hash(getId(), getConnectionInfo());
     }
 }

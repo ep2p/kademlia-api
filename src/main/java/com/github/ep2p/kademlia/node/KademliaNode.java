@@ -37,7 +37,7 @@ public class KademliaNode<C extends ConnectionInfo> extends Node<C> implements N
 
     public KademliaNode(Integer nodeId, RoutingTable<C> routingTable, NodeConnectionApi<C> nodeConnectionApi, C connectionInfo) {
         this.setId(nodeId);
-        this.setConnection(connectionInfo);
+        this.setConnectionInfo(connectionInfo);
         this.nodeConnectionApi = nodeConnectionApi;
         this.routingTable = routingTable;
         referencedNodes = new CopyOnWriteArrayList<>();
