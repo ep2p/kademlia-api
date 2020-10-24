@@ -1,6 +1,6 @@
-[![](https://jitpack.io/v/ep2p/eleuth-java-kademlia-api.svg)](https://jitpack.io/#ep2p/eleuth-java-kademlia-api)
+[![](https://jitpack.io/v/ep2p/kademlia-api.svg)](https://jitpack.io/#ep2p/kademlia-api)
 
-# Eleuth - Java Kademlia Api
+# Kademlia Api
 Java Kademlia API for Eleuth network.
 
 This API mainly focuses on routing table and peer choosing logic, and moves data persistence & networking to an abstraction layer.
@@ -27,7 +27,9 @@ Normally this Kademlia abstraction doesn't care about storing data. It only join
 
 ### NodeApi
 If you call any Node Api methods on one end through `NodeConnectionApi`. on the other end you need to receive them and call appropriate method on you KademliaNode.
-Make sure your protocol supports requests for methods available in `com.github.ep2p.kademlia.connection.NodeApi` and also `com.github.ep2p.kademlia.connection.P2PStorageApi` if you are storing data as well.
+Make sure your protocol supports requests for methods available in `com.github.ep2p.kademlia.connection.NodeApi` and also `com.github.ep2p.kademlia.connection.StorageNodeApi` if you are storing data as well.
+
+To make it more clear, you implement **NodeConnectionApi** for requests that are leaving the node, and **NodeApi** (or **StorageNodeApi**) for incoming requests to your node. A big advantage is that you can control the incoming requests, sign them, validate them, or anything you want to do with them before you pass them to Kademlia node.
 
 ### RoutingTable
 Notice that `RoutingTable` and its buckets are Serializable. So you will easily be able to write it to a file. When you are creating and instance of your node, you can pass a new routing table or use one from disk.
@@ -55,8 +57,6 @@ KademliaSyncRepositoryNode<?, Integer, String> aNode = new KademliaSyncRepositor
 Where `Integer` is data storage key type, `String` is data storage value type, and `repository` is data storage implementation. It's a good practice to keep storage outside ram and avoid data loss on node shutdowns, but the choice is yours.
 
 Difference between `KademliaRepositoryNode` and `KademliaSyncRepositoryNode` is that second one waits for `store()` and `get()` to reply, while first one returns an answer even if store or get requests are forwarded to other nodes.
-
----
 
 After creating a node instance for first time, you need to bootstrap it using another node you know in network:
 ```
@@ -93,10 +93,10 @@ Use jitpack to add library to your project. Maven example:
 Add jitpack repository
 ```
 <repositories>
-	<repository>
-	    <id>jitpack.io</id>
-	    <url>https://jitpack.io</url>
-	</repository>
+    <repository>
+        <id>jitpack.io</id>
+        <url>https://jitpack.io</url>
+    </repository>
 </repositories>
 ```
 
@@ -104,8 +104,8 @@ Add java-kademlia-api repository
 ```
 <dependency>
     <groupId>com.github.ep2p</groupId>
-    <artifactId>eleuth-java-kademlia-api</artifactId>
-    <version>1.1.0-SNAPSHOT</version>
+    <artifactId>kademlia-api</artifactId>
+    <version>1.2.0-SNAPSHOT</version>
 </dependency>
 ```
 
