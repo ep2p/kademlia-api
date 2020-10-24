@@ -105,7 +105,7 @@ Add java-kademlia-api repository
 <dependency>
     <groupId>com.github.ep2p</groupId>
     <artifactId>kademlia-api</artifactId>
-    <version>1.2.0-SNAPSHOT</version>
+    <version>1.2.1-SNAPSHOT</version>
 </dependency>
 ```
 
