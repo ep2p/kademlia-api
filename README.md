@@ -112,7 +112,7 @@ Add java-kademlia-api repository
 ## Acknowledgments
 
 Since this project is completely experimental (at least for now), I'd like to thank to some people around the internet that helped me gain some knowledge about Kademlia and its implementations beyond the paper.
-I know my implementation as a sample. nothing more.
+I know my implementation as a sample and abstract kademlia api, not most complete.
 
 - A huge thank to  **Jakob Jenkov** for his great [tutorial](http://tutorials.jenkov.com/p2p/index.html) on p2p network and kademlia.
 - Stackoverflow Community
