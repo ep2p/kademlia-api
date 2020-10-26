@@ -120,3 +120,12 @@ I know my implementation as a sample and abstract kademlia api, not most complet
     - **Nawras** for asking [What exactly K-Bucket means in Kademlia DHT?](https://stackoverflow.com/q/54341261/5197662)
 - **Kasra Faghihi** ([@offbynull](https://github.com/offbynull)) for his very mathematical implementation of Kademlia.
 - And a great shout out to **SimGrid** Team, for keeping history of [their work on Kademlia](https://gitlab.inria.fr/simgrid/simgrid/-/tree/ce2e676ad127f782b9c959499ab1c042195e411a/examples/java/kademlia) which this repository is inspired by it to implement RoutingTables, Buckets and some more stuff. 
+
+## Videos
+
+### Kademlia Overview 1
+
+In first video of EP2P lecture about Kademlia Algorithm, we are going to gain brief understanding about elements of Kademlia nodes, network structure and Distributed Hash Tables (DHT) in theory. In next video, we will see these concepts in code examples.
+
+
+[![Kademlia Algorithm Overview 1](https://github.com/ep2p/kademlia-api/blob/main/kademlia-ov1.png?raw=1)](https://youtu.be/7o0pfKDq9KE)
