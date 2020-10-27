@@ -86,7 +86,7 @@ public class DataStorageReDistributionTest {
         Common.IDENTIFIER_SIZE = 4;
         Common.REFERENCED_NODES_UPDATE_PERIOD_SEC = 2;
 
-        KademliaNodeListener<EmptyConnectionInfo, Integer, String> redistributionKademliaNodeListener = new RedistributionKademliaNodeListener<EmptyConnectionInfo, Integer, String>(new RedistributionKademliaNodeListener.ShutdownDistributionListener<EmptyConnectionInfo>() {
+        KademliaNodeListener<EmptyConnectionInfo, Integer, String> redistributionKademliaNodeListener = new RedistributionKademliaNodeListener<EmptyConnectionInfo, Integer, String>(true, new RedistributionKademliaNodeListener.ShutdownDistributionListener<EmptyConnectionInfo>() {
             @Override
             public void onFinish(KademliaNode<EmptyConnectionInfo> kademliaNode) {
                 System.out.println("Finished redistributing data on shutdown.");

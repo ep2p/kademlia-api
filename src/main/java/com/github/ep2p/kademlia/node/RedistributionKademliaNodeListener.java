@@ -12,9 +12,8 @@ public class RedistributionKademliaNodeListener<C extends ConnectionInfo, K, V> 
     private final ShutdownDistributionListener<C> shutdownDistributionListener;
 
 
-    public RedistributionKademliaNodeListener(ShutdownDistributionListener<C> shutdownDistributionListener) {
-        this.distributeOnShutdown = true;
-        assert shutdownDistributionListener != null;
+    public RedistributionKademliaNodeListener(boolean distributeOnShutdown, ShutdownDistributionListener<C> shutdownDistributionListener) {
+        this.distributeOnShutdown = distributeOnShutdown;
         this.shutdownDistributionListener = shutdownDistributionListener;
     }
 
@@ -28,8 +27,7 @@ public class RedistributionKademliaNodeListener<C extends ConnectionInfo, K, V> 
         KademliaRepositoryNode<C, K, V> kademliaRepositoryNode = (KademliaRepositoryNode<C, K, V>) kademliaNode;
         RoutingTable<C> routingTable = kademliaRepositoryNode.getRoutingTable();
         kademliaRepositoryNode.getKademliaRepository().getKeys().forEach(key -> {
-            Object keyObject = (Object) key;
-            FindNodeAnswer<C> findNodeAnswer = routingTable.findClosest(boundedHashUtil.hash(keyObject.hashCode()));
+            FindNodeAnswer<C> findNodeAnswer = routingTable.findClosest(boundedHashUtil.hash(((Object) key).hashCode()));
             if (findNodeAnswer.getNodes().size() > 0 && findNodeAnswer.getNodes().get(0).getId() != kademliaRepositoryNode.getId() && findNodeAnswer.getNodes().get(0).getId() == node.getId()) {
                 kademliaRepositoryNode.getNodeConnectionApi().storeAsync(kademliaRepositoryNode, kademliaRepositoryNode, node, key, kademliaRepositoryNode.getKademliaRepository().get(key));
             }
@@ -50,8 +48,7 @@ public class RedistributionKademliaNodeListener<C extends ConnectionInfo, K, V> 
             KademliaRepositoryNode<C, K, V> kademliaRepositoryNode = (KademliaRepositoryNode<C, K, V>) kademliaNode;
             RoutingTable<C> routingTable = kademliaRepositoryNode.getRoutingTable();
             kademliaRepositoryNode.getKademliaRepository().getKeys().forEach(key -> {
-                Object kyObj = (Object) key;
-                for (Node<C> node : routingTable.findClosest(boundedHashUtil.hash(kyObj.hashCode())).getNodes()) {
+                for (Node<C> node : routingTable.findClosest(boundedHashUtil.hash(((Object) key).hashCode())).getNodes()) {
                     if(node.getId() != kademliaRepositoryNode.getId()){
                         try {
                             System.out.println("Closest node to store " + key + " on shutdown is: "+node.getId());
@@ -61,7 +58,8 @@ public class RedistributionKademliaNodeListener<C extends ConnectionInfo, K, V> 
                     }
                 }
             });
-            shutdownDistributionListener.onFinish(kademliaRepositoryNode);
+            if(shutdownDistributionListener != null)
+                shutdownDistributionListener.onFinish(kademliaRepositoryNode);
         }
     }
 
