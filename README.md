@@ -112,7 +112,7 @@ Add java-kademlia-api repository
 ## Acknowledgments
 
 Since this project is completely experimental (at least for now), I'd like to thank to some people around the internet that helped me gain some knowledge about Kademlia and its implementations beyond the paper.
-I know my implementation as a sample. nothing more.
+I know my implementation as a sample and abstract kademlia api, not most complete.
 
 - A huge thank to  **Jakob Jenkov** for his great [tutorial](http://tutorials.jenkov.com/p2p/index.html) on p2p network and kademlia.
 - Stackoverflow Community
@@ -120,3 +120,12 @@ I know my implementation as a sample. nothing more.
     - **Nawras** for asking [What exactly K-Bucket means in Kademlia DHT?](https://stackoverflow.com/q/54341261/5197662)
 - **Kasra Faghihi** ([@offbynull](https://github.com/offbynull)) for his very mathematical implementation of Kademlia.
 - And a great shout out to **SimGrid** Team, for keeping history of [their work on Kademlia](https://gitlab.inria.fr/simgrid/simgrid/-/tree/ce2e676ad127f782b9c959499ab1c042195e411a/examples/java/kademlia) which this repository is inspired by it to implement RoutingTables, Buckets and some more stuff. 
+
+## Videos
+
+### Kademlia Overview 1
+
+In first video of EP2P lecture about Kademlia Algorithm, we are going to gain brief understanding about elements of Kademlia nodes, network structure and Distributed Hash Tables (DHT) in theory.
+
+
+[![Kademlia Algorithm Overview 1](https://github.com/ep2p/kademlia-api/blob/main/kademlia-ov1.png?raw=1)](https://youtu.be/7o0pfKDq9KE)
