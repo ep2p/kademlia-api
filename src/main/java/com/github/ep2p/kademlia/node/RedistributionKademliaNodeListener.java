@@ -6,10 +6,6 @@ import com.github.ep2p.kademlia.model.FindNodeAnswer;
 import com.github.ep2p.kademlia.table.RoutingTable;
 import com.github.ep2p.kademlia.util.BoundedHashUtil;
 
-import java.util.Date;
-
-import static com.github.ep2p.kademlia.util.DateUtil.getDateOfSecondsAgo;
-
 public class RedistributionKademliaNodeListener<C extends ConnectionInfo, K, V> implements KademliaNodeListener<C, K, V> {
     private final BoundedHashUtil boundedHashUtil = new BoundedHashUtil(Common.IDENTIFIER_SIZE);
     private final boolean distributeOnShutdown;
@@ -32,8 +28,8 @@ public class RedistributionKademliaNodeListener<C extends ConnectionInfo, K, V> 
         KademliaRepositoryNode<C, K, V> kademliaRepositoryNode = (KademliaRepositoryNode<C, K, V>) kademliaNode;
         RoutingTable<C> routingTable = kademliaRepositoryNode.getRoutingTable();
         kademliaRepositoryNode.getKademliaRepository().getKeys().forEach(key -> {
-            assert key instanceof Integer;
-            FindNodeAnswer<C> findNodeAnswer = routingTable.findClosest(boundedHashUtil.hash((Integer) key));
+            Object keyObject = (Object) key;
+            FindNodeAnswer<C> findNodeAnswer = routingTable.findClosest(boundedHashUtil.hash(keyObject.hashCode()));
             if (findNodeAnswer.getNodes().size() > 0 && findNodeAnswer.getNodes().get(0).getId() != kademliaRepositoryNode.getId() && findNodeAnswer.getNodes().get(0).getId() == node.getId()) {
                 kademliaRepositoryNode.getNodeConnectionApi().storeAsync(kademliaRepositoryNode, kademliaRepositoryNode, node, key, kademliaRepositoryNode.getKademliaRepository().get(key));
             }
@@ -54,9 +50,8 @@ public class RedistributionKademliaNodeListener<C extends ConnectionInfo, K, V> 
             KademliaRepositoryNode<C, K, V> kademliaRepositoryNode = (KademliaRepositoryNode<C, K, V>) kademliaNode;
             RoutingTable<C> routingTable = kademliaRepositoryNode.getRoutingTable();
             kademliaRepositoryNode.getKademliaRepository().getKeys().forEach(key -> {
-                assert key instanceof Integer;
-                Date date = getDateOfSecondsAgo(Common.LAST_SEEN_SECONDS_TO_CONSIDER_ALIVE);
-                for (Node<C> node : routingTable.findClosest(boundedHashUtil.hash((Integer) key)).getNodes()) {
+                Object kyObj = (Object) key;
+                for (Node<C> node : routingTable.findClosest(boundedHashUtil.hash(kyObj.hashCode())).getNodes()) {
                     if(node.getId() != kademliaRepositoryNode.getId()){
                         try {
                             System.out.println("Closest node to store " + key + " on shutdown is: "+node.getId());
