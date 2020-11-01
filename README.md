@@ -4,7 +4,7 @@
 Java Kademlia API for Eleuth network.
 
 This API mainly focuses on routing table and peer choosing logic, and moves data persistence & networking to an abstraction layer.
-Therefore, its your responsibility to choose how you want your nodes contact each other.
+Therefore, its your responsibility to choose how you want your nodes contact each other. There is enough comment on each method on KademliaNode implementations in repository to help you override them to satisfy your needs of p2p network, since this abstract api can be used in many sort of projects.
 
 ## Abstraction Layer
 
