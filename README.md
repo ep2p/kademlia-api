@@ -86,6 +86,12 @@ For these cases, you can use or extend `com.github.ep2p.kademlia.node.Redistribu
 
 ---
 
+## Sample
+A sample DHT using this repository and spring boot is made to help you understand the concepts.
+Check [sample dht](https://github.com/ep2p/dht-sample) repository.
+
+---
+
 ## Installation
 
 Use jitpack to add library to your project. Maven example:
