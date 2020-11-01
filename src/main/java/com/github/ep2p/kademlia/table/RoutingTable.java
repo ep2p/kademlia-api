@@ -109,7 +109,7 @@ public class RoutingTable<C extends ConnectionInfo> implements Serializable {
     //We sort the list
     Collections.sort(findNodeAnswer.getNodes());
     //We trim the list
-    while (findNodeAnswer.size() > Common.BUCKET_SIZE) {
+    while (findNodeAnswer.size() > Common.FIND_NODE_SIZE) {
       findNodeAnswer.remove(findNodeAnswer.size() - 1); //TODO: Not the best thing.
     }
     return findNodeAnswer;

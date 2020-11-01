@@ -14,6 +14,7 @@ public class Common {
   public static int REFERENCED_NODES_UPDATE_PERIOD_SEC = 30;
   /* Maximum size of the buckets */
   public static int BUCKET_SIZE = 20;
+  public static int FIND_NODE_SIZE = 20;
   public static int JOIN_BUCKETS_QUERIES = 1;
   public static int LAST_SEEN_SECONDS_TO_CONSIDER_ALIVE = 20;
 }

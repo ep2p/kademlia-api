@@ -55,7 +55,7 @@ public class FindNodeAnswer<C extends ConnectionInfo> extends Answer {
     }
     Collections.sort(nodes);
     //Trim the list
-    while (findNodeAnswer.size() > Common.BUCKET_SIZE) {
+    while (findNodeAnswer.size() > Common.FIND_NODE_SIZE) {
       findNodeAnswer.remove(findNodeAnswer.size() - 1);
     }
     return nbAdded;

@@ -14,7 +14,9 @@ import com.github.ep2p.kademlia.util.KadDistanceUtil;
 import lombok.Getter;
 
 import javax.annotation.PreDestroy;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.*;
 
 import static com.github.ep2p.kademlia.Common.BOOTSTRAP_NODE_CALL_TIMEOUT_SEC;
@@ -208,17 +210,20 @@ public class KademliaNode<C extends ConnectionInfo> extends Node<C> implements N
 
     protected void getClosestNodesFromAliveNodes(Node<C> bootstrapNode) {
         int bucketId = routingTable.findBucket(bootstrapNode.getId()).getId();
-        for (int i = 0; ((bucketId - i) > 0 ||
-                (bucketId + i) <= Common.IDENTIFIER_SIZE) && i < Common.JOIN_BUCKETS_QUERIES; i++) {
+        final Set<Integer> destinations = new LinkedHashSet<>();
+        for (int i = 0; ((bucketId - i) > 0 || (bucketId + i) <= Common.IDENTIFIER_SIZE) && i < Common.JOIN_BUCKETS_QUERIES; i++) {
+            int idInBucket = -1;
             if (bucketId - i > 0) {
-                int idInBucket = routingTable.getIdInPrefix(this.getId(),bucketId - i);
-                this.findBestNodesCloseToDestination(idInBucket);
+                idInBucket = routingTable.getIdInPrefix(this.getId(),bucketId - i);
+                destinations.add(idInBucket);
             }
             if (bucketId + i <= Common.IDENTIFIER_SIZE) {
-                int idInBucket = routingTable.getIdInPrefix(this.getId(),bucketId + i);
-                this.findBestNodesCloseToDestination(idInBucket);
+                idInBucket = routingTable.getIdInPrefix(this.getId(),bucketId + i);
             }
+            if(idInBucket != -1)
+                destinations.add(idInBucket);
         }
+        destinations.forEach(this::findBestNodesCloseToDestination);
     }
 
     protected void findBestNodesCloseToDestination(int destination) {
