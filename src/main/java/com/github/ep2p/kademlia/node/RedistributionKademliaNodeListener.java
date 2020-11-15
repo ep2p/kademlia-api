@@ -51,7 +51,6 @@ public class RedistributionKademliaNodeListener<C extends ConnectionInfo, K, V> 
                 for (Node<C> node : routingTable.findClosest(boundedHashUtil.hash(((Object) key).hashCode())).getNodes()) {
                     if(node.getId() != kademliaRepositoryNode.getId()){
                         try {
-                            System.out.println("Closest node to store " + key + " on shutdown is: "+node.getId());
                             kademliaRepositoryNode.getNodeConnectionApi().storeAsync(kademliaNode, kademliaNode, node, key, kademliaRepositoryNode.getKademliaRepository().get(key));
                             break;
                         }catch (Exception ignored){}

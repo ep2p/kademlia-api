@@ -178,7 +178,6 @@ public class KademliaRepositoryNode<C extends ConnectionInfo, K, V> extends Kade
                 break;
             }else {
                 if(nodeToIgnore != null && nodeToIgnore.getId() == externalNode.getId()){
-                    System.out.println("Should ignore " + nodeToIgnore.getId());
                     continue;
                 }
                 //otherwise try next close requester in routing table
@@ -234,7 +233,7 @@ public class KademliaRepositoryNode<C extends ConnectionInfo, K, V> extends Kade
     }
 
 
-    private GetAnswer<K, V> getNewGetAnswer(K k, V v, GetAnswer.Result result, Node<C> node){
+    protected GetAnswer<K, V> getNewGetAnswer(K k, V v, GetAnswer.Result result, Node<C> node){
         GetAnswer<K, V> getAnswer = new GetAnswer<>();
         getAnswer.setResult(result);
         getAnswer.setKey(k);
@@ -244,7 +243,7 @@ public class KademliaRepositoryNode<C extends ConnectionInfo, K, V> extends Kade
         return getAnswer;
     }
 
-    private StoreAnswer<K> getNewStoreAnswer(K k, StoreAnswer.Result result, Node<C> node){
+    protected StoreAnswer<K> getNewStoreAnswer(K k, StoreAnswer.Result result, Node<C> node){
         StoreAnswer<K> storeAnswer = new StoreAnswer<>();
         storeAnswer.setAlive(true);
         storeAnswer.setNodeId(node.getId());
