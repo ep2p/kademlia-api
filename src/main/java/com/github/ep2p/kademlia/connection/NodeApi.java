@@ -5,8 +5,8 @@ import com.github.ep2p.kademlia.model.FindNodeAnswer;
 import com.github.ep2p.kademlia.model.PingAnswer;
 import com.github.ep2p.kademlia.node.Node;
 
-public interface NodeApi<C extends ConnectionInfo> {
-    FindNodeAnswer<C> onFindNode(int externalNodeId) throws NodeIsOfflineException;
-    PingAnswer onPing(Node<C> node) throws NodeIsOfflineException;
-    void onShutdownSignal(Node<C> node);
+public interface NodeApi<ID extends Number, C extends ConnectionInfo> {
+    FindNodeAnswer<ID, C> onFindNode(Node<ID, C> node, ID externalNodeId) throws NodeIsOfflineException;
+    PingAnswer onPing(Node<ID, C> node) throws NodeIsOfflineException;
+    void onShutdownSignal(Node<ID, C> node);
 }

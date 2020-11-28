@@ -1,0 +1,17 @@
+package com.github.ep2p.kademlia.node.external;
+
+import com.github.ep2p.kademlia.connection.ConnectionInfo;
+import com.github.ep2p.kademlia.node.Node;
+
+public class LongExternalNode<C extends ConnectionInfo> extends ExternalNode<Long, C> {
+
+    public LongExternalNode(Node<Long, C> node, Long distance) {
+        super(node, distance);
+    }
+
+    @Override
+    public int compareTo(Object o) {
+        ExternalNode<Long, C> c = (ExternalNode<Long, C>) o;
+        return Long.compare(distance, c.distance);
+    }
+}

@@ -6,7 +6,9 @@ import com.github.ep2p.kademlia.exception.BootstrapException;
 import com.github.ep2p.kademlia.node.KademliaNode;
 import com.github.ep2p.kademlia.node.KademliaNodeListener;
 import com.github.ep2p.kademlia.table.Bucket;
-import com.github.ep2p.kademlia.table.RoutingTable;
+import com.github.ep2p.kademlia.table.LongBucket;
+import com.github.ep2p.kademlia.table.LongRoutingTable;
+import com.github.ep2p.kademlia.table.SimpleRoutingTableFactory;
 
 import java.util.List;
 
@@ -16,15 +18,16 @@ public class NodeTableSize {
         LocalNodeConnectionApi nodeApi = new LocalNodeConnectionApi();
         Common.IDENTIFIER_SIZE = 9;
         Common.REFERENCED_NODES_UPDATE_PERIOD_SEC = 2;
+        SimpleRoutingTableFactory routingTableFactory = new SimpleRoutingTableFactory();
 
-        KademliaNode<EmptyConnectionInfo> node0 = new KademliaNode<>(0, new RoutingTable<>(0), nodeApi, new EmptyConnectionInfo());
+        KademliaNode<Integer, EmptyConnectionInfo> node0 = new KademliaNode<>(0, routingTableFactory.getRoutingTable(0), nodeApi, new EmptyConnectionInfo());
         nodeApi.registerNode(node0);
         node0.start();
 
-        KademliaNode<EmptyConnectionInfo> lastNode = null;
+        KademliaNode<Integer, EmptyConnectionInfo> lastNode = null;
 
         for(int i = 1; i < Math.pow(2, Common.IDENTIFIER_SIZE); i++){
-            KademliaNode<EmptyConnectionInfo> nextNode = new KademliaNode<>(i, new RoutingTable<>(i), nodeApi, new EmptyConnectionInfo());
+            KademliaNode<Integer, EmptyConnectionInfo> nextNode = new KademliaNode<>(i, routingTableFactory.getRoutingTable(i), nodeApi, new EmptyConnectionInfo());
             nodeApi.registerNode(nextNode);
             nextNode.bootstrap(node0);
             if(i == Math.pow(2, Common.IDENTIFIER_SIZE) - 1){
@@ -42,14 +45,14 @@ public class NodeTableSize {
         Thread.sleep(4000);
 
         int i = 0;
-        for (Bucket<EmptyConnectionInfo> bucket : lastNode.getRoutingTable().getBuckets()) {
+        for (Bucket<Integer, EmptyConnectionInfo> bucket : lastNode.getRoutingTable().getBuckets()) {
             i += bucket.size();
         }
 
         System.out.println(i);
 
         i = 0;
-        for (Bucket<EmptyConnectionInfo> bucket : node0.getRoutingTable().getBuckets()) {
+        for (Bucket<Integer, EmptyConnectionInfo> bucket : node0.getRoutingTable().getBuckets()) {
             i += bucket.size();
         }
 

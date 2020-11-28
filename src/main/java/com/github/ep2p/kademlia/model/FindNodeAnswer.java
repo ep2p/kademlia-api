@@ -7,7 +7,7 @@
 package com.github.ep2p.kademlia.model;
 import com.github.ep2p.kademlia.Common;
 import com.github.ep2p.kademlia.connection.ConnectionInfo;
-import com.github.ep2p.kademlia.node.ExternalNode;
+import com.github.ep2p.kademlia.node.external.ExternalNode;
 import lombok.Getter;
 
 import java.util.ArrayList;
@@ -15,19 +15,19 @@ import java.util.Collections;
 
 /* Answer to a "FIND_NODE" query. Contains the nodes closest to an id given */
 @Getter
-public class FindNodeAnswer<C extends ConnectionInfo> extends Answer {
-  private int destinationId;
+public class FindNodeAnswer<ID extends Number, C extends ConnectionInfo> extends Answer {
+  private ID destinationId;
   /* Closest nodes in the answer. */
-  private ArrayList<ExternalNode<C>> nodes;
+  private ArrayList<ExternalNode<ID, C>> nodes;
 
   public FindNodeAnswer() {
-    nodes = new ArrayList<ExternalNode<C>>();
+    nodes = new ArrayList<ExternalNode<ID, C>>();
     setAlive(true);
   }
 
-  public FindNodeAnswer(int destinationId) {
+  public FindNodeAnswer(ID destinationId) {
     this.destinationId = destinationId;
-    nodes = new ArrayList<ExternalNode<C>>();
+    nodes = new ArrayList<ExternalNode<ID, C>>();
     setAlive(true);
   }
 
@@ -39,15 +39,15 @@ public class FindNodeAnswer<C extends ConnectionInfo> extends Answer {
     nodes.remove(index);
   }
 
-  public void add(ExternalNode<C> externalNode) {
+  public void add(ExternalNode<ID, C> externalNode) {
     nodes.add(externalNode);
   }
 
   /* Merge the contents of this answer with another answer */
-  public int merge(FindNodeAnswer<C> findNodeAnswer) {
+  public int merge(FindNodeAnswer<ID, C> findNodeAnswer) {
     int nbAdded = 0;
 
-    for (ExternalNode<C> c: findNodeAnswer.getNodes()) {
+    for (ExternalNode<ID, C> c: findNodeAnswer.getNodes()) {
       if (!nodes.contains(c)) {
         nbAdded++;
         nodes.add(c);
@@ -66,8 +66,8 @@ public class FindNodeAnswer<C extends ConnectionInfo> extends Answer {
     if (nodes.size() < 1) {
       return false;
     }
-    ExternalNode<C> tail = nodes.get(0);
-    return tail.getDistance() == 0;
+    ExternalNode<ID, C> tail = nodes.get(0);
+    return ((Number) tail.getDistance()).equals(0);
   }
 
   @Override

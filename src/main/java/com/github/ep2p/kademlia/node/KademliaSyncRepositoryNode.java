@@ -6,6 +6,8 @@ import com.github.ep2p.kademlia.exception.GetException;
 import com.github.ep2p.kademlia.exception.StoreException;
 import com.github.ep2p.kademlia.model.GetAnswer;
 import com.github.ep2p.kademlia.model.StoreAnswer;
+import com.github.ep2p.kademlia.table.Bucket;
+import com.github.ep2p.kademlia.table.LongRoutingTable;
 import com.github.ep2p.kademlia.table.RoutingTable;
 import lombok.SneakyThrows;
 
@@ -18,17 +20,17 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import static com.github.ep2p.kademlia.model.StoreAnswer.Result.TIMEOUT;
 
-public class KademliaSyncRepositoryNode<C extends ConnectionInfo, K, V> extends KademliaRepositoryNode<C,K,V> {
-    private volatile Map<K, StoreAnswer<K>> storeMap = new ConcurrentHashMap<>();
+public class KademliaSyncRepositoryNode<ID extends Number, C extends ConnectionInfo, K, V> extends KademliaRepositoryNode<ID, C,K,V> {
+    private volatile Map<K, StoreAnswer<ID, K>> storeMap = new ConcurrentHashMap<>();
     private volatile Map<K, Lock> storeLockMap = new HashMap<>();
     private volatile Map<K, GetAnswer<K, V>> getMap = new HashMap<>();
     private volatile Map<K, Lock> getLockMap = new HashMap<>();
 
-    public KademliaSyncRepositoryNode(Integer nodeId, RoutingTable<C> routingTable, NodeConnectionApi<C> nodeConnectionApi, C connectionInfo, KademliaRepository<K, V> kademliaRepository) {
+    public KademliaSyncRepositoryNode(ID nodeId, RoutingTable<ID, C, Bucket<ID, C>> routingTable, NodeConnectionApi<ID, C> nodeConnectionApi, C connectionInfo, KademliaRepository<K, V> kademliaRepository) {
         super(nodeId, routingTable, nodeConnectionApi, connectionInfo, kademliaRepository);
     }
 
-    public StoreAnswer<K> store(K key, V value, long timeout, TimeUnit timeUnit) throws StoreException, InterruptedException {
+    public StoreAnswer<ID, K> store(K key, V value, long timeout, TimeUnit timeUnit) throws StoreException, InterruptedException {
         Lock keyLock = new ReentrantLock();
         synchronized (this){
             Lock oldLock = storeLockMap.putIfAbsent(key, keyLock);
@@ -38,11 +40,11 @@ public class KademliaSyncRepositoryNode<C extends ConnectionInfo, K, V> extends 
         }
         if (keyLock.tryLock()) {
             try {
-                StoreAnswer<K> storeAnswer = super.store(key, value);
+                StoreAnswer<ID, K> storeAnswer = super.store(key, value);
                 if(storeAnswer.getResult().equals(StoreAnswer.Result.STORED)){
                     return storeAnswer;
                 }else {
-                    StoreAnswer<K> watchableStoreAnswer = new StoreAnswer<>();
+                    StoreAnswer<ID, K> watchableStoreAnswer = new StoreAnswer<>();
                     watchableStoreAnswer.setResult(TIMEOUT);
                     storeMap.putIfAbsent(key, watchableStoreAnswer);
                     if(timeUnit == null)
@@ -57,7 +59,7 @@ public class KademliaSyncRepositoryNode<C extends ConnectionInfo, K, V> extends 
                 storeMap.remove(key);
             }
         }else {
-            StoreAnswer<K> kWatchableStoreAnswer = storeMap.get(key);
+            StoreAnswer<ID, K> kWatchableStoreAnswer = storeMap.get(key);
             if(kWatchableStoreAnswer != null){
                 if(timeUnit == null)
                     kWatchableStoreAnswer.watch();
@@ -72,7 +74,7 @@ public class KademliaSyncRepositoryNode<C extends ConnectionInfo, K, V> extends 
 
     @Override
     @SneakyThrows
-    public StoreAnswer<K> store(K key, V value) throws StoreException {
+    public StoreAnswer<ID, K> store(K key, V value) throws StoreException {
         return this.store(key, value, 0, null);
     }
 
@@ -126,7 +128,7 @@ public class KademliaSyncRepositoryNode<C extends ConnectionInfo, K, V> extends 
     }
 
     @Override
-    public void onGetResult(Node<C> node, K key, V value) {
+    public void onGetResult(Node<ID, C> node, K key, V value) {
         super.onGetResult(node, key, value);
         GetAnswer<K, V> getAnswer = getMap.get(key);
         getAnswer.setNodeId(node.getId());
@@ -139,9 +141,9 @@ public class KademliaSyncRepositoryNode<C extends ConnectionInfo, K, V> extends 
 
     @SneakyThrows
     @Override
-    public void onStoreResult(Node<C> node, K key, boolean successful) {
+    public void onStoreResult(Node<ID, C> node, K key, boolean successful) {
         super.onStoreResult(node, key, successful);
-        StoreAnswer<K> kStoreAnswer = storeMap.get(key);
+        StoreAnswer<ID, K> kStoreAnswer = storeMap.get(key);
         kStoreAnswer.setResult(successful ? StoreAnswer.Result.STORED : StoreAnswer.Result.FAILED);
         kStoreAnswer.setKey(key);
         kStoreAnswer.setNodeId(node.getId());

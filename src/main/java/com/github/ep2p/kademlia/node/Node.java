@@ -12,12 +12,12 @@ import java.util.Objects;
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString
-public class Node<C extends ConnectionInfo> implements Serializable {
-    protected int id;
+public class Node<ID extends Number, C extends ConnectionInfo> implements Serializable {
+    protected ID id;
     protected C connectionInfo;
     protected Date lastSeen;
 
-    protected void setNode(Node<C> node) {
+    protected void setNode(Node<ID, C> node) {
         this.setConnectionInfo(node.getConnectionInfo());
         this.setId(node.getId());
         this.setLastSeen(node.getLastSeen());
@@ -27,7 +27,7 @@ public class Node<C extends ConnectionInfo> implements Serializable {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Node<?> node = (Node<?>) o;
+        Node<?, ?> node = (Node<?, ?>) o;
         return getId() == node.getId() &&
                 Objects.equals(getConnectionInfo(), node.getConnectionInfo());
     }

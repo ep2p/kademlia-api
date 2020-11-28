@@ -9,8 +9,8 @@ public class BoundedHashUtilTest {
     public void testBoundedHash(){
         BoundedHashUtil boundedHashUtil1 = new BoundedHashUtil(8);
         BoundedHashUtil boundedHashUtil2 = new BoundedHashUtil(256);
-        int input = 1573985150;
-        Assertions.assertEquals(126, boundedHashUtil1.hash(input));
-        Assertions.assertEquals(input, boundedHashUtil2.hash(input));
+        Integer input = 1573985150;
+        Assertions.assertEquals(Integer.valueOf(126), boundedHashUtil1.hash(input, Integer.class));
+        Assertions.assertEquals(input, boundedHashUtil2.hash(input, Integer.class));
     }
 }

@@ -10,6 +10,8 @@ import com.github.ep2p.kademlia.model.FindNodeAnswer;
 import com.github.ep2p.kademlia.model.GetAnswer;
 import com.github.ep2p.kademlia.model.PingAnswer;
 import com.github.ep2p.kademlia.model.StoreAnswer;
+import com.github.ep2p.kademlia.node.external.ExternalNode;
+import com.github.ep2p.kademlia.table.Bucket;
 import com.github.ep2p.kademlia.table.RoutingTable;
 import com.github.ep2p.kademlia.util.BoundedHashUtil;
 import lombok.Getter;
@@ -20,20 +22,20 @@ import java.util.List;
 import static com.github.ep2p.kademlia.Common.LAST_SEEN_SECONDS_TO_CONSIDER_ALIVE;
 import static com.github.ep2p.kademlia.util.DateUtil.getDateOfSecondsAgo;
 
-public class KademliaRepositoryNode<C extends ConnectionInfo, K, V> extends KademliaNode<C> implements StorageNodeApi<C, K, V> {
+public class KademliaRepositoryNode<ID extends Number, C extends ConnectionInfo, K, V> extends KademliaNode<ID, C> implements StorageNodeApi<ID, C, K, V> {
     @Getter
     private final KademliaRepository<K,V> kademliaRepository;
     private final BoundedHashUtil boundedHashUtil;
 
-    public KademliaRepositoryNode(Integer nodeId, RoutingTable<C> routingTable, NodeConnectionApi<C> nodeConnectionApi, C connectionInfo, KademliaRepository<K, V> kademliaRepository) {
+    public KademliaRepositoryNode(ID nodeId, RoutingTable<ID, C, Bucket<ID, C>> routingTable, NodeConnectionApi<ID, C> nodeConnectionApi, C connectionInfo, KademliaRepository<K, V> kademliaRepository) {
         super(nodeId, routingTable, nodeConnectionApi, connectionInfo);
         this.kademliaRepository = kademliaRepository;
         boundedHashUtil = new BoundedHashUtil(Common.IDENTIFIER_SIZE);
     }
 
     @Override
-    public KademliaNodeListener<C, K, V> getKademliaNodeListener() {
-        return (KademliaNodeListener<C, K, V>) super.getKademliaNodeListener();
+    public KademliaNodeListener<ID, C, K, V> getKademliaNodeListener() {
+        return (KademliaNodeListener<ID, C, K, V>) super.getKademliaNodeListener();
     }
 
     /* Node Connection API */
@@ -45,7 +47,7 @@ public class KademliaRepositoryNode<C extends ConnectionInfo, K, V> extends Kade
      * @param key Key of data
      */
     @Override
-    public void onGetRequest(Node<C> callerNode, Node<C> requester, K key){
+    public void onGetRequest(Node<ID, C> callerNode, Node<ID, C> requester, K key){
         //Check repository for key, if it exists return it
         if(kademliaRepository.contains(key)){
             V value = kademliaRepository.get(key);
@@ -68,15 +70,15 @@ public class KademliaRepositoryNode<C extends ConnectionInfo, K, V> extends Kade
      * @param value Data value
      */
     @Override
-    public void onStoreRequest(Node<C> caller, Node<C> requester, K key, V value) {
-        int hash = boundedHashUtil.hash(key.hashCode());
+    public void onStoreRequest(Node<ID, C> caller, Node<ID, C> requester, K key, V value) {
+        ID hash = boundedHashUtil.hash(key.hashCode(), (Class<ID>) getId().getClass());
         //if current requester should persist data, store data and tell requester about it
-        if(getId() == hash){
+        if(getId().equals(hash)){
             kademliaRepository.store(key, value);
             getNodeConnectionApi().sendStoreResults(this, requester, key, true);
         //otherwise find closest nodes to store data
         } else {
-            FindNodeAnswer<C> findNodeAnswer = getRoutingTable().findClosest(hash);
+            FindNodeAnswer<ID, C> findNodeAnswer = getRoutingTable().findClosest(hash);
             if (findClosestNodesToStoreData(requester, findNodeAnswer.getNodes(), key, value, caller) == null) {
                 getNodeConnectionApi().sendStoreResults(this, requester, key, false);
             }
@@ -91,17 +93,17 @@ public class KademliaRepositoryNode<C extends ConnectionInfo, K, V> extends Kade
      * @return Storing result "STORED: when current node stores data" , "PASSED: When storing request is passed to other nodes"
      * @throws StoreException thrown when no responsible node was found
      */
-    public StoreAnswer<K> store(K key, V value) throws StoreException {
+    public StoreAnswer<ID, K> store(K key, V value) throws StoreException {
         if(!isRunning())
             throw new StoreException("Node is shutting down");
-        StoreAnswer<K> storeAnswer = null;
-        int hash = boundedHashUtil.hash(key.hashCode());
+        StoreAnswer<ID, K> storeAnswer = null;
+        ID hash = hash(key);
         //if current requester should persist data, do it immediatly
-        if(getId() == hash) {
+        if(getId().equals(hash)) {
             kademliaRepository.store(key, value);
             storeAnswer = getNewStoreAnswer(key, StoreAnswer.Result.STORED, this);
         }else {
-            FindNodeAnswer<C> findNodeAnswer = getRoutingTable().findClosest(hash);
+            FindNodeAnswer<ID, C> findNodeAnswer = getRoutingTable().findClosest(hash);
             storeAnswer = findClosestNodesToStoreData(this, findNodeAnswer.getNodes(), key, value, null);
         }
 
@@ -146,7 +148,7 @@ public class KademliaRepositoryNode<C extends ConnectionInfo, K, V> extends Kade
      * @param value Value of data
      */
     @Override
-    public void onGetResult(Node<C> node, K key, V value) {
+    public void onGetResult(Node<ID, C> node, K key, V value) {
         getKademliaNodeListener().onKeyLookupResult(this, node, key, value);
     }
 
@@ -156,32 +158,32 @@ public class KademliaRepositoryNode<C extends ConnectionInfo, K, V> extends Kade
      * @param key Key itself
      */
     @Override
-    public void onStoreResult(Node<C> node, K key, boolean successful) {
+    public void onStoreResult(Node<ID, C> node, K key, boolean successful) {
         getKademliaNodeListener().onKeyStoredResult(this, node, key, successful);
     }
 
 
     /* --- */
 
-    protected StoreAnswer<K> findClosestNodesToStoreData(Node<C> requester, List<ExternalNode<C>> externalNodeList, K key, V value, Node<C> nodeToIgnore){
+    protected StoreAnswer<ID, K> findClosestNodesToStoreData(Node<ID, C> requester, List<ExternalNode<ID, C>> externalNodeList, K key, V value, Node<ID, C> nodeToIgnore){
         Date date = getDateOfSecondsAgo(LAST_SEEN_SECONDS_TO_CONSIDER_ALIVE);
-        StoreAnswer<K> storeAnswer = null;
-        for (ExternalNode<C> externalNode : externalNodeList) {
+        StoreAnswer<ID, K> storeAnswer = null;
+        for (ExternalNode<ID, C> externalNode : externalNodeList) {
             //if current requester is closest requester store the value
-            if(externalNode.getId() == getId()){
+            if(externalNode.getId().equals(getId())){
                 kademliaRepository.store(key, value);
                 storeAnswer = getNewStoreAnswer(key, StoreAnswer.Result.STORED, this);
                 //if requester of storing is not current node, tell them about storing result
-                if(requester.getId() != getId()){
+                if(!requester.getId().equals(getId())){
                     getNodeConnectionApi().sendStoreResults(this, requester, key, true);
                 }
                 break;
             }else {
-                if(nodeToIgnore != null && nodeToIgnore.getId() == externalNode.getId()){
+                if(nodeToIgnore != null && nodeToIgnore.getId().equals(externalNode.getId())){
                     continue;
                 }
                 //otherwise try next close requester in routing table
-                PingAnswer pingAnswer = null;
+                PingAnswer<ID> pingAnswer = null;
                 //if external node is alive, tell it to store the data
                 if(externalNode.getLastSeen().before(date) || (pingAnswer = getNodeConnectionApi().ping(this, externalNode)).isAlive()){
                     getNodeConnectionApi().storeAsync(this, requester, externalNode, key, value);
@@ -206,17 +208,17 @@ public class KademliaRepositoryNode<C extends ConnectionInfo, K, V> extends Kade
      * @param nodeToIgnore nullable. node to ignore when passing requests to others. used when `nodeToIgnore` might actually be closest node but doesnt hold the data
      * @return
      */
-    protected GetAnswer<K, V> findClosestNodesToGetData(Node<C> requester, K key, Node<C> nodeToIgnore){
+    protected GetAnswer<K, V> findClosestNodesToGetData(Node<ID, C> requester, K key, Node<ID, C> nodeToIgnore){
         GetAnswer<K, V> getAnswer = null;
-        int hash = boundedHashUtil.hash(key.hashCode());
-        FindNodeAnswer<C> findNodeAnswer = getRoutingTable().findClosest(hash);
+        ID hash = hash(key);
+        FindNodeAnswer<ID, C> findNodeAnswer = getRoutingTable().findClosest(hash);
         Date date = getDateOfSecondsAgo(LAST_SEEN_SECONDS_TO_CONSIDER_ALIVE);
-        for (ExternalNode<C> externalNode : findNodeAnswer.getNodes()) {
+        for (ExternalNode<ID, C> externalNode : findNodeAnswer.getNodes()) {
             //ignore self because we already checked if current node holds the data or not
-            if(externalNode.getId() == getId() || (nodeToIgnore != null && externalNode.getId() == nodeToIgnore.getId()))
+            if(externalNode.getId().equals(getId()) || (nodeToIgnore != null && externalNode.getId() == nodeToIgnore.getId()))
                 continue;
 
-            PingAnswer pingAnswer = null;
+            PingAnswer<ID> pingAnswer = null;
             //if node is alive, ask for data
             if(externalNode.getLastSeen().before(date) || (pingAnswer = getNodeConnectionApi().ping(this, externalNode)).isAlive()){
                 getNodeConnectionApi().getRequest(this, requester, externalNode, key);
@@ -232,8 +234,11 @@ public class KademliaRepositoryNode<C extends ConnectionInfo, K, V> extends Kade
         return getAnswer;
     }
 
+    protected ID hash(K key){
+        return boundedHashUtil.hash(key.hashCode(), (Class<ID>) getId().getClass());
+    }
 
-    protected GetAnswer<K, V> getNewGetAnswer(K k, V v, GetAnswer.Result result, Node<C> node){
+    protected GetAnswer<K, V> getNewGetAnswer(K k, V v, GetAnswer.Result result, Node<ID, C> node){
         GetAnswer<K, V> getAnswer = new GetAnswer<>();
         getAnswer.setResult(result);
         getAnswer.setKey(k);
@@ -243,8 +248,8 @@ public class KademliaRepositoryNode<C extends ConnectionInfo, K, V> extends Kade
         return getAnswer;
     }
 
-    protected StoreAnswer<K> getNewStoreAnswer(K k, StoreAnswer.Result result, Node<C> node){
-        StoreAnswer<K> storeAnswer = new StoreAnswer<>();
+    protected StoreAnswer<ID, K> getNewStoreAnswer(K k, StoreAnswer.Result result, Node<ID, C> node){
+        StoreAnswer<ID, K> storeAnswer = new StoreAnswer<>();
         storeAnswer.setAlive(true);
         storeAnswer.setNodeId(node.getId());
         storeAnswer.setKey(k);

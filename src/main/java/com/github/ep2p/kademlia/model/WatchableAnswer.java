@@ -2,7 +2,7 @@ package com.github.ep2p.kademlia.model;
 
 import java.util.concurrent.TimeUnit;
 
-public class WatchableAnswer extends Answer implements Watchable {
+public class WatchableAnswer<ID extends Number> extends Answer<ID> implements Watchable {
     private volatile boolean watching;
     public void watch() throws InterruptedException {
         watching = true;

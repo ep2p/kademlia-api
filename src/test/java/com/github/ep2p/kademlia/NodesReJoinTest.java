@@ -7,6 +7,7 @@ import com.github.ep2p.kademlia.exception.ShutdownException;
 import com.github.ep2p.kademlia.node.KademliaNode;
 import com.github.ep2p.kademlia.node.KademliaNodeListener;
 import com.github.ep2p.kademlia.node.Node;
+import com.github.ep2p.kademlia.table.Bucket;
 import com.github.ep2p.kademlia.table.RoutingTableFactory;
 import com.github.ep2p.kademlia.table.SimpleRoutingTableFactory;
 import org.junit.jupiter.api.Assertions;
@@ -22,28 +23,28 @@ public class NodesReJoinTest {
     @Test
     public void canPeersLeaveAndRejoin() throws BootstrapException, InterruptedException, ShutdownException {
         LocalNodeConnectionApi nodeApi = new LocalNodeConnectionApi();
-        RoutingTableFactory<EmptyConnectionInfo, Integer> routingTableFactory = new SimpleRoutingTableFactory();
+        SimpleRoutingTableFactory routingTableFactory = new SimpleRoutingTableFactory();
         Common.IDENTIFIER_SIZE = 4;
         Common.REFERENCED_NODES_UPDATE_PERIOD_SEC = 2;
 
-        Map<Integer, List<Node<EmptyConnectionInfo>>> map = new ConcurrentHashMap<>();
+        Map<Integer, List<Node<Integer, EmptyConnectionInfo>>> map = new ConcurrentHashMap<>();
 
-        KademliaNodeListener<EmptyConnectionInfo, Void, Void> listener = new KademliaNodeListener<EmptyConnectionInfo, Void, Void>() {
+        KademliaNodeListener<Integer, EmptyConnectionInfo, Void, Void> listener = new KademliaNodeListener<Integer, EmptyConnectionInfo, Void, Void>() {
             @Override
             public void onReferencedNodesUpdate(KademliaNode kademliaNode, List referencedNodes) {
-                map.put(kademliaNode.getId(), referencedNodes);
+                map.put((Integer) kademliaNode.getId(), referencedNodes);
             }
         };
 
-        KademliaNode<EmptyConnectionInfo> node0 = new KademliaNode<>(0, routingTableFactory.getRoutingTable(0), nodeApi, new EmptyConnectionInfo());
+        KademliaNode<Integer, EmptyConnectionInfo> node0 = new KademliaNode<Integer, EmptyConnectionInfo>(0, routingTableFactory.getRoutingTable(0), nodeApi, new EmptyConnectionInfo());
         nodeApi.registerNode(node0);
         node0.setKademliaNodeListener(listener);
         node0.start();
 
-        KademliaNode<EmptyConnectionInfo> node7 = null;
+        KademliaNode<Integer, EmptyConnectionInfo> node7 = null;
 
         for(int i = 1; i < Math.pow(2, Common.IDENTIFIER_SIZE); i++){
-            KademliaNode<EmptyConnectionInfo> aNode = new KademliaNode<>(i, routingTableFactory.getRoutingTable(i), nodeApi, new EmptyConnectionInfo());
+            KademliaNode<Integer, EmptyConnectionInfo> aNode = new KademliaNode<>(i, routingTableFactory.getRoutingTable(i), nodeApi, new EmptyConnectionInfo());
             nodeApi.registerNode(aNode);
             aNode.setKademliaNodeListener(listener);
             aNode.bootstrap(node0);
@@ -71,7 +72,7 @@ public class NodesReJoinTest {
 
         //When node7 comes back to network, node 15 should be informed and reference to it again
         //We have to recreate node 7, cause once a node shutsdown it cant start again (since executors shutdown too)
-        KademliaNode<EmptyConnectionInfo> finalNode = node7;
+        KademliaNode<Integer, EmptyConnectionInfo> finalNode = node7;
         node7 = new KademliaNode<>(7, node7.getRoutingTable(), nodeApi, new EmptyConnectionInfo());
         node7.start();
         Thread.sleep((long)(1.1D * Common.REFERENCED_NODES_UPDATE_PERIOD_SEC * 1000L));
@@ -79,18 +80,18 @@ public class NodesReJoinTest {
         System.out.println("15 knows about 7 again after it (7) rejoined");
     }
 
-    private boolean listDoesntContain(List<Node<EmptyConnectionInfo>> referencedNodes, Integer... nodeIds){
+    private boolean listDoesntContain(List<Node<Integer, EmptyConnectionInfo>> referencedNodes, Integer... nodeIds){
         List<Integer> nodeIdsToContain = Arrays.asList(nodeIds);
-        for (Node<EmptyConnectionInfo> referencedNode : referencedNodes) {
+        for (Node<Integer, EmptyConnectionInfo> referencedNode : referencedNodes) {
             if(nodeIdsToContain.contains(referencedNode.getId()))
                 return false;
         }
         return true;
     }
 
-    private boolean listContainsAll(List<Node<EmptyConnectionInfo>> referencedNodes, Integer... nodeIds){
+    private boolean listContainsAll(List<Node<Integer, EmptyConnectionInfo>> referencedNodes, Integer... nodeIds){
         List<Integer> nodeIdsToContain = Arrays.asList(nodeIds);
-        for (Node<EmptyConnectionInfo> referencedNode : referencedNodes) {
+        for (Node<Integer, EmptyConnectionInfo> referencedNode : referencedNodes) {
             if(!nodeIdsToContain.contains(referencedNode.getId()))
                 return false;
         }

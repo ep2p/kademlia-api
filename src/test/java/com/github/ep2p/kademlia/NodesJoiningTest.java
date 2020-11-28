@@ -20,26 +20,26 @@ public class NodesJoiningTest {
     public void canPeersJoinNetwork() throws BootstrapException, InterruptedException {
         LocalNodeConnectionApi nodeApi = new LocalNodeConnectionApi();
         NodeIdFactory nodeIdFactory = new IncrementalNodeIdFactory();
-        RoutingTableFactory<EmptyConnectionInfo, Integer> routingTableFactory = new SimpleRoutingTableFactory();
+        SimpleRoutingTableFactory routingTableFactory = new SimpleRoutingTableFactory();
         Common.IDENTIFIER_SIZE = 4;
         Common.REFERENCED_NODES_UPDATE_PERIOD_SEC = 5;
 
-        Map<Integer, List<Node<EmptyConnectionInfo>>> map = new ConcurrentHashMap<>();
+        Map<Integer, List<Node<Integer, EmptyConnectionInfo>>> map = new ConcurrentHashMap<>();
 
-        KademliaNodeListener<EmptyConnectionInfo, Void, Void> listener = new KademliaNodeListener<EmptyConnectionInfo, Void, Void>() {
+        KademliaNodeListener<Integer, EmptyConnectionInfo, Void, Void> listener = new KademliaNodeListener<Integer, EmptyConnectionInfo, Void, Void>() {
             @Override
             public void onReferencedNodesUpdate(KademliaNode kademliaNode, List referencedNodes) {
-                map.put(kademliaNode.getId(), referencedNodes);
+                map.put((Integer) kademliaNode.getId(), referencedNodes);
             }
         };
 
-        KademliaNode<EmptyConnectionInfo> node0 = new KademliaNode<>(nodeIdFactory.getNodeId(), routingTableFactory.getRoutingTable(0), nodeApi, new EmptyConnectionInfo());
+        KademliaNode<Integer, EmptyConnectionInfo> node0 = new KademliaNode<>(nodeIdFactory.getNodeId(), routingTableFactory.getRoutingTable(0), nodeApi, new EmptyConnectionInfo());
         nodeApi.registerNode(node0);
         node0.setKademliaNodeListener(listener);
         node0.start();
 
         for(int i = 1; i < Math.pow(2, Common.IDENTIFIER_SIZE); i++){
-            KademliaNode<EmptyConnectionInfo> nextNode = new KademliaNode<>(i, routingTableFactory.getRoutingTable(i), nodeApi, new EmptyConnectionInfo());
+            KademliaNode<Integer, EmptyConnectionInfo> nextNode = new KademliaNode<>(i, routingTableFactory.getRoutingTable(i), nodeApi, new EmptyConnectionInfo());
             nodeApi.registerNode(nextNode);
             nextNode.setKademliaNodeListener(listener);
             nextNode.bootstrap(node0);
@@ -60,9 +60,9 @@ public class NodesJoiningTest {
 
     }
 
-    private boolean listContainsAll(List<Node<EmptyConnectionInfo>> referencedNodes, Integer... nodeIds){
+    private boolean listContainsAll(List<Node<Integer, EmptyConnectionInfo>> referencedNodes, Integer... nodeIds){
         List<Integer> nodeIdsToContain = Arrays.asList(nodeIds);
-        for (Node<EmptyConnectionInfo> referencedNode : referencedNodes) {
+        for (Node<Integer, EmptyConnectionInfo> referencedNode : referencedNodes) {
             if(!nodeIdsToContain.contains(referencedNode.getId()))
                 return false;
         }

@@ -9,6 +9,8 @@ import com.github.ep2p.kademlia.exception.NodeIsOfflineException;
 import com.github.ep2p.kademlia.exception.ShutdownException;
 import com.github.ep2p.kademlia.model.FindNodeAnswer;
 import com.github.ep2p.kademlia.model.PingAnswer;
+import com.github.ep2p.kademlia.node.external.ExternalNode;
+import com.github.ep2p.kademlia.table.Bucket;
 import com.github.ep2p.kademlia.table.RoutingTable;
 import com.github.ep2p.kademlia.util.KadDistanceUtil;
 import lombok.Getter;
@@ -22,23 +24,23 @@ import java.util.concurrent.*;
 import static com.github.ep2p.kademlia.Common.BOOTSTRAP_NODE_CALL_TIMEOUT_SEC;
 import static com.github.ep2p.kademlia.Common.REFERENCED_NODES_UPDATE_PERIOD_SEC;
 
-public class KademliaNode<C extends ConnectionInfo> extends Node<C> implements NodeApi<C> {
+public class KademliaNode<ID extends Number, C extends ConnectionInfo> extends Node<ID, C> implements NodeApi<ID, C> {
     //Accessible fields
     @Getter
-    private final NodeConnectionApi<C> nodeConnectionApi;
+    private final NodeConnectionApi<ID, C> nodeConnectionApi;
     @Getter
-    private final RoutingTable<C> routingTable;
+    private final RoutingTable<ID, C, Bucket<ID, C>> routingTable;
     @Getter
-    private List<Node<C>> referencedNodes;
+    private List<Node<ID, C>> referencedNodes;
     @Getter
-    private KademliaNodeListener<C, ?, ?> kademliaNodeListener = new KademliaNodeListener.Default<C>();
+    private KademliaNodeListener<ID, C, ?, ?> kademliaNodeListener = new KademliaNodeListener.Default<ID, C>();
     private volatile boolean running;
 
     //None-Accessible fields
     private final ExecutorService executorService = Executors.newFixedThreadPool(1);
     private final ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
 
-    public KademliaNode(Integer nodeId, RoutingTable<C> routingTable, NodeConnectionApi<C> nodeConnectionApi, C connectionInfo) {
+    public KademliaNode(ID nodeId, RoutingTable<ID, C, Bucket<ID, C>> routingTable, NodeConnectionApi<ID, C> nodeConnectionApi, C connectionInfo) {
         this.setId(nodeId);
         this.setConnectionInfo(connectionInfo);
         this.nodeConnectionApi = nodeConnectionApi;
@@ -51,19 +53,19 @@ public class KademliaNode<C extends ConnectionInfo> extends Node<C> implements N
      * @throws BootstrapException thrown when bootstrap gets timeout or bootstrap node is not available
      */
     //first we have to use another node to join network
-    public void bootstrap(Node<C> bootstrapNode) throws BootstrapException {
+    public void bootstrap(Node<ID, C> bootstrapNode) throws BootstrapException {
         //find closest nodes from bootstrap node
-        Integer nodeId = this.getId();
-        Node<C> selfNode = this;
-        Future<FindNodeAnswer<C>> findNodeAnswerFuture = executorService.submit(new Callable<FindNodeAnswer<C>>() {
+        ID nodeId = this.getId();
+        Node<ID, C> selfNode = this;
+        Future<FindNodeAnswer<ID, C>> findNodeAnswerFuture = executorService.submit(new Callable<FindNodeAnswer<ID, C>>() {
             @Override
-            public FindNodeAnswer<C> call() throws Exception {
+            public FindNodeAnswer<ID, C> call() throws Exception {
                 return nodeConnectionApi.findNode(selfNode, bootstrapNode, nodeId);
             }
         });
 
         try {
-            FindNodeAnswer<C> findNodeAnswer = findNodeAnswerFuture.get(BOOTSTRAP_NODE_CALL_TIMEOUT_SEC, TimeUnit.SECONDS);
+            FindNodeAnswer<ID, C> findNodeAnswer = findNodeAnswerFuture.get(BOOTSTRAP_NODE_CALL_TIMEOUT_SEC, TimeUnit.SECONDS);
             if(!findNodeAnswer.isAlive())
                 throw new BootstrapException(bootstrapNode);
             //Add bootstrap node to routing table
@@ -96,9 +98,10 @@ public class KademliaNode<C extends ConnectionInfo> extends Node<C> implements N
      * @return answer of closest nodes
      */
     @Override
-    public FindNodeAnswer<C> onFindNode(int externalNodeId) throws NodeIsOfflineException {
+    public FindNodeAnswer<ID, C> onFindNode(Node<ID, C> node, ID externalNodeId) throws NodeIsOfflineException {
         if(!isRunning())
             throw new NodeIsOfflineException();
+        addNode(node);
         return routingTable.findClosest(externalNodeId);
     }
 
@@ -108,7 +111,7 @@ public class KademliaNode<C extends ConnectionInfo> extends Node<C> implements N
      * @return Answer to ping
      */
     @Override
-    public PingAnswer onPing(Node<C> node) throws NodeIsOfflineException {
+    public PingAnswer onPing(Node<ID, C> node) throws NodeIsOfflineException {
         if(!isRunning())
             throw new NodeIsOfflineException();
         addNode(node);
@@ -121,7 +124,7 @@ public class KademliaNode<C extends ConnectionInfo> extends Node<C> implements N
      * @param node node that is shutting down
      */
     @Override
-    public void onShutdownSignal(Node<C> node){
+    public void onShutdownSignal(Node<ID, C> node){
         referencedNodes.remove(node);
         routingTable.delete(node);
     }
@@ -144,7 +147,7 @@ public class KademliaNode<C extends ConnectionInfo> extends Node<C> implements N
         //Tell referenced nodes that we are leaving network
         try {
             referencedNodes.forEach(node -> {
-                if(node.getId() != this.getId())
+                if(!node.getId().equals(this.getId()))
                     nodeConnectionApi.shutdownSignal(this, node);
             });
         }catch (Exception e){
@@ -173,7 +176,7 @@ public class KademliaNode<C extends ConnectionInfo> extends Node<C> implements N
         kademliaNodeListener.onStartupComplete(this);
     }
 
-    public final void setKademliaNodeListener(KademliaNodeListener kademliaNodeListener) {
+    public final void setKademliaNodeListener(KademliaNodeListener<ID, C, ?, ?> kademliaNodeListener) {
         assert kademliaNodeListener != null;
         this.kademliaNodeListener = kademliaNodeListener;
     }
@@ -188,7 +191,7 @@ public class KademliaNode<C extends ConnectionInfo> extends Node<C> implements N
         this.running = running;
     }
 
-    protected void addNode(Node<C> node){
+    protected void addNode(Node<ID, C> node){
         if (routingTable.update(node)) {
             kademliaNodeListener.onNewNodeAvailable(this, node);
         }
@@ -197,9 +200,9 @@ public class KademliaNode<C extends ConnectionInfo> extends Node<C> implements N
     //Gathers most important nodes to keep connection to (See KademliaNodesToReference)
     protected void makeReferenceNodes(){
         referencedNodes = new CopyOnWriteArrayList<>();
-        List<Integer> distances = KadDistanceUtil.getNodesWithDistance(getId(), Common.IDENTIFIER_SIZE);
+        List<ID> distances = KadDistanceUtil.getNodesWithDistance(getId(), Common.IDENTIFIER_SIZE);
         distances.forEach(distance -> {
-            FindNodeAnswer<C> findNodeAnswer = routingTable.findClosest(distance);
+            FindNodeAnswer<ID, C> findNodeAnswer = routingTable.findClosest(distance);
             if (findNodeAnswer.getNodes().size() > 0) {
                 if(!referencedNodes.contains(findNodeAnswer.getNodes().get(0)))
                     referencedNodes.add(findNodeAnswer.getNodes().get(0));
@@ -208,38 +211,38 @@ public class KademliaNode<C extends ConnectionInfo> extends Node<C> implements N
         kademliaNodeListener.onReferencedNodesUpdate(this, referencedNodes);
     }
 
-    protected void getClosestNodesFromAliveNodes(Node<C> bootstrapNode) {
+    protected void getClosestNodesFromAliveNodes(Node<ID, C> bootstrapNode) {
         int bucketId = routingTable.findBucket(bootstrapNode.getId()).getId();
-        final Set<Integer> destinations = new LinkedHashSet<>();
+        final Set<ID> destinations = new LinkedHashSet<>();
         for (int i = 0; ((bucketId - i) > 0 || (bucketId + i) <= Common.IDENTIFIER_SIZE) && i < Common.JOIN_BUCKETS_QUERIES; i++) {
-            int idInBucket = -1;
+            Number idInBucket = -1;
             if (bucketId - i > 0) {
                 idInBucket = routingTable.getIdInPrefix(this.getId(),bucketId - i);
-                destinations.add(idInBucket);
+                destinations.add((ID) idInBucket);
             }
             if (bucketId + i <= Common.IDENTIFIER_SIZE) {
                 idInBucket = routingTable.getIdInPrefix(this.getId(),bucketId + i);
             }
-            if(idInBucket != -1)
-                destinations.add(idInBucket);
+            if(!idInBucket.equals(-1))
+                destinations.add((ID) idInBucket);
         }
         destinations.forEach(this::findBestNodesCloseToDestination);
     }
 
-    protected void findBestNodesCloseToDestination(int destination) {
-        FindNodeAnswer<C> findNodeAnswer = routingTable.findClosest(destination);
+    protected void findBestNodesCloseToDestination(ID destination) {
+        FindNodeAnswer<ID, C> findNodeAnswer = routingTable.findClosest(destination);
         sendFindNodeToBest(findNodeAnswer);
     }
 
     /** Sends a "FIND_NODE" request to the best "alpha" nodes in a node list */
-    protected int sendFindNodeToBest(FindNodeAnswer<C> findNodeAnswer) {
-        int destination = findNodeAnswer.getDestinationId();
+    protected int sendFindNodeToBest(FindNodeAnswer<ID, C> findNodeAnswer) {
+        ID destination = findNodeAnswer.getDestinationId();
         int i;
         for (i = 0; i < Common.ALPHA && i < findNodeAnswer.size(); i++) {
-            ExternalNode<C> externalNode = findNodeAnswer.getNodes().get(i);
-            if (externalNode.getId() != this.getId()) {
-                FindNodeAnswer<C> findNodeAnswer1 = nodeConnectionApi.findNode(this, externalNode, destination);
-                if(findNodeAnswer1.getDestinationId() == destination && findNodeAnswer1.isAlive()){
+            ExternalNode<ID, C> externalNode = findNodeAnswer.getNodes().get(i);
+            if (!externalNode.getId().equals(this.getId())) {
+                FindNodeAnswer<ID, C> findNodeAnswer1 = nodeConnectionApi.findNode(this, externalNode, destination);
+                if(findNodeAnswer1.getDestinationId().equals(destination) && findNodeAnswer1.isAlive()){
                     addNode(externalNode);
                     pingAndAddResults(findNodeAnswer.getNodes());
                 }
@@ -248,11 +251,11 @@ public class KademliaNode<C extends ConnectionInfo> extends Node<C> implements N
         return i;
     }
 
-    protected void pingAndAddResults(List<? extends Node<C>> externalNodes){
-        for (Node<C> externalNode : externalNodes) {
-            if(externalNode.getId() == getId())
+    protected void pingAndAddResults(List<? extends Node<ID, C>> externalNodes){
+        for (Node<ID, C> externalNode : externalNodes) {
+            if(externalNode.getId().equals(getId()))
                 continue;
-            PingAnswer pingAnswer = nodeConnectionApi.ping(this, externalNode);
+            PingAnswer<ID> pingAnswer = nodeConnectionApi.ping(this, externalNode);
             if(pingAnswer.isAlive()){
                 addNode(externalNode);
             }else {

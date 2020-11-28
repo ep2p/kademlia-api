@@ -23,22 +23,25 @@ public class KadDistanceUtil {
         return distances;
     }
 
-    public static synchronized List<Integer> getNodesWithDistance(int nodeId, int identifierSize) {
-        ArrayList<Integer> validNodes = new ArrayList<>();
-        getDistancesOfIdentifierSize(identifierSize).forEach(distance -> {
-            validNodes.add(nodeId ^ distance);
-        });
+    public static synchronized <ID extends Number> List<ID> getNodesWithDistance(ID nodeId, int identifierSize) {
+        if(nodeId instanceof Long){
+            ArrayList<Long> validNodes = new ArrayList<>();
+            getDistancesOfIdentifierSize(identifierSize).forEach(distance -> {
+                validNodes.add(((Long) nodeId) ^ distance);
+            });
 
-        return validNodes;
+            return (List<ID>) validNodes;
+        }
+        return new ArrayList<>();
     }
 
-    public static <C extends ConnectionInfo> Node<C> getClosest(List<Node<C>> nodes, int distance){
+    public static <ID extends Number, C extends ConnectionInfo> Node<ID, C> getClosest(List<Node<ID, C>> nodes, int distance){
         assert nodes.size() > 0;
 
-        Node<C> node = nodes.get(0);
-        int nDistance = nodes.get(0).getId() ^ distance;
-        for (Node<C> cNode : nodes) {
-            int tempDistance = cNode.getId() ^ distance;
+        Node<ID, C> node = nodes.get(0);
+        int nDistance = ((Number) nodes.get(0).getId()).byteValue() ^ distance;
+        for (Node<ID, C> cNode : nodes) {
+            int tempDistance = ((Number) cNode.getId()).byteValue() ^ distance;
             if(tempDistance < nDistance){
                 nDistance = tempDistance;
                 node = cNode;

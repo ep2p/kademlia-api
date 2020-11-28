@@ -5,7 +5,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class StoreAnswer<K> extends WatchableAnswer {
+public class StoreAnswer<ID extends Number, K> extends WatchableAnswer<ID> {
     private K key;
     private Result result;
 

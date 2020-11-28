@@ -9,7 +9,6 @@ import com.github.ep2p.kademlia.exception.StoreException;
 import com.github.ep2p.kademlia.model.GetAnswer;
 import com.github.ep2p.kademlia.model.StoreAnswer;
 import com.github.ep2p.kademlia.node.*;
-import com.github.ep2p.kademlia.table.RoutingTableFactory;
 import com.github.ep2p.kademlia.table.SimpleRoutingTableFactory;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -21,14 +20,14 @@ public class DataStorageReDistributionTest {
     public void canRedistributeDataOnNodeApear() throws BootstrapException, StoreException, InterruptedException, GetException {
         LocalNodeConnectionApi nodeApi = new LocalNodeConnectionApi();
         NodeIdFactory nodeIdFactory = new IncrementalNodeIdFactory();
-        RoutingTableFactory<EmptyConnectionInfo, Integer> routingTableFactory = new SimpleRoutingTableFactory();
+        SimpleRoutingTableFactory routingTableFactory = new SimpleRoutingTableFactory();
         Common.IDENTIFIER_SIZE = 4;
         Common.REFERENCED_NODES_UPDATE_PERIOD_SEC = 2;
 
-        KademliaNodeListener<EmptyConnectionInfo, Integer, String> redistributionKademliaNodeListener = new RedistributionKademliaNodeListener<EmptyConnectionInfo, Integer, String>();
+        KademliaNodeListener<Integer, EmptyConnectionInfo, Integer, String> redistributionKademliaNodeListener = new RedistributionKademliaNodeListener<Integer, EmptyConnectionInfo, Integer, String>();
 
         //bootstrap node
-        KademliaSyncRepositoryNode<EmptyConnectionInfo, Integer, String> node0 = new KademliaSyncRepositoryNode<>(nodeIdFactory.getNodeId(), routingTableFactory.getRoutingTable(0), nodeApi, new EmptyConnectionInfo(), new SampleRepository());
+        KademliaSyncRepositoryNode<Integer, EmptyConnectionInfo, Integer, String> node0 = new KademliaSyncRepositoryNode<>(nodeIdFactory.getNodeId(), routingTableFactory.getRoutingTable(0), nodeApi, new EmptyConnectionInfo(), new SampleRepository());
         nodeApi.registerNode(node0);
         node0.setKademliaNodeListener(redistributionKademliaNodeListener);
         node0.start();
@@ -37,7 +36,7 @@ public class DataStorageReDistributionTest {
 
 
         for(int i = 1; i < (Math.pow(2, Common.IDENTIFIER_SIZE) / 2); i++){
-            KademliaRepositoryNode<EmptyConnectionInfo, Integer, String> aNode = new KademliaRepositoryNode<>(i * 2, routingTableFactory.getRoutingTable(i*2), nodeApi, new EmptyConnectionInfo(), new SampleRepository());
+            KademliaRepositoryNode<Integer, EmptyConnectionInfo, Integer, String> aNode = new KademliaRepositoryNode<>(i * 2, routingTableFactory.getRoutingTable(i*2), nodeApi, new EmptyConnectionInfo(), new SampleRepository());
             nodeApi.registerNode(aNode);
             aNode.setKademliaNodeListener(redistributionKademliaNodeListener);
             aNode.bootstrap(node0);
@@ -46,7 +45,7 @@ public class DataStorageReDistributionTest {
         Thread.sleep(2000);
 
         String data = "Eleuth";
-        StoreAnswer<Integer> storeAnswer = node0.store(data.hashCode(), data);
+        StoreAnswer<Integer, Integer> storeAnswer = node0.store(data.hashCode(), data);
         Assertions.assertEquals(storeAnswer.getResult(), StoreAnswer.Result.STORED, "StoreAnswer Result was " + storeAnswer.getResult());
         Assertions.assertEquals((int) storeAnswer.getKey(), data.hashCode(), "StoreAnswer key was " + storeAnswer.getResult());
         System.out.println("Successfully stored `" + data +"` on node " + storeAnswer.getNodeId());
@@ -62,7 +61,7 @@ public class DataStorageReDistributionTest {
         System.out.println("Successfully retrieved `"+ data +"` from node " + getAnswer.getNodeId());
         System.out.println("Making node 11 and checking if data re-distributes");
 
-        KademliaRepositoryNode<EmptyConnectionInfo, Integer, String> aNode = new KademliaRepositoryNode<>(11, routingTableFactory.getRoutingTable(11), nodeApi, new EmptyConnectionInfo(), new SampleRepository());
+        KademliaRepositoryNode<Integer, EmptyConnectionInfo, Integer, String> aNode = new KademliaRepositoryNode<>(11, routingTableFactory.getRoutingTable(11), nodeApi, new EmptyConnectionInfo(), new SampleRepository());
         nodeApi.registerNode(aNode);
         aNode.bootstrap(node0);
 
@@ -82,32 +81,32 @@ public class DataStorageReDistributionTest {
     public void canRedistributeDataOnShutdown() throws BootstrapException, StoreException, InterruptedException, GetException, ShutdownException {
         LocalNodeConnectionApi nodeApi = new LocalNodeConnectionApi();
         NodeIdFactory nodeIdFactory = new IncrementalNodeIdFactory();
-        RoutingTableFactory<EmptyConnectionInfo, Integer> routingTableFactory = new SimpleRoutingTableFactory();
+        SimpleRoutingTableFactory routingTableFactory = new SimpleRoutingTableFactory();
         Common.IDENTIFIER_SIZE = 4;
         Common.REFERENCED_NODES_UPDATE_PERIOD_SEC = 2;
 
-        KademliaNodeListener<EmptyConnectionInfo, Integer, String> redistributionKademliaNodeListener = new RedistributionKademliaNodeListener<EmptyConnectionInfo, Integer, String>(true, new RedistributionKademliaNodeListener.ShutdownDistributionListener<EmptyConnectionInfo>() {
+        KademliaNodeListener<Integer, EmptyConnectionInfo, Integer, String> redistributionKademliaNodeListener = new RedistributionKademliaNodeListener<Integer, EmptyConnectionInfo, Integer, String>(true, new RedistributionKademliaNodeListener.ShutdownDistributionListener<Integer, EmptyConnectionInfo>() {
             @Override
-            public void onFinish(KademliaNode<EmptyConnectionInfo> kademliaNode) {
+            public void onFinish(KademliaNode<Integer, EmptyConnectionInfo> kademliaNode) {
                 System.out.println("Finished redistributing data on shutdown.");
             }
         });
 
         //bootstrap node
-        KademliaSyncRepositoryNode<EmptyConnectionInfo, Integer, String> node0 = new KademliaSyncRepositoryNode<>(nodeIdFactory.getNodeId(), routingTableFactory.getRoutingTable(0), nodeApi, new EmptyConnectionInfo(), new SampleRepository());
+        KademliaSyncRepositoryNode<Integer, EmptyConnectionInfo, Integer, String> node0 = new KademliaSyncRepositoryNode<>(nodeIdFactory.getNodeId(), routingTableFactory.getRoutingTable(0), nodeApi, new EmptyConnectionInfo(), new SampleRepository());
         nodeApi.registerNode(node0);
         node0.setKademliaNodeListener(redistributionKademliaNodeListener);
         node0.start();
 
 
         for(int i = 1; i < (Math.pow(2, Common.IDENTIFIER_SIZE) / 2); i++){
-            KademliaRepositoryNode<EmptyConnectionInfo, Integer, String> aNode = new KademliaRepositoryNode<>(i * 2, routingTableFactory.getRoutingTable(i*2), nodeApi, new EmptyConnectionInfo(), new SampleRepository());
+            KademliaRepositoryNode<Integer, EmptyConnectionInfo, Integer, String> aNode = new KademliaRepositoryNode<>(i * 2, routingTableFactory.getRoutingTable(i*2), nodeApi, new EmptyConnectionInfo(), new SampleRepository());
             nodeApi.registerNode(aNode);
             aNode.setKademliaNodeListener(redistributionKademliaNodeListener);
             aNode.bootstrap(node0);
         }
 
-        KademliaRepositoryNode<EmptyConnectionInfo, Integer, String> node11 = new KademliaRepositoryNode<>(11, routingTableFactory.getRoutingTable(11), nodeApi, new EmptyConnectionInfo(), new SampleRepository());
+        KademliaRepositoryNode<Integer, EmptyConnectionInfo, Integer, String> node11 = new KademliaRepositoryNode<>(11, routingTableFactory.getRoutingTable(11), nodeApi, new EmptyConnectionInfo(), new SampleRepository());
         node11.setKademliaNodeListener(redistributionKademliaNodeListener);
         nodeApi.registerNode(node11);
         node11.bootstrap(node0);
@@ -115,7 +114,7 @@ public class DataStorageReDistributionTest {
         Thread.sleep(2000);
 
         String data = "Eleuth";
-        StoreAnswer<Integer> storeAnswer = node0.store(data.hashCode(), data);
+        StoreAnswer<Integer, Integer> storeAnswer = node0.store(data.hashCode(), data);
         Assertions.assertEquals(storeAnswer.getResult(), StoreAnswer.Result.STORED, "StoreAnswer Result was " + storeAnswer.getResult());
         Assertions.assertEquals((int) storeAnswer.getKey(), data.hashCode(), "StoreAnswer key was " + storeAnswer.getResult());
         System.out.println("Successfully stored `" + data +"` on node " + storeAnswer.getNodeId());

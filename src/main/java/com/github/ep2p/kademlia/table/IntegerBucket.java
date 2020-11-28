@@ -1,0 +1,15 @@
+/* Copyright (c) 2012-2014, 2016. The SimGrid Team.
+ * All rights reserved.                                                     */
+
+/* This program is free software; you can redistribute it and/or modify it
+ * under the terms of the license (GNU LGPL) which comes with this package. */
+
+package com.github.ep2p.kademlia.table;
+
+import com.github.ep2p.kademlia.connection.ConnectionInfo;
+
+public class IntegerBucket<C extends ConnectionInfo> extends AbstractBucket<Integer, C> {
+  public IntegerBucket(int id) {
+    super(id);
+  }
+}

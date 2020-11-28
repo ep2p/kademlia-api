@@ -24,18 +24,18 @@ public class DataStorageThreadTest {
     public void canStoreDataWhenCalledInMultipleThreads() throws BootstrapException, StoreException, InterruptedException, GetException {
         LocalNodeConnectionApi nodeApi = new LocalNodeConnectionApi();
         NodeIdFactory nodeIdFactory = new IncrementalNodeIdFactory();
-        RoutingTableFactory<EmptyConnectionInfo, Integer> routingTableFactory = new SimpleRoutingTableFactory();
+        SimpleRoutingTableFactory routingTableFactory = new SimpleRoutingTableFactory();
         Common.IDENTIFIER_SIZE = 4;
         Common.REFERENCED_NODES_UPDATE_PERIOD_SEC = 2;
 
         //bootstrap node
-        KademliaSyncRepositoryNode<EmptyConnectionInfo, Integer, String> node0 = new KademliaSyncRepositoryNode<>(nodeIdFactory.getNodeId(), routingTableFactory.getRoutingTable(0), nodeApi, new EmptyConnectionInfo(), new SampleRepository());
+        KademliaSyncRepositoryNode<Integer, EmptyConnectionInfo, Integer, String> node0 = new KademliaSyncRepositoryNode<>(nodeIdFactory.getNodeId(), routingTableFactory.getRoutingTable(0), nodeApi, new EmptyConnectionInfo(), new SampleRepository());
         nodeApi.registerNode(node0);
         node0.start();
 
 
         for(int i = 1; i < Math.pow(2, Common.IDENTIFIER_SIZE); i++){
-            KademliaRepositoryNode<EmptyConnectionInfo, Integer, String> aNode = new KademliaRepositoryNode<>(i, routingTableFactory.getRoutingTable(i), nodeApi, new EmptyConnectionInfo(), new SampleRepository());
+            KademliaRepositoryNode<Integer, EmptyConnectionInfo, Integer, String> aNode = new KademliaRepositoryNode<>(i, routingTableFactory.getRoutingTable(i), nodeApi, new EmptyConnectionInfo(), new SampleRepository());
             nodeApi.registerNode(aNode);
             aNode.bootstrap(node0);
         }
@@ -43,14 +43,14 @@ public class DataStorageThreadTest {
         Thread.sleep(2000);
 
         String data = "Eleuth";
-        AtomicReference<StoreAnswer<Integer>> atomicReference = new AtomicReference<>();
+        AtomicReference<StoreAnswer<Integer, Integer>> atomicReference = new AtomicReference<>();
         for (int i = 0; i < 10; i++){
             Thread thread = new Thread(new Runnable() {
                 @SneakyThrows
                 @Override
                 public void run() {
                     try {
-                        StoreAnswer<Integer> storeAnswer = node0.store(data.hashCode(), data);
+                        StoreAnswer<Integer, Integer> storeAnswer = node0.store(data.hashCode(), data);
                         atomicReference.set(storeAnswer);
                     }catch (StoreException e){
                         e.printStackTrace();
@@ -61,7 +61,7 @@ public class DataStorageThreadTest {
             Thread.sleep(20);
         }
         Thread.sleep(3000);
-        StoreAnswer<Integer> storeAnswer = atomicReference.get();
+        StoreAnswer<Integer, Integer> storeAnswer = atomicReference.get();
         Assertions.assertEquals(storeAnswer.getResult(), StoreAnswer.Result.STORED, "StoreAnswer Result was " + storeAnswer.getResult());
         Assertions.assertEquals((int) storeAnswer.getKey(), data.hashCode(), "StoreAnswer key was " + storeAnswer.getResult());
         System.out.println("Successfully stored `" + data +"` on node " + storeAnswer.getNodeId());
@@ -81,18 +81,18 @@ public class DataStorageThreadTest {
     public void getsValidTimeoutOnLongStore() throws BootstrapException, StoreException, InterruptedException, GetException {
         LongRunningLocalNodeConnectionApi nodeApi = new LongRunningLocalNodeConnectionApi();
         NodeIdFactory nodeIdFactory = new IncrementalNodeIdFactory();
-        RoutingTableFactory<EmptyConnectionInfo, Integer> routingTableFactory = new SimpleRoutingTableFactory();
+        SimpleRoutingTableFactory routingTableFactory = new SimpleRoutingTableFactory();
         Common.IDENTIFIER_SIZE = 4;
         Common.REFERENCED_NODES_UPDATE_PERIOD_SEC = 2;
 
         //bootstrap node
-        KademliaSyncRepositoryNode<EmptyConnectionInfo, Integer, String> node0 = new KademliaSyncRepositoryNode<>(nodeIdFactory.getNodeId(), routingTableFactory.getRoutingTable(0), nodeApi, new EmptyConnectionInfo(), new SampleRepository());
+        KademliaSyncRepositoryNode<Integer, EmptyConnectionInfo, Integer, String> node0 = new KademliaSyncRepositoryNode<>(nodeIdFactory.getNodeId(), routingTableFactory.getRoutingTable(0), nodeApi, new EmptyConnectionInfo(), new SampleRepository());
         nodeApi.registerNode(node0);
         node0.start();
 
 
         for(int i = 1; i < Math.pow(2, Common.IDENTIFIER_SIZE); i++){
-            KademliaRepositoryNode<EmptyConnectionInfo, Integer, String> aNode = new KademliaRepositoryNode<>(i, routingTableFactory.getRoutingTable(i), nodeApi, new EmptyConnectionInfo(), new SampleRepository());
+            KademliaRepositoryNode<Integer, EmptyConnectionInfo, Integer, String> aNode = new KademliaRepositoryNode<>(i, routingTableFactory.getRoutingTable(i), nodeApi, new EmptyConnectionInfo(), new SampleRepository());
             nodeApi.registerNode(aNode);
             aNode.bootstrap(node0);
         }
@@ -100,7 +100,7 @@ public class DataStorageThreadTest {
         Thread.sleep(2000);
 
         String data = "Eleuth";
-        StoreAnswer<Integer> storeAnswer = node0.store(data.hashCode(), data, 100, TimeUnit.MILLISECONDS);
+        StoreAnswer<Integer, Integer> storeAnswer = node0.store(data.hashCode(), data, 100, TimeUnit.MILLISECONDS);
         Assertions.assertEquals(storeAnswer.getResult(), StoreAnswer.Result.TIMEOUT, "Could not get timeout from store answer");
 
     }
@@ -109,18 +109,18 @@ public class DataStorageThreadTest {
     public void getsValidTimeoutOnLongGetRequest() throws InterruptedException, BootstrapException, StoreException, GetException {
         LongRunningLocalNodeConnectionApi nodeApi = new LongRunningLocalNodeConnectionApi(); //important
         NodeIdFactory nodeIdFactory = new IncrementalNodeIdFactory();
-        RoutingTableFactory<EmptyConnectionInfo, Integer> routingTableFactory = new SimpleRoutingTableFactory();
+        SimpleRoutingTableFactory routingTableFactory = new SimpleRoutingTableFactory();
         Common.IDENTIFIER_SIZE = 4;
         Common.REFERENCED_NODES_UPDATE_PERIOD_SEC = 2;
 
         //bootstrap node
-        KademliaSyncRepositoryNode<EmptyConnectionInfo, Integer, String> node0 = new KademliaSyncRepositoryNode<>(nodeIdFactory.getNodeId(), routingTableFactory.getRoutingTable(0), nodeApi, new EmptyConnectionInfo(), new SampleRepository());
+        KademliaSyncRepositoryNode<Integer, EmptyConnectionInfo, Integer, String> node0 = new KademliaSyncRepositoryNode<>(nodeIdFactory.getNodeId(), routingTableFactory.getRoutingTable(0), nodeApi, new EmptyConnectionInfo(), new SampleRepository());
         nodeApi.registerNode(node0);
         node0.start();
 
 
         for(int i = 1; i < (Math.pow(2, Common.IDENTIFIER_SIZE) / 2); i++){
-            KademliaRepositoryNode<EmptyConnectionInfo, Integer, String> aNode = new KademliaRepositoryNode<>(i * 2, routingTableFactory.getRoutingTable(i * 2), nodeApi, new EmptyConnectionInfo(), new SampleRepository());
+            KademliaRepositoryNode<Integer, EmptyConnectionInfo, Integer, String> aNode = new KademliaRepositoryNode<>(i * 2, routingTableFactory.getRoutingTable(i * 2), nodeApi, new EmptyConnectionInfo(), new SampleRepository());
             nodeApi.registerNode(aNode);
             aNode.bootstrap(node0);
         }
@@ -128,7 +128,7 @@ public class DataStorageThreadTest {
         Thread.sleep(2000);
 
         String data = "Eleuth";
-        StoreAnswer<Integer> storeAnswer = node0.store(data.hashCode(), data);
+        StoreAnswer<Integer, Integer> storeAnswer = node0.store(data.hashCode(), data);
         Assertions.assertEquals(storeAnswer.getResult(), StoreAnswer.Result.STORED, "StoreAnswer Result was " + storeAnswer.getResult());
         Assertions.assertEquals((int) storeAnswer.getKey(), data.hashCode(), "StoreAnswer key was " + storeAnswer.getResult());
         System.out.println("Successfully stored `" + data +"` on node " + storeAnswer.getNodeId());
