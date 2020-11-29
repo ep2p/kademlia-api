@@ -15,7 +15,6 @@ import com.github.ep2p.kademlia.table.RoutingTable;
 import com.github.ep2p.kademlia.util.KadDistanceUtil;
 import lombok.Getter;
 
-import javax.annotation.PreDestroy;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -131,7 +130,6 @@ public class KademliaNode<ID extends Number, C extends ConnectionInfo> extends N
 
 
     /* Managing API */
-    @PreDestroy
     public void stop() throws ShutdownException {
         setRunning(false);
         kademliaNodeListener.onBeforeShutdown(this);
