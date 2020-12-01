@@ -85,7 +85,8 @@ public class KademliaNode<ID extends Number, C extends ConnectionInfo> extends N
             }
         });
         kademliaNodeListener.onBootstrapDone(this);
-        start();
+        if(!isRunning())
+            start();
     }
 
     /* P2P API */
@@ -110,11 +111,11 @@ public class KademliaNode<ID extends Number, C extends ConnectionInfo> extends N
      * @return Answer to ping
      */
     @Override
-    public PingAnswer onPing(Node<ID, C> node) throws NodeIsOfflineException {
+    public PingAnswer<ID> onPing(Node<ID, C> node) throws NodeIsOfflineException {
         if(!isRunning())
             throw new NodeIsOfflineException();
         addNode(node);
-        return new PingAnswer(getId());
+        return new PingAnswer<ID>(getId());
     }
 
 
