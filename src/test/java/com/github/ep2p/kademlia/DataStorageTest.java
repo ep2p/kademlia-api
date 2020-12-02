@@ -46,7 +46,7 @@ public class DataStorageTest {
 
         Assertions.assertNull(node0.getKademliaRepository().get(data.hashCode()), "Invalid node is holding data");
 
-        GetAnswer<Integer, String> getAnswer = node0.get(data.hashCode());
+        GetAnswer<Integer,Integer, String> getAnswer = node0.get(data.hashCode());
         Assertions.assertEquals(getAnswer.getResult(), GetAnswer.Result.FOUND, "GetAnswer Result was " + storeAnswer.getResult());
         Assertions.assertEquals((int) getAnswer.getKey(), data.hashCode(), "GetAnswer key was " + storeAnswer.getResult());
         Assertions.assertEquals(getAnswer.getValue(), data, "GetAnswer value was " + storeAnswer.getResult());
@@ -85,7 +85,7 @@ public class DataStorageTest {
 
         Assertions.assertNull(node0.getKademliaRepository().get(data.hashCode()), "Invalid node is holding data");
 
-        GetAnswer<Integer, String> getAnswer = node0.get(data.hashCode());
+        GetAnswer<Integer,Integer, String> getAnswer = node0.get(data.hashCode());
         Assertions.assertEquals(getAnswer.getResult(), GetAnswer.Result.FOUND, "GetAnswer Result was " + storeAnswer.getResult());
         Assertions.assertEquals((int) getAnswer.getKey(), data.hashCode(), "GetAnswer key was " + storeAnswer.getResult());
         Assertions.assertEquals(getAnswer.getValue(), data, "GetAnswer value was " + storeAnswer.getResult());

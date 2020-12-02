@@ -55,7 +55,7 @@ public class KademliaRepositoryNode<ID extends Number, C extends ConnectionInfo,
             return;
         }
 
-        GetAnswer<K, V> getAnswer = findClosestNodesToGetData(requester, key, callerNode);
+        GetAnswer<ID, K, V> getAnswer = findClosestNodesToGetData(requester, key, callerNode);
         if(getAnswer == null)
             getNodeConnectionApi().sendGetResults(this, requester, key, null);
     }
@@ -119,7 +119,7 @@ public class KademliaRepositoryNode<ID extends Number, C extends ConnectionInfo,
      * @return GetAnswer, "Found: current node holds data and returned it", "PASSED: Current node doesnt hold data so request is passed to other nodes"
      * @throws GetException No responsible node found for key
      */
-    public GetAnswer<K, V> get(K key) throws GetException {
+    public GetAnswer<ID, K, V> get(K key) throws GetException {
         if(!isRunning())
             throw new GetException("Node is shutting down");
         //Check repository for key, if it exists return it
@@ -128,7 +128,7 @@ public class KademliaRepositoryNode<ID extends Number, C extends ConnectionInfo,
             return getNewGetAnswer(key, value, GetAnswer.Result.FOUND, this);
         }
 
-        GetAnswer<K,V> getAnswer = null;
+        GetAnswer<ID, K, V> getAnswer = null;
 
         //Otherwise, ask closest node we know to key
         getAnswer = findClosestNodesToGetData(this, key, null);
@@ -208,8 +208,8 @@ public class KademliaRepositoryNode<ID extends Number, C extends ConnectionInfo,
      * @param nodeToIgnore nullable. node to ignore when passing requests to others. used when `nodeToIgnore` might actually be closest node but doesnt hold the data
      * @return
      */
-    protected GetAnswer<K, V> findClosestNodesToGetData(Node<ID, C> requester, K key, Node<ID, C> nodeToIgnore){
-        GetAnswer<K, V> getAnswer = null;
+    protected GetAnswer<ID, K, V> findClosestNodesToGetData(Node<ID, C> requester, K key, Node<ID, C> nodeToIgnore){
+        GetAnswer<ID, K, V> getAnswer = null;
         ID hash = hash(key);
         FindNodeAnswer<ID, C> findNodeAnswer = getRoutingTable().findClosest(hash);
         Date date = getDateOfSecondsAgo(LAST_SEEN_SECONDS_TO_CONSIDER_ALIVE);
@@ -238,8 +238,8 @@ public class KademliaRepositoryNode<ID extends Number, C extends ConnectionInfo,
         return boundedHashUtil.hash(key.hashCode(), (Class<ID>) getId().getClass());
     }
 
-    protected GetAnswer<K, V> getNewGetAnswer(K k, V v, GetAnswer.Result result, Node<ID, C> node){
-        GetAnswer<K, V> getAnswer = new GetAnswer<>();
+    protected GetAnswer<ID, K, V> getNewGetAnswer(K k, V v, GetAnswer.Result result, Node<ID, C> node){
+        GetAnswer<ID, K, V> getAnswer = new GetAnswer<>();
         getAnswer.setResult(result);
         getAnswer.setKey(k);
         getAnswer.setValue(v);

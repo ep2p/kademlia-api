@@ -23,7 +23,7 @@ import static com.github.ep2p.kademlia.model.StoreAnswer.Result.TIMEOUT;
 public class KademliaSyncRepositoryNode<ID extends Number, C extends ConnectionInfo, K, V> extends KademliaRepositoryNode<ID, C,K,V> {
     private volatile Map<K, StoreAnswer<ID, K>> storeMap = new ConcurrentHashMap<>();
     private volatile Map<K, Lock> storeLockMap = new HashMap<>();
-    private volatile Map<K, GetAnswer<K, V>> getMap = new HashMap<>();
+    private volatile Map<K, GetAnswer<ID, K, V>> getMap = new HashMap<>();
     private volatile Map<K, Lock> getLockMap = new HashMap<>();
 
     public KademliaSyncRepositoryNode(ID nodeId, RoutingTable<ID, C, Bucket<ID, C>> routingTable, NodeConnectionApi<ID, C> nodeConnectionApi, C connectionInfo, KademliaRepository<K, V> kademliaRepository) {
@@ -79,7 +79,7 @@ public class KademliaSyncRepositoryNode<ID extends Number, C extends ConnectionI
     }
 
     @SneakyThrows
-    public GetAnswer<K,V> get(K key, long timeout, TimeUnit timeUnit) throws GetException {
+    public GetAnswer<ID, K, V> get(K key, long timeout, TimeUnit timeUnit) throws GetException {
         Lock keyLock = new ReentrantLock();
         synchronized (this){
             Lock oldLock = getLockMap.putIfAbsent(key, keyLock);
@@ -89,11 +89,11 @@ public class KademliaSyncRepositoryNode<ID extends Number, C extends ConnectionI
         }
         if (keyLock.tryLock()) {
             try {
-                GetAnswer<K, V> getAnswer = super.get(key);
+                GetAnswer<ID, K, V> getAnswer = super.get(key);
                 if(getAnswer.getResult().equals(GetAnswer.Result.FOUND)){
                     return getAnswer;
                 }else {
-                    GetAnswer<K, V> answer = new GetAnswer<>();
+                    GetAnswer<ID, K, V> answer = new GetAnswer<>();
                     answer.setResult(GetAnswer.Result.TIMEOUT);
                     getMap.putIfAbsent(key, answer);
                     if(timeUnit == null)
@@ -108,7 +108,7 @@ public class KademliaSyncRepositoryNode<ID extends Number, C extends ConnectionI
                 getMap.remove(key);
             }
         }else {
-            GetAnswer<K,V> getAnswer = getMap.get(key);
+            GetAnswer<ID, K,V> getAnswer = getMap.get(key);
             if(getAnswer != null){
                 if(timeUnit == null)
                     getAnswer.watch();
@@ -123,14 +123,14 @@ public class KademliaSyncRepositoryNode<ID extends Number, C extends ConnectionI
 
     @SneakyThrows
     @Override
-    public GetAnswer<K, V> get(K key) throws GetException {
+    public GetAnswer<ID, K, V> get(K key) throws GetException {
         return this.get(key, 0, null);
     }
 
     @Override
     public void onGetResult(Node<ID, C> node, K key, V value) {
         super.onGetResult(node, key, value);
-        GetAnswer<K, V> getAnswer = getMap.get(key);
+        GetAnswer<ID, K, V> getAnswer = getMap.get(key);
         getAnswer.setNodeId(node.getId());
         getAnswer.setAlive(true);
         getAnswer.setKey(key);
