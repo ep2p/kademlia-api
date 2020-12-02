@@ -15,7 +15,7 @@ import java.util.Collections;
 
 /* Answer to a "FIND_NODE" query. Contains the nodes closest to an id given */
 @Getter
-public class FindNodeAnswer<ID extends Number, C extends ConnectionInfo> extends Answer {
+public class FindNodeAnswer<ID extends Number, C extends ConnectionInfo> extends Answer<ID> {
   private ID destinationId;
   /* Closest nodes in the answer. */
   private ArrayList<ExternalNode<ID, C>> nodes;

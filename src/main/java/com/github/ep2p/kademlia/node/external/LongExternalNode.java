@@ -5,6 +5,9 @@ import com.github.ep2p.kademlia.node.Node;
 
 public class LongExternalNode<C extends ConnectionInfo> extends ExternalNode<Long, C> {
 
+    public LongExternalNode() {
+    }
+
     public LongExternalNode(Node<Long, C> node, Long distance) {
         super(node, distance);
     }
