@@ -18,7 +18,7 @@ public class DataStorageReDistributionTest {
 
     @Test
     public void canRedistributeDataOnNodeApear() throws BootstrapException, StoreException, InterruptedException, GetException {
-        LocalNodeConnectionApi nodeApi = new LocalNodeConnectionApi();
+        LocalNodeConnectionApi<Integer> nodeApi = new LocalNodeConnectionApi<>();
         NodeIdFactory nodeIdFactory = new IncrementalNodeIdFactory();
         SimpleRoutingTableFactory routingTableFactory = new SimpleRoutingTableFactory();
         Common.IDENTIFIER_SIZE = 4;
@@ -79,7 +79,7 @@ public class DataStorageReDistributionTest {
 
     @Test
     public void canRedistributeDataOnShutdown() throws BootstrapException, StoreException, InterruptedException, GetException, ShutdownException {
-        LocalNodeConnectionApi nodeApi = new LocalNodeConnectionApi();
+        LocalNodeConnectionApi<Integer> nodeApi = new LocalNodeConnectionApi<>();
         NodeIdFactory nodeIdFactory = new IncrementalNodeIdFactory();
         SimpleRoutingTableFactory routingTableFactory = new SimpleRoutingTableFactory();
         Common.IDENTIFIER_SIZE = 4;

@@ -4,12 +4,12 @@ import com.github.ep2p.kademlia.node.KademliaNode;
 import com.github.ep2p.kademlia.node.KademliaRepositoryNode;
 import com.github.ep2p.kademlia.node.Node;
 
-public class LongRunningLocalNodeConnectionApi extends LocalNodeConnectionApi {
+public class LongRunningLocalNodeConnectionApi<ID extends Number> extends LocalNodeConnectionApi<ID> {
 
     @Override
-    public <K, V> void storeAsync(Node<Integer, EmptyConnectionInfo> caller, Node<Integer, EmptyConnectionInfo> requester, Node<Integer, EmptyConnectionInfo> node, K key, V value) {
+    public <K, V> void storeAsync(Node<ID, EmptyConnectionInfo> caller, Node<ID, EmptyConnectionInfo> requester, Node<ID, EmptyConnectionInfo> node, K key, V value) {
         System.out.println("storeAsync("+caller.getId()+", "+requester.getId()+", "+node.getId()+", "+key+", "+value+")");
-        KademliaNode<Integer, EmptyConnectionInfo> kademliaNode = nodeMap.get(node.getId());
+        KademliaNode<ID, EmptyConnectionInfo> kademliaNode = nodeMap.get(node.getId());
         if(kademliaNode instanceof KademliaRepositoryNode){
             executorService.submit(new Runnable() {
                 @Override
@@ -30,9 +30,9 @@ public class LongRunningLocalNodeConnectionApi extends LocalNodeConnectionApi {
     }
 
     @Override
-    public <K> void getRequest(Node<Integer, EmptyConnectionInfo> caller, Node<Integer, EmptyConnectionInfo> requester, Node<Integer, EmptyConnectionInfo> node, K key) {
+    public <K> void getRequest(Node<ID, EmptyConnectionInfo> caller, Node<ID, EmptyConnectionInfo> requester, Node<ID, EmptyConnectionInfo> node, K key) {
         System.out.println("getRequest("+caller.getId()+", "+requester.getId()+", "+node.getId()+", "+key+")");
-        KademliaNode<Integer, EmptyConnectionInfo> kademliaNode = nodeMap.get(node.getId());
+        KademliaNode<ID, EmptyConnectionInfo> kademliaNode = nodeMap.get(node.getId());
         if(kademliaNode instanceof KademliaRepositoryNode){
             executorService.submit(new Runnable() {
                 @Override

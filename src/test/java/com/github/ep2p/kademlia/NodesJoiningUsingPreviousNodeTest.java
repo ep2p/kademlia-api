@@ -21,7 +21,7 @@ public class NodesJoiningUsingPreviousNodeTest {
 
     @Test
     public void canPeersJoinNetwork() throws BootstrapException, InterruptedException {
-        LocalNodeConnectionApi nodeApi = new LocalNodeConnectionApi();
+        LocalNodeConnectionApi<Integer> nodeApi = new LocalNodeConnectionApi<>();
         SimpleRoutingTableFactory routingTableFactory = new SimpleRoutingTableFactory();
         Common.IDENTIFIER_SIZE = 4;
         Common.REFERENCED_NODES_UPDATE_PERIOD_SEC = 5;

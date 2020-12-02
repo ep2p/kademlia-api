@@ -22,7 +22,7 @@ public class DataStorageThreadTest {
 
     @Test
     public void canStoreDataWhenCalledInMultipleThreads() throws BootstrapException, StoreException, InterruptedException, GetException {
-        LocalNodeConnectionApi nodeApi = new LocalNodeConnectionApi();
+        LocalNodeConnectionApi<Integer> nodeApi = new LocalNodeConnectionApi<>();
         NodeIdFactory nodeIdFactory = new IncrementalNodeIdFactory();
         SimpleRoutingTableFactory routingTableFactory = new SimpleRoutingTableFactory();
         Common.IDENTIFIER_SIZE = 4;
@@ -79,7 +79,7 @@ public class DataStorageThreadTest {
 
     @Test
     public void getsValidTimeoutOnLongStore() throws BootstrapException, StoreException, InterruptedException, GetException {
-        LongRunningLocalNodeConnectionApi nodeApi = new LongRunningLocalNodeConnectionApi();
+        LongRunningLocalNodeConnectionApi<Integer> nodeApi = new LongRunningLocalNodeConnectionApi<>();
         NodeIdFactory nodeIdFactory = new IncrementalNodeIdFactory();
         SimpleRoutingTableFactory routingTableFactory = new SimpleRoutingTableFactory();
         Common.IDENTIFIER_SIZE = 4;
@@ -107,7 +107,7 @@ public class DataStorageThreadTest {
 
     @Test
     public void getsValidTimeoutOnLongGetRequest() throws InterruptedException, BootstrapException, StoreException, GetException {
-        LongRunningLocalNodeConnectionApi nodeApi = new LongRunningLocalNodeConnectionApi(); //important
+        LongRunningLocalNodeConnectionApi<Integer> nodeApi = new LongRunningLocalNodeConnectionApi<>(); //important
         NodeIdFactory nodeIdFactory = new IncrementalNodeIdFactory();
         SimpleRoutingTableFactory routingTableFactory = new SimpleRoutingTableFactory();
         Common.IDENTIFIER_SIZE = 4;
