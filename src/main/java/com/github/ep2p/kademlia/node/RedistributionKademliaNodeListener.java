@@ -30,7 +30,7 @@ public class RedistributionKademliaNodeListener<ID extends Number, C extends Con
         RoutingTable<ID, C, Bucket<ID, C>> routingTable = kademliaRepositoryNode.getRoutingTable();
         kademliaRepositoryNode.getKademliaRepository().getKeys().forEach(key -> {
             FindNodeAnswer<ID, C> findNodeAnswer = routingTable.findClosest(hash(kademliaNode.getId(), key));
-            if (findNodeAnswer.getNodes().size() > 0 && !findNodeAnswer.getNodes().get(0).getId().equals(kademliaRepositoryNode.getId()) && findNodeAnswer.getNodes().get(0).getId() == node.getId()) {
+            if (findNodeAnswer.getNodes().size() > 0 && !findNodeAnswer.getNodes().get(0).getId().equals(kademliaRepositoryNode.getId()) && findNodeAnswer.getNodes().get(0).getId().equals(node.getId())) {
                 kademliaRepositoryNode.getNodeConnectionApi().storeAsync(kademliaRepositoryNode, kademliaRepositoryNode, node, key, kademliaRepositoryNode.getKademliaRepository().get(key));
             }
         });

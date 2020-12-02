@@ -215,7 +215,7 @@ public class KademliaRepositoryNode<ID extends Number, C extends ConnectionInfo,
         Date date = getDateOfSecondsAgo(LAST_SEEN_SECONDS_TO_CONSIDER_ALIVE);
         for (ExternalNode<ID, C> externalNode : findNodeAnswer.getNodes()) {
             //ignore self because we already checked if current node holds the data or not
-            if(externalNode.getId().equals(getId()) || (nodeToIgnore != null && externalNode.getId() == nodeToIgnore.getId()))
+            if(externalNode.getId().equals(getId()) || (nodeToIgnore != null && externalNode.getId().equals(nodeToIgnore.getId())))
                 continue;
 
             PingAnswer<ID> pingAnswer = null;
