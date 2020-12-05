@@ -93,22 +93,4 @@ public class DataStorageTest {
         System.out.println("Successfully retrieved `"+ data +"` from node " + getAnswer.getNodeId());
     }
 
-    public static void main(String[] args) {
-        BoundedHashUtil boundedHashUtil = new BoundedHashUtil(4);
-        String test1 = "hehehe";
-        String test2 = "World";
-        String test3 = "Whats";
-        String test4 = "Upside down";
-        String test5 = "Eleuth";
-        String test6 = "EP2p";
-        String test7 = "3";
-        System.out.println(test1 + " " + boundedHashUtil.hash(test1.hashCode(), Integer.class));
-        System.out.println(test2 + " " + boundedHashUtil.hash(test2.hashCode(), Integer.class));
-        System.out.println(test3 + " " + boundedHashUtil.hash(test3.hashCode(), Integer.class));
-        System.out.println(test4 + " " + boundedHashUtil.hash(test4.hashCode(), Integer.class));
-        System.out.println(test5 + " " + boundedHashUtil.hash(test5.hashCode(), Integer.class));
-        System.out.println(test6 + " " + boundedHashUtil.hash(test6.hashCode(), Integer.class));
-        System.out.println(test7 + " " + boundedHashUtil.hash(test7.hashCode(), Integer.class));
-    }
-
 }
