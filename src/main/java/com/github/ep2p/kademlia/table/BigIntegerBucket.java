@@ -11,6 +11,8 @@ import com.github.ep2p.kademlia.connection.ConnectionInfo;
 import java.math.BigInteger;
 
 public class BigIntegerBucket<C extends ConnectionInfo> extends AbstractBucket<BigInteger, C> {
+  private static final long serialVersionUID = 2319131318326916205L;
+
   public BigIntegerBucket(int id) {
     super(id);
   }

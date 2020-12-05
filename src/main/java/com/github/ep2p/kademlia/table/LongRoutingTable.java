@@ -18,6 +18,8 @@ import java.util.Vector;
 
 public class LongRoutingTable<C extends ConnectionInfo> extends AbstractRoutingTable<Long, C, LongBucket<C>> {
 
+  private static final long serialVersionUID = 3002310308952493026L;
+
   public LongRoutingTable(Long id) {
     super(id);
   }

@@ -15,6 +15,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 public class LongBucket<C extends ConnectionInfo> extends AbstractBucket<Long, C> {
+  private static final long serialVersionUID = -6314496739729756505L;
+
   public LongBucket(int id) {
     super(id);
   }

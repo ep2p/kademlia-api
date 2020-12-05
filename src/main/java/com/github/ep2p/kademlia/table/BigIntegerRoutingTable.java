@@ -14,6 +14,8 @@ import java.math.BigInteger;
 
 public class BigIntegerRoutingTable<C extends ConnectionInfo> extends AbstractRoutingTable<BigInteger, C, Bucket<BigInteger, C>> {
 
+  private static final long serialVersionUID = 184823754242287459L;
+
   public BigIntegerRoutingTable(BigInteger id) {
     super(id);
   }

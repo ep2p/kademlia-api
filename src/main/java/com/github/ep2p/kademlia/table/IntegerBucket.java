@@ -9,6 +9,8 @@ package com.github.ep2p.kademlia.table;
 import com.github.ep2p.kademlia.connection.ConnectionInfo;
 
 public class IntegerBucket<C extends ConnectionInfo> extends AbstractBucket<Integer, C> {
+  private static final long serialVersionUID = 4210483953921617691L;
+
   public IntegerBucket(int id) {
     super(id);
   }

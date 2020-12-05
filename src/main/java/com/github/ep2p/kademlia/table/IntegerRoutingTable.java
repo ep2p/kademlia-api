@@ -12,6 +12,8 @@ import com.github.ep2p.kademlia.connection.ConnectionInfo;
 
 public class IntegerRoutingTable<C extends ConnectionInfo> extends AbstractRoutingTable<Integer, C, Bucket<Integer, C>> {
 
+  private static final long serialVersionUID = 4367972615687933078L;
+
   public IntegerRoutingTable(Integer id) {
     super(id);
   }

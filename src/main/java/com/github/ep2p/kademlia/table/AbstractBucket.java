@@ -15,6 +15,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 public class AbstractBucket<ID extends Number, C extends ConnectionInfo> implements Bucket<ID, C> {
+  private static final long serialVersionUID = -6049494618368168254L;
   protected int id;
   protected List<ID> nodeIds;
   protected Map<ID, Node<ID, C>> nodeMap = new ConcurrentHashMap<>();
