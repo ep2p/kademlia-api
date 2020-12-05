@@ -13,14 +13,20 @@ import java.util.Objects;
 @NoArgsConstructor
 @ToString
 public class Node<ID extends Number, C extends ConnectionInfo> implements Serializable {
+    private static final long serialVersionUID = -262155412931861020L;
     protected ID id;
     protected C connectionInfo;
     protected Date lastSeen;
 
-    protected void setNode(Node<ID, C> node) {
+    public static <ID extends Number, C extends ConnectionInfo> Node<ID, C> copy(Node<ID, C> node){
+        return new Node<ID, C>().setNode(node);
+    }
+
+    protected Node<ID, C> setNode(Node<ID, C> node) {
         this.setConnectionInfo(node.getConnectionInfo());
         this.setId(node.getId());
         this.setLastSeen(node.getLastSeen());
+        return this;
     }
 
     @Override

@@ -161,7 +161,7 @@ public class KademliaNode<ID extends Number, C extends ConnectionInfo> extends N
 
     public void start(){
         setRunning(true);
-        routingTable.update(this);
+        routingTable.update(Node.copy(this));
         //Find maximum n (where n is identifier size) nodes periodically, Check if they are available, otherwise remove them from routing table
         scheduledExecutorService.scheduleAtFixedRate(new Runnable() {
             @Override
@@ -191,7 +191,7 @@ public class KademliaNode<ID extends Number, C extends ConnectionInfo> extends N
     }
 
     protected void addNode(Node<ID, C> node){
-        if (routingTable.update(node)) {
+        if (routingTable.update(Node.copy(node))) {
             kademliaNodeListener.onNewNodeAvailable(this, node);
         }
     }
