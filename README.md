@@ -32,7 +32,7 @@ Make sure your protocol supports requests for methods available in `com.github.e
 To make it more clear, you implement **NodeConnectionApi** for requests that are leaving the node, and **NodeApi** (or **StorageNodeApi**) for incoming requests to your node. A big advantage is that you can control the incoming requests, sign them, validate them, or anything you want to do with them before you pass them to Kademlia node.
 
 ### RoutingTable
-Notice that `RoutingTable` and its buckets are Serializable. So you will easily be able to write it to a file. When you are creating and instance of your node, you can pass a new routing table or use one from disk.
+Notice that `RoutingTable` and its buckets are Serializable. So you will easily be able to write it to a file. When you are creating an instance of your node, you can pass a new routing table or use one from disk.
 At this stage, there is no helper class for writing routing table on disk.
 
 ## Kademlia Node Usage
