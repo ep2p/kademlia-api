@@ -1,29 +1,19 @@
 package com.github.ep2p.kademlia.model;
 
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 public class WatchableAnswer<ID extends Number> extends Answer<ID> implements Watchable {
-    private volatile boolean watching;
+    private final CountDownLatch countDownLatch = new CountDownLatch(1);
     public void watch() throws InterruptedException {
-        watching = true;
-        synchronized (this){
-            while (watching){
-                this.wait();
-            }
-        }
+        countDownLatch.await();
     }
 
     public void watch(long val, TimeUnit timeUnit) throws InterruptedException {
-        watching = true;
-        synchronized (this){
-            this.wait(timeUnit.toMillis(val));
-        }
+        countDownLatch.await(val, timeUnit);
     }
 
     public void release() {
-        synchronized (this){
-            watching = false;
-            this.notifyAll();
-        }
+        countDownLatch.countDown();
     }
 }
