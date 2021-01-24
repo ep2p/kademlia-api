@@ -1,7 +1,7 @@
 [![](https://jitpack.io/v/ep2p/kademlia-api.svg)](https://jitpack.io/#ep2p/kademlia-api)
 
 # Kademlia Api
-Java Kademlia API for Eleuth network.
+Abstract Java Kademlia API (Originally written to be used in Eleuth network).
 
 This API mainly focuses on routing table and peer choosing logic, and moves data persistence & networking to an abstraction layer.
 Therefore, its your responsibility to choose how you want your nodes contact each other. There is enough comment on each method on KademliaNode implementations in repository to help you override them to satisfy your needs of p2p network, since this abstract api can be used in many sort of projects.
