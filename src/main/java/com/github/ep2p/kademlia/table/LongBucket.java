@@ -7,12 +7,6 @@
 package com.github.ep2p.kademlia.table;
 
 import com.github.ep2p.kademlia.connection.ConnectionInfo;
-import com.github.ep2p.kademlia.node.Node;
-
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 public class LongBucket<C extends ConnectionInfo> extends AbstractBucket<Long, C> {
   private static final long serialVersionUID = -6314496739729756505L;

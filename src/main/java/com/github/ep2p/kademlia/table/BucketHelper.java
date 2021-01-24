@@ -2,11 +2,11 @@ package com.github.ep2p.kademlia.table;
 
 import com.github.ep2p.kademlia.connection.ConnectionInfo;
 import com.github.ep2p.kademlia.model.FindNodeAnswer;
+import com.github.ep2p.kademlia.node.Node;
 import com.github.ep2p.kademlia.node.external.BigIntegerExternalNode;
 import com.github.ep2p.kademlia.node.external.ExternalNode;
 import com.github.ep2p.kademlia.node.external.IntegerExternalNode;
 import com.github.ep2p.kademlia.node.external.LongExternalNode;
-import com.github.ep2p.kademlia.node.Node;
 
 import java.math.BigInteger;
 

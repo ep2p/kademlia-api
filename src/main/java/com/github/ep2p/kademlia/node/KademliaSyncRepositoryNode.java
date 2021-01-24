@@ -7,7 +7,6 @@ import com.github.ep2p.kademlia.exception.StoreException;
 import com.github.ep2p.kademlia.model.GetAnswer;
 import com.github.ep2p.kademlia.model.StoreAnswer;
 import com.github.ep2p.kademlia.table.Bucket;
-import com.github.ep2p.kademlia.table.LongRoutingTable;
 import com.github.ep2p.kademlia.table.RoutingTable;
 import lombok.SneakyThrows;
 

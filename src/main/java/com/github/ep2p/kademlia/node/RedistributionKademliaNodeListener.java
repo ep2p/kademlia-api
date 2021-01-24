@@ -4,7 +4,6 @@ import com.github.ep2p.kademlia.Common;
 import com.github.ep2p.kademlia.connection.ConnectionInfo;
 import com.github.ep2p.kademlia.model.FindNodeAnswer;
 import com.github.ep2p.kademlia.table.Bucket;
-import com.github.ep2p.kademlia.table.LongRoutingTable;
 import com.github.ep2p.kademlia.table.RoutingTable;
 import com.github.ep2p.kademlia.util.BoundedHashUtil;
 
