@@ -50,20 +50,12 @@ public class NodesJoiningTest {
         }
         Thread.sleep((long)(1.4D * Common.REFERENCED_NODES_UPDATE_PERIOD_SEC * 1000L));
 
-        System.out.println("===");
-        map.get(0).forEach(node -> {
-            System.out.println(node.getId());
-        });
-        System.out.println("===");
         Assertions.assertTrue(listContainsAll(map.get(0), 1,2,4,8));
         Assertions.assertTrue(listContainsAll(map.get(1), 0,3,5,9));
         Assertions.assertTrue(listContainsAll(map.get(2), 3,0,6,10));
         Assertions.assertTrue(listContainsAll(map.get(3), 2,1,7,11));
         Assertions.assertTrue(listContainsAll(map.get(15), 14,13,11,7));
         Assertions.assertTrue(listContainsAll(map.get(7), 6,5,3,15));
-
-
-        Thread.sleep(10000);
     }
 
     private boolean listContainsAll(List<Node<Integer, EmptyConnectionInfo>> referencedNodes, Integer... nodeIds){
