@@ -200,8 +200,10 @@ public class KademliaNode<ID extends Number, C extends ConnectionInfo> extends N
     protected void makeReferenceNodes(){
         referencedNodes = new CopyOnWriteArrayList<>();
         List<ID> distances = KadDistanceUtil.getNodesWithDistance(getId(), Common.IDENTIFIER_SIZE);
+        System.out.println("Distances: " + distances);
         distances.forEach(distance -> {
             FindNodeAnswer<ID, C> findNodeAnswer = routingTable.findClosest(distance);
+            System.out.println("Items in distance " + distance + " -> " + findNodeAnswer.getNodes());
             if (findNodeAnswer.getNodes().size() > 0) {
                 if(!referencedNodes.contains(findNodeAnswer.getNodes().get(0)))
                     referencedNodes.add(findNodeAnswer.getNodes().get(0));

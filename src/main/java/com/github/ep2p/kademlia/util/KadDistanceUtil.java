@@ -3,6 +3,7 @@ package com.github.ep2p.kademlia.util;
 import com.github.ep2p.kademlia.connection.ConnectionInfo;
 import com.github.ep2p.kademlia.node.Node;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -32,6 +33,23 @@ public class KadDistanceUtil {
 
             return (List<ID>) validNodes;
         }
+        if (nodeId instanceof BigInteger){
+            ArrayList<BigInteger> validNodes = new ArrayList<>();
+            getDistancesOfIdentifierSize(identifierSize).forEach(distance -> {
+                validNodes.add(((BigInteger) nodeId).xor(BigInteger.valueOf(distance)));
+            });
+
+            return (List<ID>) validNodes;
+        }
+        if (nodeId instanceof Integer){
+            ArrayList<Integer> validNodes = new ArrayList<>();
+            getDistancesOfIdentifierSize(identifierSize).forEach(distance -> {
+                validNodes.add(((Integer) nodeId) ^ distance);
+            });
+
+            return (List<ID>) validNodes;
+        }
+
         return new ArrayList<>();
     }
 
