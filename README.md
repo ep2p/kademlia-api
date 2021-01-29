@@ -42,17 +42,17 @@ Currently there are 3 classes that can be used to create a kademlia node.
 To create a KademliaNode **without capability of storing data**, try:
 
 ```
-KademliaNode<?> node = new KademliaNode<>(yourNodeId, routingTable, nodeConnectionApi, connectionInfoImplForThisNode);
+KademliaNode<?, ?> node = new KademliaNode<>(yourNodeId, routingTable, nodeConnectionApi, connectionInfoImplForThisNode);
 ```
 
 And to create a KademliaNode **capable of storing data**, try:
 
 ```
-KademliaRepositoryNode<?, Integer, String> aNode = new KademliaRepositoryNode<>(yourNodeId, routingTable, nodeConnectionApi, connectionInfoImplForThisNode, repository);
+KademliaRepositoryNode<?, ?, Integer, String> aNode = new KademliaRepositoryNode<>(yourNodeId, routingTable, nodeConnectionApi, connectionInfoImplForThisNode, repository);
 ```
 or
 ```
-KademliaSyncRepositoryNode<?, Integer, String> aNode = new KademliaSyncRepositoryNode<>(yourNodeId, routingTable, nodeConnectionApi, connectionInfoImplForThisNode, repository);
+KademliaSyncRepositoryNode<?, ?, Integer, String> aNode = new KademliaSyncRepositoryNode<>(yourNodeId, routingTable, nodeConnectionApi, connectionInfoImplForThisNode, repository);
 ```
 Where `Integer` is data storage key type, `String` is data storage value type, and `repository` is data storage implementation. It's a good practice to keep storage outside ram and avoid data loss on node shutdowns, but the choice is yours.
 
@@ -73,6 +73,13 @@ Also you can listen to some events that happen in node, such as start, shutdown,
 node.setKademliaNodeListener(...)
 ```
 Once you get used to API, this listener can be a big help in making some changes to your nodes behaviour. See next section, Re-Distribution.
+
+## Generic
+Note that KademliaNode and all its subclasses are Generic. 
+
+The first generic type is for ID of the node, and you can choose between `Integer`, `Long`, `BigInteger` as these are the only ones supported and you should decide on which on to use based on your GUID space size. For example on **Eleuth Node System** Biginteger is being used since node IDs are `SHA1` of a public keys. You can [choose the appropriate `RoutingTable`](https://github.com/ep2p/kademlia-api/tree/main/src/main/java/com/github/ep2p/kademlia/table) implementation based on this key size. There is an implementation available for all of the three supported ID types.
+
+The second generic type is type of your class that implements `ConnectionInfo`.
 
 ## Re-Distribution
 
@@ -111,9 +118,10 @@ Add java-kademlia-api repository
 <dependency>
     <groupId>com.github.ep2p</groupId>
     <artifactId>kademlia-api</artifactId>
-    <version>1.3.0-RELEASE</version>
+    <version>1.4.0-RELEASE</version>
 </dependency>
 ```
+It is suggested not to use any version under `1.4.0`. See [all releases](https://github.com/ep2p/kademlia-api/releases).
 
 ## Acknowledgments
 
