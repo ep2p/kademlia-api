@@ -8,7 +8,7 @@ public class PingAnswer<ID extends Number> extends Answer<ID> {
 
     public PingAnswer(ID nodeId, boolean alive) {
         setNodeId(nodeId);
-        setAlive(false);
+        setAlive(alive);
     }
 
     public PingAnswer() {
