@@ -5,6 +5,10 @@ import com.github.ep2p.kademlia.node.Node;
 
 import java.math.BigInteger;
 
+/**
+ * @brief External node with ID of type BigInteger
+ * @param <C> Your implementation of connection info
+ */
 public class BigIntegerExternalNode<C extends ConnectionInfo> extends ExternalNode<BigInteger, C> {
 
     public BigIntegerExternalNode() {

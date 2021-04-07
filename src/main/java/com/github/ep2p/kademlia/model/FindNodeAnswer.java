@@ -13,7 +13,11 @@ import lombok.Getter;
 import java.util.ArrayList;
 import java.util.Collections;
 
-/* Answer to a "FIND_NODE" query. Contains the nodes closest to an id given */
+/**
+ * @brief Answer to a "FIND_NODE" query. Contains the nodes closest to an id given
+ * @param <ID> Number type of node ID between supported types
+ * @param <C> Your implementation of connection info
+ */
 @Getter
 public class FindNodeAnswer<ID extends Number, C extends ConnectionInfo> extends Answer<ID> {
   private ID destinationId;
@@ -43,7 +47,12 @@ public class FindNodeAnswer<ID extends Number, C extends ConnectionInfo> extends
     nodes.add(externalNode);
   }
 
-  /* Merge the contents of this answer with another answer */
+
+  /**
+   * @brief Merge the contents of this answer with another answer
+   * @param findNodeAnswer another answer
+   * @return number of nodes added to answer
+   */
   public int merge(FindNodeAnswer<ID, C> findNodeAnswer) {
     int nbAdded = 0;
 
@@ -61,7 +70,10 @@ public class FindNodeAnswer<ID extends Number, C extends ConnectionInfo> extends
     return nbAdded;
   }
 
-  /* Returns if the destination has been found */
+
+  /**
+   * @return if the destination has been found
+   */
   public boolean destinationFound() {
     if (nodes.size() < 1) {
       return false;

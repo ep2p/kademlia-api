@@ -3,6 +3,9 @@ package com.github.ep2p.kademlia.exception;
 import com.github.ep2p.kademlia.node.Node;
 import lombok.Getter;
 
+/**
+ * @brief Exception thrown on node bootstrap failure
+ */
 @Getter
 public class BootstrapException extends Exception {
     private final Node node;

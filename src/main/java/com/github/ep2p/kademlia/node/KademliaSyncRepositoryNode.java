@@ -19,6 +19,13 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import static com.github.ep2p.kademlia.model.StoreAnswer.Result.TIMEOUT;
 
+/**
+ * @brief KademliaNode child which implements StorageNodeApi (sync)
+ * @param <ID> Number type of node ID between supported types
+ * @param <C> Your implementation of connection info
+ * @param <K> storage key type
+ * @param <V> storage value type
+ */
 public class KademliaSyncRepositoryNode<ID extends Number, C extends ConnectionInfo, K, V> extends KademliaRepositoryNode<ID, C,K,V> {
     private volatile Map<K, StoreAnswer<ID, K>> storeMap = new ConcurrentHashMap<>();
     private volatile Map<K, Lock> storeLockMap = new HashMap<>();
@@ -29,6 +36,15 @@ public class KademliaSyncRepositoryNode<ID extends Number, C extends ConnectionI
         super(nodeId, routingTable, nodeConnectionApi, connectionInfo, kademliaRepository);
     }
 
+    /**
+     * @param key data key to store
+     * @param value data value
+     * @param timeout storing timeout
+     * @param timeUnit time unit of timeout
+     * @return StoreAnswer
+     * @throws StoreException if fails to store data
+     * @throws InterruptedException if timeout reaches
+     */
     public StoreAnswer<ID, K> store(K key, V value, long timeout, TimeUnit timeUnit) throws StoreException, InterruptedException {
         Lock keyLock = new ReentrantLock();
         synchronized (this){
@@ -71,12 +87,28 @@ public class KademliaSyncRepositoryNode<ID extends Number, C extends ConnectionI
         }
     }
 
+    /**
+     * @param key   Key to store
+     * @param value Value to store
+     * @return StoreAnswer
+     * @throws StoreException if fails to store data
+     */
     @Override
-    @SneakyThrows
     public StoreAnswer<ID, K> store(K key, V value) throws StoreException {
-        return this.store(key, value, 0, null);
+        try {
+            return this.store(key, value, 0, null);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
     }
 
+    /**
+     * @param key   Key to get value of
+     * @param timeout  timeout for retrieving value
+     * @param timeUnit unit of timeout
+     * @return GetAnswer
+     * @throws GetException if this key is already being asked for
+     */
     @SneakyThrows
     public GetAnswer<ID, K, V> get(K key, long timeout, TimeUnit timeUnit) throws GetException {
         Lock keyLock = new ReentrantLock();
@@ -120,12 +152,22 @@ public class KademliaSyncRepositoryNode<ID extends Number, C extends ConnectionI
         }
     }
 
+    /**
+     * @param key Key for data to look
+     * @return GetAnswer
+     */
     @SneakyThrows
     @Override
     public GetAnswer<ID, K, V> get(K key) throws GetException {
         return this.get(key, 0, null);
     }
 
+    /**
+     * @brief Override of onGetResult to return the answer that was being watched
+     * @param node  Data holder node
+     * @param key   Key of data
+     * @param value Value of data
+     */
     @Override
     public void onGetResult(Node<ID, C> node, K key, V value) {
         super.onGetResult(node, key, value);
@@ -138,6 +180,12 @@ public class KademliaSyncRepositoryNode<ID extends Number, C extends ConnectionI
         getAnswer.release();
     }
 
+    /**
+     * @brief Override of onStoreResult to return the answer that was being watched
+     * @param node       Node that holds key
+     * @param key        Key itself
+     * @param successful if data is stored successfully
+     */
     @SneakyThrows
     @Override
     public void onStoreResult(Node<ID, C> node, K key, boolean successful) {

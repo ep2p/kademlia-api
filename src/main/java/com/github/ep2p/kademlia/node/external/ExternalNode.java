@@ -11,6 +11,11 @@ import com.github.ep2p.kademlia.node.Node;
 import lombok.Getter;
 import lombok.Setter;
 
+/**
+ * @brief Kademlia node from outside of the system (other kademlia nodes are implementation of this class when they are seen in this system)
+ * @param <ID> Number type of node ID between supported types
+ * @param <C> Your implementation of connection info
+ */
 @Getter
 @Setter
 public abstract class ExternalNode<ID extends Number, C extends ConnectionInfo> extends Node<ID, C> implements Comparable<Object> {

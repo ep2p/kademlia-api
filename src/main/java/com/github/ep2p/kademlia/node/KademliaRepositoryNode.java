@@ -22,6 +22,13 @@ import java.util.List;
 import static com.github.ep2p.kademlia.Common.LAST_SEEN_SECONDS_TO_CONSIDER_ALIVE;
 import static com.github.ep2p.kademlia.util.DateUtil.getDateOfSecondsAgo;
 
+/**
+ * @brief KademliaNode child which implements StorageNodeApi (async)
+ * @param <ID> Number type of node ID between supported types
+ * @param <C> Your implementation of connection info
+ * @param <K> storage key type
+ * @param <V> storage value type
+ */
 public class KademliaRepositoryNode<ID extends Number, C extends ConnectionInfo, K, V> extends KademliaNode<ID, C> implements StorageNodeApi<ID, C, K, V> {
     @Getter
     private final KademliaRepository<K,V> kademliaRepository;
@@ -41,7 +48,7 @@ public class KademliaRepositoryNode<ID extends Number, C extends ConnectionInfo,
     /* Node Connection API */
 
     /**
-     * Handlers incoming `Get` requests from other nodes
+     * @brief Handlers incoming `Get` requests from other nodes
      * @param callerNode Node that passed info to current node
      * @param requester Node that looks for info
      * @param key Key of data
@@ -63,7 +70,7 @@ public class KademliaRepositoryNode<ID extends Number, C extends ConnectionInfo,
     /* Node Connection Api */
 
     /**
-     * Called when store request enters this requester
+     * @brief Called when store request enters this requester
      * @param caller Node that passed this request to current node
      * @param requester Node that requested to store the data
      * @param key Data key
@@ -142,7 +149,7 @@ public class KademliaRepositoryNode<ID extends Number, C extends ConnectionInfo,
 
 
     /**
-     * Called when response to a get request arrives
+     * @brief Called when response to a get request arrives
      * @param node Data holder node
      * @param key Key of data
      * @param value Value of data
@@ -153,7 +160,7 @@ public class KademliaRepositoryNode<ID extends Number, C extends ConnectionInfo,
     }
 
     /**
-     * Called when a key value is stored in network
+     * @brief Called when a key value is stored in network
      * @param node Node that holds key
      * @param key Key itself
      */
@@ -202,7 +209,7 @@ public class KademliaRepositoryNode<ID extends Number, C extends ConnectionInfo,
     }
 
     /**
-     * Finds external nodes that might contain data
+     * @brief Finds external nodes that might contain data
      * @param requester node that requested for data
      * @param key key to look for
      * @param nodeToIgnore nullable. node to ignore when passing requests to others. used when `nodeToIgnore` might actually be closest node but doesnt hold the data

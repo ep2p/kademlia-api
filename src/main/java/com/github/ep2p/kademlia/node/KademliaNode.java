@@ -23,6 +23,12 @@ import java.util.concurrent.*;
 import static com.github.ep2p.kademlia.Common.BOOTSTRAP_NODE_CALL_TIMEOUT_SEC;
 import static com.github.ep2p.kademlia.Common.REFERENCED_NODES_UPDATE_PERIOD_SEC;
 
+
+/**
+ * @brief The KademliaNode reference (for this/current system)
+ * @param <ID> Number type of node ID between supported types
+ * @param <C> Your implementation of connection info
+ */
 public class KademliaNode<ID extends Number, C extends ConnectionInfo> extends Node<ID, C> implements NodeApi<ID, C> {
     //Accessible fields
     @Getter
@@ -48,10 +54,10 @@ public class KademliaNode<ID extends Number, C extends ConnectionInfo> extends N
     }
 
     /**
+     * Bootstraps this node using another node
      * @param bootstrapNode Node to contact to use for bootstrapping current node
      * @throws BootstrapException thrown when bootstrap gets timeout or bootstrap node is not available
      */
-    //first we have to use another node to join network
     public void bootstrap(Node<ID, C> bootstrapNode) throws BootstrapException {
         //find closest nodes from bootstrap node
         ID nodeId = this.getId();
@@ -130,6 +136,10 @@ public class KademliaNode<ID extends Number, C extends ConnectionInfo> extends N
     }
 
 
+    /**
+     * Stop this kademlia node
+     * @throws ShutdownException if node is already not running or any other exception is thrown
+     */
     /* Managing API */
     public void stop() throws ShutdownException {
         setRunning(false);
@@ -159,6 +169,9 @@ public class KademliaNode<ID extends Number, C extends ConnectionInfo> extends N
             throw shutdownException;
     }
 
+    /**
+     * Start this kademlia node
+     */
     public void start(){
         setRunning(true);
         routingTable.update(Node.copy(this));
@@ -190,13 +203,19 @@ public class KademliaNode<ID extends Number, C extends ConnectionInfo> extends N
         this.running = running;
     }
 
+    /**
+     * Add another node to this node's routing table
+     * @param node External node to add
+     */
     protected void addNode(Node<ID, C> node){
         if (routingTable.update(Node.copy(node))) {
             kademliaNodeListener.onNewNodeAvailable(this, node);
         }
     }
 
-    //Gathers most important nodes to keep connection to (See KademliaNodesToReference)
+    /**
+     * Gathers most important nodes to keep connection to (See KademliaNodesToReference)
+     */
     protected void makeReferenceNodes(){
         referencedNodes = new CopyOnWriteArrayList<>();
         List<ID> distances = KadDistanceUtil.getNodesWithDistance(getId(), Common.IDENTIFIER_SIZE);
@@ -210,6 +229,10 @@ public class KademliaNode<ID extends Number, C extends ConnectionInfo> extends N
         kademliaNodeListener.onReferencedNodesUpdate(this, referencedNodes);
     }
 
+    /**
+     * Asks for close nodes to self from a bootstrap node
+     * @param bootstrapNode node to ask for close nodes from
+     */
     protected void getClosestNodesFromAliveNodes(Node<ID, C> bootstrapNode) {
         int bucketId = routingTable.findBucket(bootstrapNode.getId()).getId();
         final Set<ID> destinations = new LinkedHashSet<>();
@@ -233,7 +256,9 @@ public class KademliaNode<ID extends Number, C extends ConnectionInfo> extends N
         sendFindNodeToBest(findNodeAnswer);
     }
 
-    /** Sends a "FIND_NODE" request to the best "alpha" nodes in a node list */
+    /**
+     * Sends a "FIND_NODE" request to the best "alpha" nodes in a node list
+     */
     protected int sendFindNodeToBest(FindNodeAnswer<ID, C> findNodeAnswer) {
         ID destination = findNodeAnswer.getDestinationId();
         int i;
@@ -250,6 +275,10 @@ public class KademliaNode<ID extends Number, C extends ConnectionInfo> extends N
         return i;
     }
 
+    /**
+     * Pings external nodes and updates routing table based on "alive" status
+     * @param externalNodes nodes to ping
+     */
     protected void pingAndAddResults(List<? extends Node<ID, C>> externalNodes){
         for (Node<ID, C> externalNode : externalNodes) {
             if(externalNode.getId().equals(getId()))

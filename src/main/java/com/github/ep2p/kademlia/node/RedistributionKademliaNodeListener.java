@@ -7,6 +7,13 @@ import com.github.ep2p.kademlia.table.Bucket;
 import com.github.ep2p.kademlia.table.RoutingTable;
 import com.github.ep2p.kademlia.util.BoundedHashUtil;
 
+/**
+ * @brief A base KademliaNodeListener that redistributes data between other nodes when current node is shutting down
+ * @param <ID> Number type of node ID between supported types
+ * @param <C> Your implementation of connection info
+ * @param <K> storage key type
+ * @param <V> storage value type
+ */
 public class RedistributionKademliaNodeListener<ID extends Number, C extends ConnectionInfo, K, V> implements KademliaNodeListener<ID, C, K, V> {
     private final BoundedHashUtil boundedHashUtil = new BoundedHashUtil(Common.IDENTIFIER_SIZE);
     private final boolean distributeOnShutdown;
