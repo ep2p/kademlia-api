@@ -22,6 +22,13 @@ import java.util.List;
 import static com.github.ep2p.kademlia.Common.LAST_SEEN_SECONDS_TO_CONSIDER_ALIVE;
 import static com.github.ep2p.kademlia.util.DateUtil.getDateOfSecondsAgo;
 
+/**
+ * KademliaNode child which implements StorageNodeApi (async)
+ * @param <ID> Number type of node ID between supported types
+ * @param <C> Your implementation of connection info
+ * @param <K> storage key type
+ * @param <V> storage value type
+ */
 public class KademliaRepositoryNode<ID extends Number, C extends ConnectionInfo, K, V> extends KademliaNode<ID, C> implements StorageNodeApi<ID, C, K, V> {
     @Getter
     private final KademliaRepository<K,V> kademliaRepository;
