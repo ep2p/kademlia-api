@@ -25,7 +25,7 @@ import static com.github.ep2p.kademlia.Common.REFERENCED_NODES_UPDATE_PERIOD_SEC
 
 
 /**
- * The KademliaNode reference (for this/current system)
+ * @brief The KademliaNode reference (for this/current system)
  * @param <ID> Number type of node ID between supported types
  * @param <C> Your implementation of connection info
  */

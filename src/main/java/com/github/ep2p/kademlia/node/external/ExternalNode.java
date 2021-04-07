@@ -12,7 +12,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- * Kademlia node from outside of the system (other kademlia nodes are implementation of this class when they are seen in this system)
+ * @brief Kademlia node from outside of the system (other kademlia nodes are implementation of this class when they are seen in this system)
  * @param <ID> Number type of node ID between supported types
  * @param <C> Your implementation of connection info
  */

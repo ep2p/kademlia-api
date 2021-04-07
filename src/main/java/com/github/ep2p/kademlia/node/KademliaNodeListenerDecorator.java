@@ -6,7 +6,7 @@ import com.github.ep2p.kademlia.exception.NodeIsOfflineException;
 import java.util.List;
 
 /**
- * Decorator of {@link KademliaNodeListener}
+ * @brief Decorator of {@link KademliaNodeListener}
  * @param <ID> Number type of node ID between supported types
  * @param <C> Your implementation of connection info
  * @param <K> storage key type

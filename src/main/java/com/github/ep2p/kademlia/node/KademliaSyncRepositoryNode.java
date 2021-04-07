@@ -20,7 +20,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import static com.github.ep2p.kademlia.model.StoreAnswer.Result.TIMEOUT;
 
 /**
- * KademliaNode child which implements StorageNodeApi (sync)
+ * @brief KademliaNode child which implements StorageNodeApi (sync)
  * @param <ID> Number type of node ID between supported types
  * @param <C> Your implementation of connection info
  * @param <K> storage key type
@@ -163,7 +163,7 @@ public class KademliaSyncRepositoryNode<ID extends Number, C extends ConnectionI
     }
 
     /**
-     * Override of onGetResult to return the answer that was being watched
+     * @brief Override of onGetResult to return the answer that was being watched
      * @param node  Data holder node
      * @param key   Key of data
      * @param value Value of data
@@ -181,7 +181,7 @@ public class KademliaSyncRepositoryNode<ID extends Number, C extends ConnectionI
     }
 
     /**
-     * Override of onStoreResult to return the answer that was being watched
+     * @brief Override of onStoreResult to return the answer that was being watched
      * @param node       Node that holds key
      * @param key        Key itself
      * @param successful if data is stored successfully

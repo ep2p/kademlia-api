@@ -8,7 +8,7 @@ import com.github.ep2p.kademlia.table.RoutingTable;
 import com.github.ep2p.kademlia.util.BoundedHashUtil;
 
 /**
- * A base KademliaNodeListener that redistributes data between other nodes when current node is shutting down
+ * @brief A base KademliaNodeListener that redistributes data between other nodes when current node is shutting down
  * @param <ID> Number type of node ID between supported types
  * @param <C> Your implementation of connection info
  * @param <K> storage key type

@@ -4,7 +4,7 @@ import com.github.ep2p.kademlia.connection.ConnectionInfo;
 import com.github.ep2p.kademlia.node.Node;
 
 /**
- * External node with ID of type Integer
+ * @brief External node with ID of type Integer
  * @param <C> Your implementation of connection info
  */
 public class IntegerExternalNode<C extends ConnectionInfo> extends ExternalNode<Integer, C> {

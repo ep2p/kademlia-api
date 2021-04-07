@@ -8,7 +8,7 @@ import java.util.Date;
 import java.util.Objects;
 
 /**
- * Basic parameters of a KademliaNode that are mutual between external and internal node and can be serialized
+ * @brief Basic parameters of a KademliaNode that are mutual between external and internal node and can be serialized
  * @param <ID> Number type of node ID between supported types
  * @param <C> Your implementation of connection info
  */

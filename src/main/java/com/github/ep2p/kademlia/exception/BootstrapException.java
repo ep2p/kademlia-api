@@ -4,7 +4,7 @@ import com.github.ep2p.kademlia.node.Node;
 import lombok.Getter;
 
 /**
- * Exception thrown on node bootstrap failure
+ * @brief Exception thrown on node bootstrap failure
  */
 @Getter
 public class BootstrapException extends Exception {

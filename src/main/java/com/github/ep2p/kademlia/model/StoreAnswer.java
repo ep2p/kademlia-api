@@ -4,7 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- * Model for store request reply
+ * @brief Model for store request reply
  * @param <ID> Number type of node ID between supported types
  * @param <K> Type of storage key
  */
