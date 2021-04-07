@@ -14,13 +14,20 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+/**
+ * @param <ID> Number type of node ID between supported types
+ * @param <C> Your implementation of connection info
+ */
 public class AbstractBucket<ID extends Number, C extends ConnectionInfo> implements Bucket<ID, C> {
   private static final long serialVersionUID = -6049494618368168254L;
   protected int id;
   protected List<ID> nodeIds;
   protected Map<ID, Node<ID, C>> nodeMap = new ConcurrentHashMap<>();
 
-  /* Create a bucket for prefix `id` */
+  /**
+   * @brief Create a bucket for prefix `id`
+   * @param id prefix
+   */
   public AbstractBucket(int id) {
     this.nodeIds = new CopyOnWriteArrayList<ID>();
     this.id = id;
@@ -42,32 +49,41 @@ public class AbstractBucket<ID extends Number, C extends ConnectionInfo> impleme
     return nodeIds.contains(node.getId());
   }
 
-  /* Add a node to the front of the bucket */
+  /**
+   * @param node to add to this bucket
+   */
+  @Override
   public void add(Node<ID, C> node) {
     nodeIds.add(0,node.getId());
     nodeMap.put(node.getId(), node);
   }
 
+  @Override
   public void remove(Node<ID, C> node){
     this.remove(node.getId());
   }
 
+  @Override
   public void remove(ID nodeId){
     nodeIds.remove(nodeId);
     nodeMap.remove(nodeId);
   }
 
-  /* Push a node to the front of a bucket */
-  /* Called when a node is already in bucket and brings them to front of the bucket as they are a living node */
+  /**
+   * @param id of the node to push
+   */
+  @Override
   public synchronized void pushToFront(ID id) {
     nodeIds.remove(id);
     nodeIds.add(0, id);
   }
 
+  @Override
   public Node<ID, C> getNode(ID id) {
     return nodeMap.get(id);
   }
 
+  @Override
   public List<ID> getNodeIds() {
     return nodeIds;
   }

@@ -14,14 +14,37 @@ public interface RoutingTable<ID extends Number, C extends ConnectionInfo, B ext
      * @param prefix id of the bucket where we want that identifier to be
      */
     ID getIdInPrefix(ID id, int prefix);
-    /* Returns the corresponding node prefix for a given id */
+
+    /**
+     * @brief Returns the corresponding node prefix for a given id
+     * @param id node to look for prefix
+     * @return prefix
+     */
     int getNodePrefix(ID id);
-    /* Finds the corresponding bucket in a routing table for a given identifier */
+
+    /**
+     * @brief Finds the corresponding bucket in a routing table for a given identifier
+     * @param id node to find bucket for
+     * @return bucket
+     */
     Bucket<ID, C> findBucket(ID id);
-    /* Updates the routing table with a new value. Returns true if node didnt exist in table before */
+
+    /**
+     * @brief Updates the routing table with a new value. Returns true if node didnt exist in table before
+     * @param node to update
+     * @return if node is added newly
+     */
     boolean update(Node<ID, C> node);
+    /**
+     * @brief Delete node from table
+     * @param node to delete
+     */
     void delete(Node<ID, C> node);
-    /* Returns the closest nodes we know to a given id */
+    /**
+     * @brief Returns the closest nodes we know to a given id
+     * @param destinationId lookup
+     * @return result for closest nodes to destination
+     */
     FindNodeAnswer<ID, C> findClosest(ID destinationId);
 
     Vector<B> getBuckets();

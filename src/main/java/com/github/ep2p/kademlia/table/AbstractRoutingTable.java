@@ -16,12 +16,20 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.Vector;
 
+/**
+ * @param <ID> Number type of node ID between supported types
+ * @param <C> Your implementation of connection info
+ * @param <B> Bucket type
+ */
 public abstract class AbstractRoutingTable<ID extends Number, C extends ConnectionInfo, B extends Bucket<ID, C>> implements RoutingTable<ID, C, B> {
-  /* LongBucket list */
+  /* Bucket list */
   protected Vector<B> buckets;
-  /* Id of the routing table owner */
+  /* Id of the routing table owner (node id) */
   protected ID id;
 
+  /**
+   * @param id Node id of the table owner
+   */
   public AbstractRoutingTable(ID id) {
     this.id = id;
     buckets = new Vector<B>();
@@ -33,13 +41,17 @@ public abstract class AbstractRoutingTable<ID extends Number, C extends Connecti
   protected abstract B createBucketOfId(int i);
 
 
-  /* Updates the routing table with a new value. Returns true if node didnt exist in table before */
+  /**
+   * @brief Updates the routing table with a new value. Returns true if node didnt exist in table before
+   * @param node to add or update (push to front)
+   * @return if node is added newly (not updated)
+   */
   public boolean update(Node<ID, C> node) {
     //Setting last seen date on node
     node.setLastSeen(new Date());
     Bucket<ID, C> bucket = this.findBucket(node.getId());
     if (bucket.contains(node)) {
-      //If the element is already in the bucket, we update it.
+      //If the element is already in the bucket, we update it and push it to the front of the bucket.
       bucket.pushToFront(node.getId());
       return false;
     } else {
@@ -48,13 +60,21 @@ public abstract class AbstractRoutingTable<ID extends Number, C extends Connecti
     }
   }
 
+  /**
+   * @brief Delete node from table
+   * @param node to delete
+   */
   public void delete(Node<ID, C> node) {
     Bucket<ID, C> bucket = this.findBucket(node.getId());
     bucket.remove(node);
   }
 
 
-  /* Returns the closest nodes we know to a given id */
+  /**
+   * @brief Returns the closest nodes we know to a given id
+   * @param destinationId lookup
+   * @return result for closest nodes to destination
+   */
   public FindNodeAnswer<ID, C> findClosest(ID destinationId) {
     FindNodeAnswer<ID, C> findNodeAnswer = new FindNodeAnswer<ID, C>(destinationId);
     Bucket<ID, C> bucket = this.findBucket(destinationId);
