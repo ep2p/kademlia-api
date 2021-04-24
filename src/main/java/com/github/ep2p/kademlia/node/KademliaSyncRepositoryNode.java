@@ -8,6 +8,7 @@ import com.github.ep2p.kademlia.model.GetAnswer;
 import com.github.ep2p.kademlia.model.StoreAnswer;
 import com.github.ep2p.kademlia.table.Bucket;
 import com.github.ep2p.kademlia.table.RoutingTable;
+import com.github.ep2p.kademlia.util.KeyHashGenerator;
 import lombok.SneakyThrows;
 
 import java.util.HashMap;
@@ -34,6 +35,10 @@ public class KademliaSyncRepositoryNode<ID extends Number, C extends ConnectionI
 
     public KademliaSyncRepositoryNode(ID nodeId, RoutingTable<ID, C, Bucket<ID, C>> routingTable, NodeConnectionApi<ID, C> nodeConnectionApi, C connectionInfo, KademliaRepository<K, V> kademliaRepository) {
         super(nodeId, routingTable, nodeConnectionApi, connectionInfo, kademliaRepository);
+    }
+
+    public KademliaSyncRepositoryNode(ID nodeId, RoutingTable<ID, C, Bucket<ID, C>> routingTable, NodeConnectionApi<ID, C> nodeConnectionApi, C connectionInfo, KademliaRepository<K, V> kademliaRepository, KeyHashGenerator<ID, K> keyHashGenerator) {
+        super(nodeId, routingTable, nodeConnectionApi, connectionInfo, kademliaRepository, keyHashGenerator);
     }
 
     /**
