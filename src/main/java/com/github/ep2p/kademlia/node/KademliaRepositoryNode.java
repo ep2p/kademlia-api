@@ -1,6 +1,5 @@
 package com.github.ep2p.kademlia.node;
 
-import com.github.ep2p.kademlia.Common;
 import com.github.ep2p.kademlia.connection.ConnectionInfo;
 import com.github.ep2p.kademlia.connection.NodeConnectionApi;
 import com.github.ep2p.kademlia.connection.StorageNodeApi;
@@ -13,8 +12,9 @@ import com.github.ep2p.kademlia.model.StoreAnswer;
 import com.github.ep2p.kademlia.node.external.ExternalNode;
 import com.github.ep2p.kademlia.table.Bucket;
 import com.github.ep2p.kademlia.table.RoutingTable;
-import com.github.ep2p.kademlia.util.BoundedHashUtil;
+import com.github.ep2p.kademlia.util.KeyHashGenerator;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.util.Date;
 import java.util.List;
@@ -32,12 +32,19 @@ import static com.github.ep2p.kademlia.util.DateUtil.getDateOfSecondsAgo;
 public class KademliaRepositoryNode<ID extends Number, C extends ConnectionInfo, K, V> extends KademliaNode<ID, C> implements StorageNodeApi<ID, C, K, V> {
     @Getter
     private final KademliaRepository<K,V> kademliaRepository;
-    private final BoundedHashUtil boundedHashUtil;
+    @Setter
+    private KeyHashGenerator<ID, K> keyHashGenerator;
 
-    public KademliaRepositoryNode(ID nodeId, RoutingTable<ID, C, Bucket<ID, C>> routingTable, NodeConnectionApi<ID, C> nodeConnectionApi, C connectionInfo, KademliaRepository<K, V> kademliaRepository) {
+
+    public KademliaRepositoryNode(ID nodeId, RoutingTable<ID, C, Bucket<ID, C>> routingTable, NodeConnectionApi<ID, C> nodeConnectionApi, C connectionInfo, KademliaRepository<K, V> kademliaRepository, KeyHashGenerator<ID, K> keyHashGenerator) {
         super(nodeId, routingTable, nodeConnectionApi, connectionInfo);
         this.kademliaRepository = kademliaRepository;
-        boundedHashUtil = new BoundedHashUtil(Common.IDENTIFIER_SIZE);
+        this.keyHashGenerator = keyHashGenerator;
+    }
+
+
+    public KademliaRepositoryNode(ID nodeId, RoutingTable<ID, C, Bucket<ID, C>> routingTable, NodeConnectionApi<ID, C> nodeConnectionApi, C connectionInfo, KademliaRepository<K, V> kademliaRepository) {
+        this(nodeId, routingTable, nodeConnectionApi, connectionInfo, kademliaRepository, new KeyHashGenerator.Default<>((Class<ID>) nodeId.getClass()));
     }
 
     @Override
@@ -78,7 +85,7 @@ public class KademliaRepositoryNode<ID extends Number, C extends ConnectionInfo,
      */
     @Override
     public void onStoreRequest(Node<ID, C> caller, Node<ID, C> requester, K key, V value) {
-        ID hash = boundedHashUtil.hash(key.hashCode(), (Class<ID>) getId().getClass());
+        ID hash = hash(key);
         //if current requester should persist data, store data and tell requester about it
         if(getId().equals(hash)){
             kademliaRepository.store(key, value);
@@ -213,7 +220,7 @@ public class KademliaRepositoryNode<ID extends Number, C extends ConnectionInfo,
      * @param requester node that requested for data
      * @param key key to look for
      * @param nodeToIgnore nullable. node to ignore when passing requests to others. used when `nodeToIgnore` might actually be closest node but doesnt hold the data
-     * @return
+     * @return GetAnswer
      */
     protected GetAnswer<ID, K, V> findClosestNodesToGetData(Node<ID, C> requester, K key, Node<ID, C> nodeToIgnore){
         GetAnswer<ID, K, V> getAnswer = null;
@@ -242,7 +249,7 @@ public class KademliaRepositoryNode<ID extends Number, C extends ConnectionInfo,
     }
 
     protected ID hash(K key){
-        return boundedHashUtil.hash(key.hashCode(), (Class<ID>) getId().getClass());
+        return this.keyHashGenerator.generate(key);
     }
 
     protected GetAnswer<ID, K, V> getNewGetAnswer(K k, V v, GetAnswer.Result result, Node<ID, C> node){
