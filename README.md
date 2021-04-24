@@ -16,7 +16,7 @@ This can simply be `ip` and `port` for a TCP/UDP connection. Keep your implement
 Create your implementation of `com.github.ep2p.kademlia.connection.NodeConnectionApi` based on earlier implemented ConnectionInfo. This API is called when a node wants to send requests/data to other nodes.
 
 Note that there are 4 methods which their implementation is not mandatory:
-```
+```java
 default <K, V> void storeAsync(Node<C> caller, Node<C> requester,  Node<C> node, K key, V value){} //Make sure its async
 default <K> void getRequest(Node<C> caller, Node<C> requester, Node<C> node, K key){}
 default <K, V> void sendGetResults(Node<C> caller, Node<C> requester, K key, V value){}
@@ -41,17 +41,17 @@ Currently there are 3 classes that can be used to create a kademlia node.
 
 To create a KademliaNode **without capability of storing data**, try:
 
-```
+```java
 KademliaNode<?, ?> node = new KademliaNode<>(yourNodeId, routingTable, nodeConnectionApi, connectionInfoImplForThisNode);
 ```
 
 And to create a KademliaNode **capable of storing data**, try:
 
-```
+```java
 KademliaRepositoryNode<?, ?, Integer, String> aNode = new KademliaRepositoryNode<>(yourNodeId, routingTable, nodeConnectionApi, connectionInfoImplForThisNode, repository);
 ```
 or
-```
+```java
 KademliaSyncRepositoryNode<?, ?, Integer, String> aNode = new KademliaSyncRepositoryNode<>(yourNodeId, routingTable, nodeConnectionApi, connectionInfoImplForThisNode, repository);
 ```
 Where `Integer` is data storage key type, `String` is data storage value type, and `repository` is data storage implementation. It's a good practice to keep storage outside ram and avoid data loss on node shutdowns, but the choice is yours.
@@ -59,17 +59,17 @@ Where `Integer` is data storage key type, `String` is data storage value type, a
 Difference between `KademliaRepositoryNode` and `KademliaSyncRepositoryNode` is that second one waits for `store()` and `get()` to reply, while first one returns an answer even if store or get requests are forwarded to other nodes.
 
 After creating a node instance for first time, you need to bootstrap it using another node you know in network:
-```
+```java
 node.bootstrap(bootstrapNode);
 ```
 
 If your node is already bootstrapped, just start it:
-```
+```java
 node.start();
 ``` 
 
 Also you can listen to some events that happen in node, such as start, shutdown, data store and lookup results (specially if u are using `KademliaRepositoryNode`) by setting your listener on the node.
-```
+```java
 node.setKademliaNodeListener(...)
 ```
 Once you get used to API, this listener can be a big help in making some changes to your nodes behaviour. See next section, Re-Distribution.
@@ -104,7 +104,7 @@ Check [sample dht](https://github.com/ep2p/dht-sample) repository.
 Use jitpack to add library to your project. Maven example:
 
 Add jitpack repository
-```
+```xml
 <repositories>
     <repository>
         <id>jitpack.io</id>
@@ -114,11 +114,11 @@ Add jitpack repository
 ```
 
 Add java-kademlia-api repository
-```
+```xml
 <dependency>
     <groupId>com.github.ep2p</groupId>
     <artifactId>kademlia-api</artifactId>
-    <version>1.4.0-RELEASE</version>
+    <version>1.4.1-RELEASE</version>
 </dependency>
 ```
 It is suggested not to use any version under `1.4.0`. See [all releases](https://github.com/ep2p/kademlia-api/releases).
