@@ -7,8 +7,6 @@ import com.github.ep2p.kademlia.exception.ShutdownException;
 import com.github.ep2p.kademlia.node.KademliaNode;
 import com.github.ep2p.kademlia.node.KademliaNodeListener;
 import com.github.ep2p.kademlia.node.Node;
-import com.github.ep2p.kademlia.table.Bucket;
-import com.github.ep2p.kademlia.table.RoutingTableFactory;
 import com.github.ep2p.kademlia.table.SimpleRoutingTableFactory;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;

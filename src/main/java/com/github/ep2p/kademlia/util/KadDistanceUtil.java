@@ -57,9 +57,9 @@ public class KadDistanceUtil {
         assert nodes.size() > 0;
 
         Node<ID, C> node = nodes.get(0);
-        int nDistance = ((Number) nodes.get(0).getId()).byteValue() ^ distance;
+        int nDistance = nodes.get(0).getId().byteValue() ^ distance;
         for (Node<ID, C> cNode : nodes) {
-            int tempDistance = ((Number) cNode.getId()).byteValue() ^ distance;
+            int tempDistance = cNode.getId().byteValue() ^ distance;
             if(tempDistance < nDistance){
                 nDistance = tempDistance;
                 node = cNode;
