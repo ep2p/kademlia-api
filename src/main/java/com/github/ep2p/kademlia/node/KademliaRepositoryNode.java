@@ -69,7 +69,7 @@ public class KademliaRepositoryNode<ID extends Number, C extends ConnectionInfo,
             return;
         }
 
-        GetAnswer<ID, K, V> getAnswer = findClosestNodesToGetData(requester, key, callerNode);
+        GetAnswer<ID, K, V> getAnswer = getDataFromClosestNodes(requester, key, callerNode);
         if(getAnswer == null)
             getNodeConnectionApi().sendGetResults(this, requester, key, null);
     }
@@ -93,7 +93,7 @@ public class KademliaRepositoryNode<ID extends Number, C extends ConnectionInfo,
         //otherwise find closest nodes to store data
         } else {
             FindNodeAnswer<ID, C> findNodeAnswer = getRoutingTable().findClosest(hash);
-            if (findClosestNodesToStoreData(requester, findNodeAnswer.getNodes(), key, value, caller) == null) {
+            if (storeDataToClosestNode(requester, findNodeAnswer.getNodes(), key, value, caller) == null) {
                 getNodeConnectionApi().sendStoreResults(this, requester, key, false);
             }
         }
@@ -118,7 +118,7 @@ public class KademliaRepositoryNode<ID extends Number, C extends ConnectionInfo,
             storeAnswer = getNewStoreAnswer(key, StoreAnswer.Result.STORED, this);
         }else {
             FindNodeAnswer<ID, C> findNodeAnswer = getRoutingTable().findClosest(hash);
-            storeAnswer = findClosestNodesToStoreData(this, findNodeAnswer.getNodes(), key, value, null);
+            storeAnswer = storeDataToClosestNode(this, findNodeAnswer.getNodes(), key, value, null);
         }
 
         if(storeAnswer == null){
@@ -145,7 +145,7 @@ public class KademliaRepositoryNode<ID extends Number, C extends ConnectionInfo,
         GetAnswer<ID, K, V> getAnswer = null;
 
         //Otherwise, ask closest node we know to key
-        getAnswer = findClosestNodesToGetData(this, key, null);
+        getAnswer = getDataFromClosestNodes(this, key, null);
 
         if(getAnswer == null){
             throw new GetException();
@@ -179,7 +179,7 @@ public class KademliaRepositoryNode<ID extends Number, C extends ConnectionInfo,
 
     /* --- */
 
-    protected StoreAnswer<ID, K> findClosestNodesToStoreData(Node<ID, C> requester, List<ExternalNode<ID, C>> externalNodeList, K key, V value, Node<ID, C> nodeToIgnore){
+    protected StoreAnswer<ID, K> storeDataToClosestNode(Node<ID, C> requester, List<ExternalNode<ID, C>> externalNodeList, K key, V value, Node<ID, C> nodeToIgnore){
         Date date = getDateOfSecondsAgo(LAST_SEEN_SECONDS_TO_CONSIDER_ALIVE);
         StoreAnswer<ID, K> storeAnswer = null;
         for (ExternalNode<ID, C> externalNode : externalNodeList) {
@@ -205,7 +205,7 @@ public class KademliaRepositoryNode<ID extends Number, C extends ConnectionInfo,
                     break;
 
                     //otherwise remove the external node from routing table, since its offline
-                }else if(pingAnswer != null){
+                }else if(!pingAnswer.isAlive()){
                     getRoutingTable().delete(externalNode);
                 }
             }
@@ -222,13 +222,14 @@ public class KademliaRepositoryNode<ID extends Number, C extends ConnectionInfo,
      * @param nodeToIgnore nullable. node to ignore when passing requests to others. used when `nodeToIgnore` might actually be closest node but doesnt hold the data
      * @return GetAnswer
      */
-    protected GetAnswer<ID, K, V> findClosestNodesToGetData(Node<ID, C> requester, K key, Node<ID, C> nodeToIgnore){
+    protected GetAnswer<ID, K, V> getDataFromClosestNodes(Node<ID, C> requester, K key, Node<ID, C> nodeToIgnore){
         GetAnswer<ID, K, V> getAnswer = null;
         ID hash = hash(key);
         FindNodeAnswer<ID, C> findNodeAnswer = getRoutingTable().findClosest(hash);
         Date date = getDateOfSecondsAgo(LAST_SEEN_SECONDS_TO_CONSIDER_ALIVE);
         for (ExternalNode<ID, C> externalNode : findNodeAnswer.getNodes()) {
             //ignore self because we already checked if current node holds the data or not
+            //Also ignore nodeToIgnore if its not null
             if(externalNode.getId().equals(getId()) || (nodeToIgnore != null && externalNode.getId().equals(nodeToIgnore.getId())))
                 continue;
 
@@ -240,7 +241,7 @@ public class KademliaRepositoryNode<ID extends Number, C extends ConnectionInfo,
                 break;
 
             //otherwise remove the node from routing table, since its offline
-            }else if(pingAnswer != null){
+            }else if(!pingAnswer.isAlive()){
                 getRoutingTable().delete(externalNode);
             }
         }
