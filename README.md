@@ -122,7 +122,7 @@ Add java-kademlia-api repository
 <dependency>
     <groupId>com.github.ep2p</groupId>
     <artifactId>kademlia-api</artifactId>
-    <version>1.5.0-RELEASE</version>
+    <version>1.5.1-RELEASE</version>
 </dependency>
 ```
 It is suggested not to use any version under `1.4.0`. See [all releases](https://github.com/ep2p/kademlia-api/releases).
@@ -147,3 +147,10 @@ In first video of EP2P lecture about Kademlia Algorithm, we are going to gain br
 
 
 [![Kademlia Algorithm Overview 1](https://github.com/ep2p/kademlia-api/blob/main/kademlia-ov1.png?raw=1)](https://youtu.be/7o0pfKDq9KE)
+
+
+### Kademlia Overview 2 (Java code example)
+
+In this video we see some code example in Java for Kademlia API using an abstract library written by EP2P.
+
+[![](https://temp.media/?height=400&width=600&text=Click_to_open_video&category=&color=aquamarine)]()
