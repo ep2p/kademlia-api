@@ -153,4 +153,4 @@ In first video of EP2P lecture about Kademlia Algorithm, we are going to gain br
 
 In this video we see some code example in Java for Kademlia API using an abstract library written by EP2P.
 
-[![](https://temp.media/?height=400&width=800&text=Click_to_watch&category=&color=)](https://www.youtube.com/watch?v=86tsT0g43iQ&t=1221s)
+[![](https://temp.media/?height=400&width=800&text=Click_to_watch&category=&color=)](https://www.youtube.com/watch?v=86tsT0g43iQ)
