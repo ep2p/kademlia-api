@@ -91,6 +91,10 @@ Of course one important parameter here is size of values as it will take much lo
 
 For these cases, you can use or extend `com.github.ep2p.kademlia.node.RedistributionKademliaNodeListener` as your listener. It will handle data redistribution when new nodes appear. Also by passing `ShutdownDistributionListener` it handles data redistribution when node is shutting down.
 
+## Key Hashing
+
+One of the most important aspects of a DHT (Distributed hash table) is how we use the hash for keys to make them unique or identifiable. You can pass an implementation of [KeyHashGenerator](https://github.com/ep2p/kademlia-api/blob/main/src/main/java/com/github/ep2p/kademlia/util/KeyHashGenerator.java). The Default one will use `key.hashCode()` and changes it's size to ID size of your node.
+
 ---
 
 ## Sample
@@ -118,7 +122,7 @@ Add java-kademlia-api repository
 <dependency>
     <groupId>com.github.ep2p</groupId>
     <artifactId>kademlia-api</artifactId>
-    <version>1.4.1-RELEASE</version>
+    <version>1.5.0-RELEASE</version>
 </dependency>
 ```
 It is suggested not to use any version under `1.4.0`. See [all releases](https://github.com/ep2p/kademlia-api/releases).
