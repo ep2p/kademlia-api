@@ -22,7 +22,7 @@ import java.util.Collections;
 public class FindNodeAnswer<ID extends Number, C extends ConnectionInfo> extends Answer<ID> {
   private ID destinationId;
   /* Closest nodes in the answer. */
-  private ArrayList<ExternalNode<ID, C>> nodes;
+  private final ArrayList<ExternalNode<ID, C>> nodes;
 
   public FindNodeAnswer() {
     nodes = new ArrayList<ExternalNode<ID, C>>();
@@ -30,9 +30,8 @@ public class FindNodeAnswer<ID extends Number, C extends ConnectionInfo> extends
   }
 
   public FindNodeAnswer(ID destinationId) {
+    this();
     this.destinationId = destinationId;
-    nodes = new ArrayList<ExternalNode<ID, C>>();
-    setAlive(true);
   }
 
   public int size() {
@@ -79,7 +78,7 @@ public class FindNodeAnswer<ID extends Number, C extends ConnectionInfo> extends
       return false;
     }
     ExternalNode<ID, C> tail = nodes.get(0);
-    return ((Number) tail.getDistance()).equals(0);
+    return tail.getDistance().equals(0);
   }
 
   @Override

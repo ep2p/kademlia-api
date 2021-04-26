@@ -28,10 +28,10 @@ import static com.github.ep2p.kademlia.model.StoreAnswer.Result.TIMEOUT;
  * @param <V> storage value type
  */
 public class KademliaSyncRepositoryNode<ID extends Number, C extends ConnectionInfo, K, V> extends KademliaRepositoryNode<ID, C,K,V> {
-    private volatile Map<K, StoreAnswer<ID, K>> storeMap = new ConcurrentHashMap<>();
-    private volatile Map<K, Lock> storeLockMap = new HashMap<>();
-    private volatile Map<K, GetAnswer<ID, K, V>> getMap = new HashMap<>();
-    private volatile Map<K, Lock> getLockMap = new HashMap<>();
+    private final Map<K, StoreAnswer<ID, K>> storeMap = new ConcurrentHashMap<>();
+    private final Map<K, Lock> storeLockMap = new HashMap<>();
+    private final Map<K, GetAnswer<ID, K, V>> getMap = new ConcurrentHashMap<>();
+    private final Map<K, Lock> getLockMap = new HashMap<>();
 
     public KademliaSyncRepositoryNode(ID nodeId, RoutingTable<ID, C, Bucket<ID, C>> routingTable, NodeConnectionApi<ID, C> nodeConnectionApi, C connectionInfo, KademliaRepository<K, V> kademliaRepository) {
         super(nodeId, routingTable, nodeConnectionApi, connectionInfo, kademliaRepository);

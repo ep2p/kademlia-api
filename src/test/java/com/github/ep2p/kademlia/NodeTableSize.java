@@ -6,8 +6,6 @@ import com.github.ep2p.kademlia.exception.BootstrapException;
 import com.github.ep2p.kademlia.node.KademliaNode;
 import com.github.ep2p.kademlia.node.KademliaNodeListener;
 import com.github.ep2p.kademlia.table.Bucket;
-import com.github.ep2p.kademlia.table.LongBucket;
-import com.github.ep2p.kademlia.table.LongRoutingTable;
 import com.github.ep2p.kademlia.table.SimpleRoutingTableFactory;
 
 import java.util.List;
