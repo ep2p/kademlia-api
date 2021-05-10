@@ -141,16 +141,11 @@ I know my implementation as a sample and abstract kademlia api, not most complet
 
 ## Videos
 
-### Kademlia Overview 1
+[![](https://img.shields.io/badge/youtube-Kademlia%20Overview%201-FFF?style=for-the-badge&logo=youtube&logoColor=red)](https://youtu.be/7o0pfKDq9KE)
 
 In first video of EP2P lecture about Kademlia Algorithm, we are going to gain brief understanding about elements of Kademlia nodes, network structure and Distributed Hash Tables (DHT) in theory.
 
 
-[![Kademlia Algorithm Overview 1](https://github.com/ep2p/kademlia-api/blob/main/kademlia-ov1.png?raw=1)](https://youtu.be/7o0pfKDq9KE)
-
-
-### Kademlia Overview 2 (Java code example)
+[![](https://img.shields.io/badge/youtube-Kademlia%20Overview%202-FFF?style=for-the-badge&logo=youtube&logoColor=red)](https://www.youtube.com/watch?v=86tsT0g43iQ)
 
 In this video we see some code example in Java for Kademlia API using an abstract library written by EP2P.
-
-[![](https://temp.media/?height=400&width=800&text=Click_to_watch&category=&color=)](https://www.youtube.com/watch?v=86tsT0g43iQ)
