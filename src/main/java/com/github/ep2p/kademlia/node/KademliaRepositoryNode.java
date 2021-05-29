@@ -56,12 +56,12 @@ public class KademliaRepositoryNode<ID extends Number, C extends ConnectionInfo,
 
     /**
      * @brief Handlers incoming `Get` requests from other nodes
-     * @param callerNode Node that passed info to current node
+     * @param caller Node that passed info to current node
      * @param requester Node that looks for info
      * @param key Key of data
      */
     @Override
-    public void onGetRequest(Node<ID, C> callerNode, Node<ID, C> requester, K key){
+    public void onGetRequest(Node<ID, C> caller, Node<ID, C> requester, K key){
         //Check repository for key, if it exists return it
         if(kademliaRepository.contains(key)){
             V value = kademliaRepository.get(key);
@@ -69,7 +69,7 @@ public class KademliaRepositoryNode<ID extends Number, C extends ConnectionInfo,
             return;
         }
 
-        GetAnswer<ID, K, V> getAnswer = getDataFromClosestNodes(requester, key, callerNode);
+        GetAnswer<ID, K, V> getAnswer = getDataFromClosestNodes(requester, key, caller);
         if(getAnswer == null)
             getNodeConnectionApi().sendGetResults(this, requester, key, null);
     }
@@ -122,7 +122,10 @@ public class KademliaRepositoryNode<ID extends Number, C extends ConnectionInfo,
         }
 
         if(storeAnswer == null){
-            throw new StoreException();
+            storeAnswer = new StoreAnswer<>();
+            storeAnswer.setKey(key);
+            storeAnswer.setResult(StoreAnswer.Result.FAILED);
+            storeAnswer.setNodeId(this.getId());
         }
 
         return storeAnswer;
@@ -148,7 +151,10 @@ public class KademliaRepositoryNode<ID extends Number, C extends ConnectionInfo,
         getAnswer = getDataFromClosestNodes(this, key, null);
 
         if(getAnswer == null){
-            throw new GetException();
+            getAnswer = new GetAnswer<>();
+            getAnswer.setKey(key);
+            getAnswer.setResult(GetAnswer.Result.FAILED);
+            getAnswer.setNodeId(this.getId());
         }
 
         return getAnswer;
@@ -183,7 +189,7 @@ public class KademliaRepositoryNode<ID extends Number, C extends ConnectionInfo,
         Date date = getDateOfSecondsAgo(LAST_SEEN_SECONDS_TO_CONSIDER_ALIVE);
         StoreAnswer<ID, K> storeAnswer = null;
         for (ExternalNode<ID, C> externalNode : externalNodeList) {
-            //if current requester is closest requester store the value
+            //if current node is closest node, store the value
             if(externalNode.getId().equals(getId())){
                 kademliaRepository.store(key, value);
                 storeAnswer = getNewStoreAnswer(key, StoreAnswer.Result.STORED, this);
