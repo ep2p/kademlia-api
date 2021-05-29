@@ -122,7 +122,7 @@ Add java-kademlia-api repository
 <dependency>
     <groupId>com.github.ep2p</groupId>
     <artifactId>kademlia-api</artifactId>
-    <version>1.5.1-RELEASE</version>
+    <version>1.5.2-RELEASE</version>
 </dependency>
 ```
 It is suggested not to use any version under `1.4.0`. See [all releases](https://github.com/ep2p/kademlia-api/releases).
