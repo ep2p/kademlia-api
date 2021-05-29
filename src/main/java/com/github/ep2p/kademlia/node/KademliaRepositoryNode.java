@@ -122,7 +122,10 @@ public class KademliaRepositoryNode<ID extends Number, C extends ConnectionInfo,
         }
 
         if(storeAnswer == null){
-            throw new StoreException();
+            storeAnswer = new StoreAnswer<>();
+            storeAnswer.setKey(key);
+            storeAnswer.setResult(StoreAnswer.Result.FAILED);
+            storeAnswer.setNodeId(this.getId());
         }
 
         return storeAnswer;
@@ -148,7 +151,10 @@ public class KademliaRepositoryNode<ID extends Number, C extends ConnectionInfo,
         getAnswer = getDataFromClosestNodes(this, key, null);
 
         if(getAnswer == null){
-            throw new GetException();
+            getAnswer = new GetAnswer<>();
+            getAnswer.setKey(key);
+            getAnswer.setResult(GetAnswer.Result.FAILED);
+            getAnswer.setNodeId(this.getId());
         }
 
         return getAnswer;

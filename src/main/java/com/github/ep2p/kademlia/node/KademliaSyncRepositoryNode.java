@@ -175,7 +175,6 @@ public class KademliaSyncRepositoryNode<ID extends Number, C extends ConnectionI
      */
     @Override
     public void onGetResult(Node<ID, C> node, K key, V value) {
-        super.onGetResult(node, key, value);
         GetAnswer<ID, K, V> getAnswer = getMap.get(key);
         getAnswer.setNodeId(node.getId());
         getAnswer.setAlive(true);
@@ -183,6 +182,7 @@ public class KademliaSyncRepositoryNode<ID extends Number, C extends ConnectionI
         getAnswer.setValue(value);
         getAnswer.setResult(value == null ? GetAnswer.Result.FAILED : GetAnswer.Result.FOUND);
         getAnswer.release();
+        super.onGetResult(node, key, value);
     }
 
     /**
@@ -194,12 +194,12 @@ public class KademliaSyncRepositoryNode<ID extends Number, C extends ConnectionI
     @SneakyThrows
     @Override
     public void onStoreResult(Node<ID, C> node, K key, boolean successful) {
-        super.onStoreResult(node, key, successful);
         StoreAnswer<ID, K> kStoreAnswer = storeMap.get(key);
         kStoreAnswer.setResult(successful ? StoreAnswer.Result.STORED : StoreAnswer.Result.FAILED);
         kStoreAnswer.setKey(key);
         kStoreAnswer.setNodeId(node.getId());
         kStoreAnswer.setAlive(true);
         kStoreAnswer.release();
+        super.onStoreResult(node, key, successful);
     }
 }
