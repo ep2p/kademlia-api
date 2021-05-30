@@ -8,6 +8,7 @@
     <artifactId>kademlia-api</artifactId>
     <version>2.0.0-RELEASE</version>
     <url>https://github.com/ep2p/kademlia-api</url>
+    <name>Abstract Kademlia API</name>
     <description>Java library for kademlia algorithm API abstraction to be used in variety of projects. </description>
     <packaging>jar</packaging>
 
