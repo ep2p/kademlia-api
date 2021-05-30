@@ -6,7 +6,7 @@ import io.ep2p.kademlia.connection.ConnectionInfo;
 import java.math.BigInteger;
 
 /**
- * @brief External node with ID of type BigInteger
+ * External node with ID of type BigInteger
  * @param <C> Your implementation of connection info
  */
 public class BigIntegerExternalNode<C extends ConnectionInfo> extends ExternalNode<BigInteger, C> {

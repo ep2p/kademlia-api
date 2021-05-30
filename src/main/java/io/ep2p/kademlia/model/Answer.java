@@ -4,7 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- * @brief Model to hold base API call reply answer
+ * Model to hold base API call reply answer
  * @param <ID> Number type of node ID between supported types
  */
 @Getter

@@ -26,7 +26,7 @@ public interface NodeApi<ID extends Number, C extends ConnectionInfo> {
     PingAnswer onPing(Node<ID, C> node) throws NodeIsOfflineException;
 
     /**
-     * @brief Caller calls this method to send a signal that they (caller) is shutting down
+     * Caller calls this method to send a signal that they (caller) is shutting down
      * @param node Reference to caller node object
      */
     void onShutdownSignal(Node<ID, C> node);

@@ -5,7 +5,7 @@ import lombok.Getter;
 import java.math.BigInteger;
 
 /**
- * @brief bounds a hash into certain number size
+ * bounds a hash into certain number size
  */
 @Getter
 public class BoundedHashUtil {

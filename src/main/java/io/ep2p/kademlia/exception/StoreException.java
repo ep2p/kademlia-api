@@ -1,7 +1,7 @@
 package io.ep2p.kademlia.exception;
 
 /**
- * @brief Exception thrown when storing data on node fails
+ * Exception thrown when storing data on node fails
  */
 public class StoreException extends Exception {
     public StoreException() {

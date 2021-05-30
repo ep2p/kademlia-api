@@ -6,7 +6,7 @@ import io.ep2p.kademlia.exception.NodeIsOfflineException;
 import java.util.List;
 
 /**
- * @brief Listener to register on KademliaNode class to be called on certain events
+ * Listener to register on KademliaNode class to be called on certain events
  * @param <ID> Number type of node ID between supported types
  * @param <C> Your implementation of connection info
  * @param <K> storage key type
@@ -14,45 +14,45 @@ import java.util.List;
  */
 public interface KademliaNodeListener<ID extends Number, C extends ConnectionInfo, K, V> {
     /**
-     * @brief Called when referenced nodes (chosen nodes to keep connection to and check for aliveness periodically) are updated
+     * Called when referenced nodes (chosen nodes to keep connection to and check for aliveness periodically) are updated
      * @param kademliaNode reference to the kademlia node that is calling the listener
      * @param referencedNodes referenced nodes
      */
     default void onReferencedNodesUpdate(KademliaNode<ID, C> kademliaNode, List<Node<ID, C>> referencedNodes){}
     /**
-     * @brief Called when bootstrapping is done
+     * Called when bootstrapping is done
      * @param kademliaNode reference to the kademlia node that is calling the listener
      */
     default void onBootstrapDone(KademliaNode<ID, C> kademliaNode){}
     /**
-     * @brief Called when a new alive node is discovered and added to routing table
+     * Called when a new alive node is discovered and added to routing table
      * @param kademliaNode reference to the kademlia node that is calling the listener
      * @param node new node that is available
      */
     default void onNewNodeAvailable(KademliaNode<ID, C> kademliaNode, Node<ID, C> node){}
     /**
-     * @brief Called when node shutdown is completed
+     * Called when node shutdown is completed
      * @param kademliaNode reference to the kademlia node that is calling the listener
      */
     default void onShutdownComplete(KademliaNode<ID, C> kademliaNode){}
     /**
-     * @brief Called before shutting down the node
+     * Called before shutting down the node
      * @param kademliaNode reference to the kademlia node that is calling the listener
      */
     default void onBeforeShutdown(KademliaNode<ID, C> kademliaNode){}
     /**
-     * @brief Called when node startup is completed
+     * Called when node startup is completed
      * @param kademliaNode reference to the kademlia node that is calling the listener
      */
     default void onStartupComplete(KademliaNode<ID, C> kademliaNode){}
     /**
-     * @brief Called when node is pinged (after ping is processed)
+     * Called when node is pinged (after ping is processed)
      * @param kademliaNode reference to the kademlia node that is calling the listener
      */
     default void onPing(KademliaNode<ID, C> kademliaNode, Node<ID, C> node) throws NodeIsOfflineException {}
 
     /**
-     * @brief Called when get request result is back to the node {@link KademliaRepositoryNode}
+     * Called when get request result is back to the node {@link KademliaRepositoryNode}
      * @param kademliaNode reference to the kademlia node that is calling the listener
      * @param node look up result founder/sender
      * @param key looked up key
@@ -60,7 +60,7 @@ public interface KademliaNodeListener<ID extends Number, C extends ConnectionInf
      */
     default void onKeyLookupResult(KademliaNode<ID, C> kademliaNode, Node<ID, C> node, K key, V value){}
     /**
-     * @brief Called when get store result is back to the node {@link KademliaRepositoryNode}
+     * Called when get store result is back to the node {@link KademliaRepositoryNode}
      * @param kademliaNode reference to the kademlia node that is calling the listener
      * @param node node that stored the data
      * @param key key of data
@@ -68,7 +68,7 @@ public interface KademliaNodeListener<ID extends Number, C extends ConnectionInf
     default void onKeyStoredResult(KademliaNode<ID, C> kademliaNode, Node<ID, C> node, K key, boolean success){}
 
     /**
-     * @brief Default implementation of {@link KademliaNodeListener} which does nothing
+     * Default implementation of {@link KademliaNodeListener} which does nothing
      * @param <ID> Number type of node ID between supported types
      * @param <C> Your implementation of connection info
      */

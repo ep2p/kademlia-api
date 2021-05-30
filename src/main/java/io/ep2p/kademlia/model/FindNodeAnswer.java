@@ -15,7 +15,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 /**
- * @brief Answer to a "FIND_NODE" query. Contains the nodes closest to an id given
+ * Answer to a "FIND_NODE" query. Contains the nodes closest to an id given
  * @param <ID> Number type of node ID between supported types
  * @param <C> Your implementation of connection info
  */
@@ -49,7 +49,7 @@ public class FindNodeAnswer<ID extends Number, C extends ConnectionInfo> extends
 
 
   /**
-   * @brief Merge the contents of this answer with another answer
+   * Merge the contents of this answer with another answer
    * @param findNodeAnswer another answer
    * @return number of nodes added to answer
    */

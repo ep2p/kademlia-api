@@ -1,7 +1,7 @@
 package io.ep2p.kademlia.exception;
 
 /**
- * @brief Exception thrown when there is a failure in getting value of a key
+ * Exception thrown when there is a failure in getting value of a key
  */
 public class GetException extends Exception {
     public GetException() {

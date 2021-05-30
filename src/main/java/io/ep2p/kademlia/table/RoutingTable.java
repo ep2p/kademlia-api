@@ -9,39 +9,39 @@ import java.util.Vector;
 
 public interface RoutingTable<ID extends Number, C extends ConnectionInfo, B extends Bucket<ID, C>> extends Serializable {
     /**
-     * @brief Returns an identifier which is in a specific bucket of a routing table
+     * Returns an identifier which is in a specific bucket of a routing table
      * @param id id of the routing table owner
      * @param prefix id of the bucket where we want that identifier to be
      */
     ID getIdInPrefix(ID id, int prefix);
 
     /**
-     * @brief Returns the corresponding node prefix for a given id
+     * Returns the corresponding node prefix for a given id
      * @param id node to look for prefix
      * @return prefix
      */
     int getNodePrefix(ID id);
 
     /**
-     * @brief Finds the corresponding bucket in a routing table for a given identifier
+     * Finds the corresponding bucket in a routing table for a given identifier
      * @param id node to find bucket for
      * @return bucket
      */
     Bucket<ID, C> findBucket(ID id);
 
     /**
-     * @brief Updates the routing table with a new value. Returns true if node didnt exist in table before
+     * Updates the routing table with a new value. Returns true if node didnt exist in table before
      * @param node to update
      * @return if node is added newly
      */
     boolean update(Node<ID, C> node);
     /**
-     * @brief Delete node from table
+     * Delete node from table
      * @param node to delete
      */
     void delete(Node<ID, C> node);
     /**
-     * @brief Returns the closest nodes we know to a given id
+     * Returns the closest nodes we know to a given id
      * @param destinationId lookup
      * @return result for closest nodes to destination
      */

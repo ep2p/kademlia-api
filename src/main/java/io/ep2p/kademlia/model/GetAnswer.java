@@ -4,7 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- * @brief Model for get request response possibly containing value of requested key
+ * Model for get request response possibly containing value of requested key
  * @param <ID> Number type of node ID between supported types
  * @param <K> Type of storage key
  * @param <V> Type of storage value

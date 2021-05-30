@@ -4,7 +4,7 @@ import io.ep2p.kademlia.node.Node;
 import io.ep2p.kademlia.connection.ConnectionInfo;
 
 /**
- * @brief External node with ID of type Integer
+ * External node with ID of type Integer
  * @param <C> Your implementation of connection info
  */
 public class IntegerExternalNode<C extends ConnectionInfo> extends ExternalNode<Integer, C> {

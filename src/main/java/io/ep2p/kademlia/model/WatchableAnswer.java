@@ -4,7 +4,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 /**
- * @brief Makes watchable object for subclasses of Answer class
+ * Makes watchable object for subclasses of Answer class
  * @param <ID> Number type of node ID between supported types
  */
 public class WatchableAnswer<ID extends Number> extends Answer<ID> implements Watchable {

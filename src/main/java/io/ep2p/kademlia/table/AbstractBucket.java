@@ -25,7 +25,7 @@ public class AbstractBucket<ID extends Number, C extends ConnectionInfo> impleme
   protected Map<ID, Node<ID, C>> nodeMap = new ConcurrentHashMap<>();
 
   /**
-   * @brief Create a bucket for prefix `id`
+   * Create a bucket for prefix `id`
    * @param id prefix
    */
   public AbstractBucket(int id) {

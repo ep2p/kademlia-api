@@ -42,7 +42,7 @@ public abstract class AbstractRoutingTable<ID extends Number, C extends Connecti
 
 
   /**
-   * @brief Updates the routing table with a new value. Returns true if node didnt exist in table before
+   * Updates the routing table with a new value. Returns true if node didnt exist in table before
    * @param node to add or update (push to front)
    * @return if node is added newly (not updated)
    */
@@ -61,7 +61,7 @@ public abstract class AbstractRoutingTable<ID extends Number, C extends Connecti
   }
 
   /**
-   * @brief Delete node from table
+   * Delete node from table
    * @param node to delete
    */
   public void delete(Node<ID, C> node) {
@@ -71,7 +71,7 @@ public abstract class AbstractRoutingTable<ID extends Number, C extends Connecti
 
 
   /**
-   * @brief Returns the closest nodes we know to a given id
+   * Returns the closest nodes we know to a given id
    * @param destinationId lookup
    * @return result for closest nodes to destination
    */

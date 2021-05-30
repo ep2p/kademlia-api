@@ -1,7 +1,7 @@
 package io.ep2p.kademlia.model;
 
 /**
- * @brief Model for ping reply
+ * Model for ping reply
  * @param <ID> Number type of node ID between supported types
  */
 public class PingAnswer<ID extends Number> extends Answer<ID> {

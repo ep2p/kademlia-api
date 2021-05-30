@@ -24,7 +24,7 @@ public class LongRoutingTable<C extends ConnectionInfo> extends AbstractRoutingT
   }
 
   /**
-   * @brief Returns an identifier which is in a specific bucket of a routing table
+   * Returns an identifier which is in a specific bucket of a routing table
    * @param id id of the routing table owner
    * @param prefix id of the bucket where we want that identifier to be
    */

@@ -3,7 +3,7 @@ package io.ep2p.kademlia.node;
 import java.util.List;
 
 /**
- * @brief Kademlia storage repository
+ * Kademlia storage repository
  * @param <K> storage key type
  * @param <V> storage value type
  */
