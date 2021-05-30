@@ -1,4 +1,6 @@
 [![](https://jitpack.io/v/ep2p/kademlia-api.svg)](https://jitpack.io/#ep2p/kademlia-api)
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.ep2p/kademlia-api/badge.png?gav=true)](https://maven-badges.herokuapp.com/maven-central/io.ep2p/kademlia-api)
+
 
 # Kademlia Api
 Abstract Java Kademlia API (Originally written to be used in Eleuth network).
@@ -105,7 +107,17 @@ Check [sample dht](https://github.com/ep2p/dht-sample) repository.
 
 ## Installation
 
-Use jitpack to add library to your project. Maven example:
+Using **maven centrail**
+
+```xml
+<dependency>
+    <groupId>io.ep2p</groupId>
+    <artifactId>kademlia-api</artifactId>
+    <version>2.0.0-RELEASE</version>
+</dependency>
+```
+
+Using jitpack to add library to your project. Maven example:
 
 Add jitpack repository
 ```xml
@@ -122,7 +134,7 @@ Add java-kademlia-api repository
 <dependency>
     <groupId>com.github.ep2p</groupId>
     <artifactId>kademlia-api</artifactId>
-    <version>1.5.2-RELEASE</version>
+    <version>2.0.0-RELEASE</version>
 </dependency>
 ```
 It is suggested not to use any version under `1.4.0`. See [all releases](https://github.com/ep2p/kademlia-api/releases).
