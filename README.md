@@ -111,7 +111,7 @@ Using **maven centrail**
 
 ```xml
 <dependency>
-    <groupId>com.github.ep2p</groupId>
+    <groupId>io.ep2p</groupId>
     <artifactId>kademlia-api</artifactId>
     <version>2.0.0-RELEASE</version>
 </dependency>
