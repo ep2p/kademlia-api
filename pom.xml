@@ -4,9 +4,9 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.github.ep2p</groupId>
+    <groupId>io.ep2p</groupId>
     <artifactId>kademlia-api</artifactId>
-    <version>1.5.2-RELEASE</version>
+    <version>2.0.0-RELEASE</version>
     <build>
         <plugins>
             <plugin>
