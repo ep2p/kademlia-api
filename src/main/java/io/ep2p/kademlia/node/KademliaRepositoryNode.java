@@ -101,33 +101,54 @@ public class KademliaRepositoryNode<ID extends Number, C extends ConnectionInfo,
     /* Managing API */
 
     /**
+     * Store data on closest node, if none was found, fail
      * @param key Key to store
      * @param value Value to store
      * @return Storing result "STORED: when current node stores data" , "PASSED: When storing request is passed to other nodes"
      * @throws StoreException thrown when no responsible node was found
      */
+    @Deprecated
     public StoreAnswer<ID, K> store(K key, V value) throws StoreException {
+        return this.store(key, value, false);
+    }
+
+    /**
+     * Store data on closest node, if none was found, check force store
+     * @param key Key to store
+     * @param value Value to store
+     * @param force determines if value should be persisted if no close nodes is found
+     * @return Storing result "STORED: when current node stores data" , "PASSED: When storing request is passed to other nodes"
+     * @throws StoreException thrown when no responsible node was found
+     */
+    public StoreAnswer<ID, K> store(K key, V value, boolean force) throws StoreException {
         if(!isRunning())
             throw new StoreException("Node is shutting down");
         StoreAnswer<ID, K> storeAnswer = null;
         ID hash = hash(key);
         //if current requester should persist data, do it immediatly
         if(getId().equals(hash)) {
-            kademliaRepository.store(key, value);
-            storeAnswer = getNewStoreAnswer(key, StoreAnswer.Result.STORED, this);
+            storeAnswer = doStore(key, value);
         }else {
             FindNodeAnswer<ID, C> findNodeAnswer = getRoutingTable().findClosest(hash);
             storeAnswer = storeDataToClosestNode(this, findNodeAnswer.getNodes(), key, value, null);
         }
 
         if(storeAnswer == null){
-            storeAnswer = new StoreAnswer<>();
-            storeAnswer.setKey(key);
-            storeAnswer.setResult(StoreAnswer.Result.FAILED);
-            storeAnswer.setNodeId(this.getId());
+            if (force){
+                storeAnswer = doStore(key, value);
+            }else {
+                storeAnswer = new StoreAnswer<>();
+                storeAnswer.setKey(key);
+                storeAnswer.setResult(StoreAnswer.Result.FAILED);
+                storeAnswer.setNodeId(this.getId());
+            }
         }
-
         return storeAnswer;
+    }
+
+    private StoreAnswer<ID, K> doStore(K key, V value){
+        kademliaRepository.store(key, value);
+        return getNewStoreAnswer(key, StoreAnswer.Result.STORED, this);
     }
 
     /**
