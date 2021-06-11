@@ -48,7 +48,22 @@ public class KademliaSyncRepositoryNode<ID extends Number, C extends ConnectionI
      * @throws StoreException if fails to store data
      * @throws InterruptedException if timeout reaches
      */
+    @Deprecated
     public StoreAnswer<ID, K> store(K key, V value, long timeout, TimeUnit timeUnit) throws StoreException, InterruptedException {
+        return this.store(key, value, timeout, timeUnit, false);
+    }
+
+    /**
+     * @param key data key to store
+     * @param value data value
+     * @param timeout storing timeout
+     * @param timeUnit time unit of timeout
+     * @param force determines if storing should be forced
+     * @return StoreAnswer
+     * @throws StoreException if fails to store data
+     * @throws InterruptedException if timeout reaches
+     */
+    public StoreAnswer<ID,K> store(K key, V value, long timeout, TimeUnit timeUnit, boolean force) throws StoreException, InterruptedException {
         Lock keyLock = new ReentrantLock();
         synchronized (this){
             Lock oldLock = storeLockMap.putIfAbsent(key, keyLock);
@@ -58,7 +73,7 @@ public class KademliaSyncRepositoryNode<ID extends Number, C extends ConnectionI
         }
         if (keyLock.tryLock()) {
             try {
-                StoreAnswer<ID, K> storeAnswer = super.store(key, value);
+                StoreAnswer<ID, K> storeAnswer = super.store(key, value, force);
                 if(storeAnswer.getResult().equals(StoreAnswer.Result.STORED)){
                     return storeAnswer;
                 }else {
@@ -97,9 +112,18 @@ public class KademliaSyncRepositoryNode<ID extends Number, C extends ConnectionI
      * @throws StoreException if fails to store data
      */
     @Override
+    @Deprecated
     public StoreAnswer<ID, K> store(K key, V value) throws StoreException {
         try {
-            return this.store(key, value, 0, null);
+            return this.store(key, value, 0, null, false);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public StoreAnswer<ID, K> store(K key, V value, boolean force) throws StoreException {
+        try {
+            return this.store(key, value, 0, null, force);
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
