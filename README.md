@@ -151,6 +151,10 @@ I know my implementation as a sample and abstract kademlia api, not most complet
 - **Kasra Faghihi** ([@offbynull](https://github.com/offbynull)) for his very mathematical implementation of Kademlia.
 - And a great shout out to **SimGrid** Team, for keeping history of [their work on Kademlia](https://gitlab.inria.fr/simgrid/simgrid/-/tree/ce2e676ad127f782b9c959499ab1c042195e411a/examples/java/kademlia) which this repository is inspired by it to implement RoutingTables, Buckets and some more stuff. 
 
+## Other implementations
+
+[@temissimon01](https://github.com/temissimon01) has implemented a kademlia api similar to this one using C++ and GRPC [here](https://github.com/temissimon01/Kademlia-cpp-grpc).
+
 ## Videos
 
 [![](https://img.shields.io/badge/youtube-Kademlia%20Overview%201-FFF?style=for-the-badge&logo=youtube&logoColor=red)](https://youtu.be/7o0pfKDq9KE)
