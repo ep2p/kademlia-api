@@ -124,7 +124,7 @@ public class KademliaSyncRepositoryNode<ID extends Number, C extends ConnectionI
         if (keyLock.tryLock()) {
             try {
                 GetAnswer<ID, K, V> getAnswer = super.get(key);
-                if(getAnswer.getResult().equals(GetAnswer.Result.FOUND)){
+                if(getAnswer.getResult().equals(GetAnswer.Result.FOUND) || getAnswer.getResult().equals(GetAnswer.Result.FAILED)) {
                     return getAnswer;
                 }else {
                     GetAnswer<ID, K, V> answer = new GetAnswer<>();
