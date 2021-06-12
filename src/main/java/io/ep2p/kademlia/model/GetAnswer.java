@@ -1,7 +1,6 @@
 package io.ep2p.kademlia.model;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 /**
  * Model for get request response possibly containing value of requested key
@@ -9,6 +8,9 @@ import lombok.Setter;
  * @param <K> Type of storage key
  * @param <V> Type of storage value
  */
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 @Getter
 @Setter
 public class GetAnswer<ID extends Number, K, V> extends WatchableAnswer<ID> {

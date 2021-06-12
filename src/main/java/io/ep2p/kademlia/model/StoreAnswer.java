@@ -1,7 +1,6 @@
 package io.ep2p.kademlia.model;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 /**
  * Model for store request reply
@@ -10,6 +9,9 @@ import lombok.Setter;
  */
 @Getter
 @Setter
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class StoreAnswer<ID extends Number, K> extends WatchableAnswer<ID> {
     private K key;
     private Result result;
