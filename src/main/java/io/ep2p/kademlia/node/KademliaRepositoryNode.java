@@ -85,7 +85,7 @@ public class KademliaRepositoryNode<ID extends Number, C extends ConnectionInfo,
     @Override
     public void onStoreRequest(Node<ID, C> caller, Node<ID, C> requester, K key, V value) {
         try {
-            StoreAnswer<ID, K> storeAnswer = handleStore(key, value, false, requester);
+            StoreAnswer<ID, K> storeAnswer = handleStore(key, value, false, requester, caller);
             if (storeAnswer.getResult().equals(StoreAnswer.Result.FAILED)){
                 getNodeConnectionApi().sendStoreResults(this, requester, key, false);
             }else if(storeAnswer.getResult().equals(StoreAnswer.Result.STORED)) {
@@ -117,7 +117,7 @@ public class KademliaRepositoryNode<ID extends Number, C extends ConnectionInfo,
      * @throws StoreException thrown when no responsible node was found
      */
     public StoreAnswer<ID, K> store(K key, V value, boolean force) throws StoreException {
-        return handleStore(key, value, force, this);
+        return handleStore(key, value, force, this, null);
     }
 
     /**
@@ -129,7 +129,7 @@ public class KademliaRepositoryNode<ID extends Number, C extends ConnectionInfo,
      * @return Storing result "STORED: when current node stores data" , "PASSED: When storing request is passed to other nodes"
      * @throws StoreException thrown when no responsible node was found
      */
-    protected StoreAnswer<ID, K> handleStore(K key, V value, boolean force, Node<ID, C> requester) throws StoreException {
+    protected StoreAnswer<ID, K> handleStore(K key, V value, boolean force, Node<ID, C> requester, Node<ID, C> caller) throws StoreException {
         if(!isRunning())
             throw new StoreException("Node is not running");
         StoreAnswer<ID, K> storeAnswer = null;
@@ -139,7 +139,7 @@ public class KademliaRepositoryNode<ID extends Number, C extends ConnectionInfo,
             storeAnswer = doStore(key, value);
         }else {
             FindNodeAnswer<ID, C> findNodeAnswer = getRoutingTable().findClosest(hash);
-            storeAnswer = storeDataToClosestNode(requester, findNodeAnswer.getNodes(), key, value, null);
+            storeAnswer = storeDataToClosestNode(requester, findNodeAnswer.getNodes(), key, value, caller);
         }
 
         if(storeAnswer.getResult().equals(StoreAnswer.Result.FAILED)){
