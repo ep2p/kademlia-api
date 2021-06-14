@@ -50,7 +50,7 @@ public class DataStorageThreadTest {
                 @Override
                 public void run() {
                     try {
-                        StoreAnswer<Integer, Integer> storeAnswer = node0.store(data.hashCode(), data);
+                        StoreAnswer<Integer, Integer> storeAnswer = node0.store(data.hashCode(), data, true);
                         atomicReference.set(storeAnswer);
                     }catch (StoreException e){
                         e.printStackTrace();
@@ -100,7 +100,7 @@ public class DataStorageThreadTest {
         Thread.sleep(2000);
 
         String data = "Eleuth";
-        StoreAnswer<Integer, Integer> storeAnswer = node0.store(data.hashCode(), data, 100, TimeUnit.MILLISECONDS);
+        StoreAnswer<Integer, Integer> storeAnswer = node0.store(data.hashCode(), data, 100, TimeUnit.MILLISECONDS, true);
         Assertions.assertEquals(storeAnswer.getResult(), StoreAnswer.Result.TIMEOUT, "Could not get timeout from store answer");
 
     }
@@ -126,9 +126,8 @@ public class DataStorageThreadTest {
         }
 
         Thread.sleep(2000);
-
         String data = "Eleuth";
-        StoreAnswer<Integer, Integer> storeAnswer = node0.store(data.hashCode(), data);
+        StoreAnswer<Integer, Integer> storeAnswer = node0.store(data.hashCode(), data, true);
         Assertions.assertEquals(storeAnswer.getResult(), StoreAnswer.Result.STORED, "StoreAnswer Result was " + storeAnswer.getResult());
         Assertions.assertEquals((int) storeAnswer.getKey(), data.hashCode(), "StoreAnswer key was " + storeAnswer.getResult());
         System.out.println("Successfully stored `" + data +"` on node " + storeAnswer.getNodeId());

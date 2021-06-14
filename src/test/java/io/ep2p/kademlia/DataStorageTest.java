@@ -38,7 +38,7 @@ public class DataStorageTest {
         Thread.sleep(2000);
 
         String data = "Eleuth";
-        StoreAnswer<Integer, Integer> storeAnswer = node0.store(data.hashCode(), data);
+        StoreAnswer<Integer, Integer> storeAnswer = node0.store(data.hashCode(), data, true);
         Assertions.assertEquals(storeAnswer.getResult(), StoreAnswer.Result.STORED, "StoreAnswer Result was " + storeAnswer.getResult());
         Assertions.assertEquals((int) storeAnswer.getKey(), data.hashCode(), "StoreAnswer key was " + storeAnswer.getResult());
         System.out.println("Successfully stored `" + data +"` on node " + storeAnswer.getNodeId());
@@ -77,7 +77,7 @@ public class DataStorageTest {
         Thread.sleep(2000);
 
         String data = "Eleuth";
-        StoreAnswer<Integer, Integer> storeAnswer = node0.store(data.hashCode(), data);
+        StoreAnswer<Integer, Integer> storeAnswer = node0.store(data.hashCode(), data, true);
         Assertions.assertEquals(storeAnswer.getResult(), StoreAnswer.Result.STORED, "StoreAnswer Result was " + storeAnswer.getResult());
         Assertions.assertEquals((int) storeAnswer.getKey(), data.hashCode(), "StoreAnswer key was " + storeAnswer.getResult());
         System.out.println("Successfully stored `" + data +"` on node " + storeAnswer.getNodeId());

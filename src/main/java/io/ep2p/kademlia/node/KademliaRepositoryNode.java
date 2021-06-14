@@ -85,9 +85,11 @@ public class KademliaRepositoryNode<ID extends Number, C extends ConnectionInfo,
     @Override
     public void onStoreRequest(Node<ID, C> caller, Node<ID, C> requester, K key, V value) {
         try {
-            StoreAnswer<ID, K> storeAnswer = handleStore(key, value, false);
+            StoreAnswer<ID, K> storeAnswer = handleStore(key, value, false, requester);
             if (storeAnswer.getResult().equals(StoreAnswer.Result.FAILED)){
                 getNodeConnectionApi().sendStoreResults(this, requester, key, false);
+            }else if(storeAnswer.getResult().equals(StoreAnswer.Result.STORED)) {
+                getNodeConnectionApi().sendStoreResults(this, requester, key, true);
             }
         } catch (StoreException ignore) {}
     }
@@ -115,7 +117,7 @@ public class KademliaRepositoryNode<ID extends Number, C extends ConnectionInfo,
      * @throws StoreException thrown when no responsible node was found
      */
     public StoreAnswer<ID, K> store(K key, V value, boolean force) throws StoreException {
-        return handleStore(key, value, force);
+        return handleStore(key, value, force, this);
     }
 
     /**
@@ -127,7 +129,7 @@ public class KademliaRepositoryNode<ID extends Number, C extends ConnectionInfo,
      * @return Storing result "STORED: when current node stores data" , "PASSED: When storing request is passed to other nodes"
      * @throws StoreException thrown when no responsible node was found
      */
-    protected StoreAnswer<ID, K> handleStore(K key, V value, boolean force) throws StoreException {
+    protected StoreAnswer<ID, K> handleStore(K key, V value, boolean force, Node<ID, C> requester) throws StoreException {
         if(!isRunning())
             throw new StoreException("Node is not running");
         StoreAnswer<ID, K> storeAnswer = null;
@@ -137,17 +139,12 @@ public class KademliaRepositoryNode<ID extends Number, C extends ConnectionInfo,
             storeAnswer = doStore(key, value);
         }else {
             FindNodeAnswer<ID, C> findNodeAnswer = getRoutingTable().findClosest(hash);
-            storeAnswer = storeDataToClosestNode(this, findNodeAnswer.getNodes(), key, value, null);
+            storeAnswer = storeDataToClosestNode(requester, findNodeAnswer.getNodes(), key, value, null);
         }
 
-        if(storeAnswer == null){
+        if(storeAnswer.getResult().equals(StoreAnswer.Result.FAILED)){
             if (force){
                 storeAnswer = doStore(key, value);
-            }else {
-                storeAnswer = new StoreAnswer<>();
-                storeAnswer.setKey(key);
-                storeAnswer.setResult(StoreAnswer.Result.FAILED);
-                storeAnswer.setNodeId(this.getId());
             }
         }
         return storeAnswer;
@@ -222,9 +219,6 @@ public class KademliaRepositoryNode<ID extends Number, C extends ConnectionInfo,
                 kademliaRepository.store(key, value);
                 storeAnswer = getNewStoreAnswer(key, StoreAnswer.Result.STORED, this);
                 //if requester of storing is not current node, tell them about storing result
-                if(!requester.getId().equals(getId())){
-                    getNodeConnectionApi().sendStoreResults(this, requester, key, true);
-                }
                 break;
             }else {
                 if(nodeToIgnore != null && nodeToIgnore.getId().equals(externalNode.getId())){
