@@ -113,7 +113,7 @@ Using **maven centrail**
 <dependency>
     <groupId>io.ep2p</groupId>
     <artifactId>kademlia-api</artifactId>
-    <version>2.0.0-RELEASE</version>
+    <version>2.2.0-RELEASE</version>
 </dependency>
 ```
 
@@ -134,7 +134,7 @@ Add java-kademlia-api repository
 <dependency>
     <groupId>com.github.ep2p</groupId>
     <artifactId>kademlia-api</artifactId>
-    <version>2.0.0-RELEASE</version>
+    <version>2.2.0-RELEASE</version>
 </dependency>
 ```
 It is suggested not to use any version under `1.4.0`. See [all releases](https://github.com/ep2p/kademlia-api/releases).
