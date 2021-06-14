@@ -84,18 +84,12 @@ public class KademliaRepositoryNode<ID extends Number, C extends ConnectionInfo,
      */
     @Override
     public void onStoreRequest(Node<ID, C> caller, Node<ID, C> requester, K key, V value) {
-        ID hash = hash(key);
-        //if current requester should persist data, store data and tell requester about it
-        if(getId().equals(hash)){
-            kademliaRepository.store(key, value);
-            getNodeConnectionApi().sendStoreResults(this, requester, key, true);
-        //otherwise find closest nodes to store data
-        } else {
-            FindNodeAnswer<ID, C> findNodeAnswer = getRoutingTable().findClosest(hash);
-            if (storeDataToClosestNode(requester, findNodeAnswer.getNodes(), key, value, caller) == null) {
+        try {
+            StoreAnswer<ID, K> storeAnswer = handleStore(key, value, false);
+            if (storeAnswer.getResult().equals(StoreAnswer.Result.FAILED)){
                 getNodeConnectionApi().sendStoreResults(this, requester, key, false);
             }
-        }
+        } catch (StoreException ignore) {}
     }
 
     /* Managing API */
@@ -121,8 +115,21 @@ public class KademliaRepositoryNode<ID extends Number, C extends ConnectionInfo,
      * @throws StoreException thrown when no responsible node was found
      */
     public StoreAnswer<ID, K> store(K key, V value, boolean force) throws StoreException {
+        return handleStore(key, value, force);
+    }
+
+    /**
+     * The method with the top level storing logic.
+     * Its better to make changes to this method to override how data persists
+     * @param key Key to store
+     * @param value Value to store
+     * @param force determines if value should be persisted if no close nodes is found
+     * @return Storing result "STORED: when current node stores data" , "PASSED: When storing request is passed to other nodes"
+     * @throws StoreException thrown when no responsible node was found
+     */
+    protected StoreAnswer<ID, K> handleStore(K key, V value, boolean force) throws StoreException {
         if(!isRunning())
-            throw new StoreException("Node is shutting down");
+            throw new StoreException("Node is not running");
         StoreAnswer<ID, K> storeAnswer = null;
         ID hash = hash(key);
         //if current requester should persist data, do it immediatly
@@ -146,6 +153,7 @@ public class KademliaRepositoryNode<ID extends Number, C extends ConnectionInfo,
         return storeAnswer;
     }
 
+
     private StoreAnswer<ID, K> doStore(K key, V value){
         kademliaRepository.store(key, value);
         return getNewStoreAnswer(key, StoreAnswer.Result.STORED, this);
@@ -158,7 +166,7 @@ public class KademliaRepositoryNode<ID extends Number, C extends ConnectionInfo,
      */
     public GetAnswer<ID, K, V> get(K key) throws GetException {
         if(!isRunning())
-            throw new GetException("Node is shutting down");
+            throw new GetException("Node is not running");
         //Check repository for key, if it exists return it
         if(kademliaRepository.contains(key)){
             V value = kademliaRepository.get(key);
@@ -237,7 +245,8 @@ public class KademliaRepositoryNode<ID extends Number, C extends ConnectionInfo,
             }
 
         }
-
+        if (storeAnswer == null)
+            storeAnswer = getNewStoreAnswer(key, StoreAnswer.Result.FAILED, requester);
         return storeAnswer;
     }
 
