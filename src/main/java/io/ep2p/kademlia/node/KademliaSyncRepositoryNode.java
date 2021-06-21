@@ -217,6 +217,8 @@ public class KademliaSyncRepositoryNode<ID extends Number, C extends ConnectionI
     @Override
     public void onStoreResult(Node<ID, C> node, K key, boolean successful) {
         StoreAnswer<ID, K> kStoreAnswer = storeMap.get(key);
+        if (kStoreAnswer == null)
+            return;
         kStoreAnswer.setResult(successful ? StoreAnswer.Result.STORED : StoreAnswer.Result.FAILED);
         kStoreAnswer.setKey(key);
         kStoreAnswer.setNodeId(node.getId());
