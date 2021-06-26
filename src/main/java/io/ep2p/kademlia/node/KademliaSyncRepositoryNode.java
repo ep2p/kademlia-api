@@ -74,7 +74,7 @@ public class KademliaSyncRepositoryNode<ID extends Number, C extends ConnectionI
         if (keyLock.tryLock()) {
             try {
                 StoreAnswer<ID, K> storeAnswer = super.store(key, value, force);
-                if(storeAnswer.getResult().equals(StoreAnswer.Result.STORED)){
+                if(!storeAnswer.getResult().equals(StoreAnswer.Result.PASSED)){
                     return storeAnswer;
                 }else {
                     StoreAnswer<ID, K> watchableStoreAnswer = new StoreAnswer<>();
