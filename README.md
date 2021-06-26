@@ -1,4 +1,3 @@
-[![](https://jitpack.io/v/ep2p/kademlia-api.svg)](https://jitpack.io/#ep2p/kademlia-api)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.ep2p/kademlia-api/badge.png?gav=true)](https://maven-badges.herokuapp.com/maven-central/io.ep2p/kademlia-api)
 
 
@@ -113,30 +112,10 @@ Using **maven centrail**
 <dependency>
     <groupId>io.ep2p</groupId>
     <artifactId>kademlia-api</artifactId>
-    <version>2.2.0-RELEASE</version>
+    <version>2.2.1-RELEASE</version>
 </dependency>
 ```
 
-Using jitpack to add library to your project. Maven example:
-
-Add jitpack repository
-```xml
-<repositories>
-    <repository>
-        <id>jitpack.io</id>
-        <url>https://jitpack.io</url>
-    </repository>
-</repositories>
-```
-
-Add java-kademlia-api repository
-```xml
-<dependency>
-    <groupId>com.github.ep2p</groupId>
-    <artifactId>kademlia-api</artifactId>
-    <version>2.2.0-RELEASE</version>
-</dependency>
-```
 It is suggested not to use any version under `1.4.0`. See [all releases](https://github.com/ep2p/kademlia-api/releases).
 
 ## Acknowledgments
