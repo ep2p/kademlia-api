@@ -106,7 +106,7 @@ Check [sample dht](https://github.com/ep2p/dht-sample) repository.
 
 ## Installation
 
-Using **maven centrail**
+Using **maven central**
 
 ```xml
 <dependency>
@@ -116,7 +116,7 @@ Using **maven centrail**
 </dependency>
 ```
 
-It is suggested not to use any version under `1.4.0`. See [all releases](https://github.com/ep2p/kademlia-api/releases).
+Github releases page is not uptodate anymore. See [all maven releases](https://search.maven.org/artifact/io.ep2p/kademlia-api).
 
 ## Acknowledgments
 
