@@ -9,6 +9,7 @@ import io.ep2p.kademlia.table.Bucket;
 
 import java.util.List;
 
+//todo
 public class NodeTableSize {
 
     public static void main(String[] args) throws BootstrapException, InterruptedException {

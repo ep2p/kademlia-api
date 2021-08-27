@@ -15,6 +15,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 //uses previous node to join network instead of node 0
+//todo
 public class NodesJoiningUsingPreviousNodeTest {
 
     @Test
