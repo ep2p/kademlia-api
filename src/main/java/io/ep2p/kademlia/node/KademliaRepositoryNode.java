@@ -97,18 +97,6 @@ public class KademliaRepositoryNode<ID extends Number, C extends ConnectionInfo,
     /* Managing API */
 
     /**
-     * Store data on closest node, if none was found, fail
-     * @param key Key to store
-     * @param value Value to store
-     * @return Storing result "STORED: when current node stores data" , "PASSED: When storing request is passed to other nodes"
-     * @throws StoreException thrown when no responsible node was found
-     */
-    @Deprecated
-    public StoreAnswer<ID, K> store(K key, V value) throws StoreException {
-        return this.store(key, value, false);
-    }
-
-    /**
      * Store data on closest node, if none was found, check force store
      * @param key Key to store
      * @param value Value to store
