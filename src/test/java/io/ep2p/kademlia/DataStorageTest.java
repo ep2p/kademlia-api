@@ -13,7 +13,6 @@ import org.junit.jupiter.api.Test;
 
 public class DataStorageTest {
 
-    //todo
     @Test
     public void canStoreDataInNetwork() throws BootstrapException, StoreException, InterruptedException, GetException {
         LocalNodeConnectionApi<Integer> nodeApi = new LocalNodeConnectionApi<>();

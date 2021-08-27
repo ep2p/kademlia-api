@@ -150,7 +150,7 @@ public class KademliaRepositoryNode<ID extends Number, C extends ConnectionInfo,
             throw new StoreException("Node is not running");
         StoreAnswer<ID, K> storeAnswer = null;
         ID hash = hash(key);
-        //if current requester should persist data, do it immediatly
+        //if current requester should persist data, do it immediately
         if(getId().equals(hash)) {
             storeAnswer = doStore(key, value);
         }else {

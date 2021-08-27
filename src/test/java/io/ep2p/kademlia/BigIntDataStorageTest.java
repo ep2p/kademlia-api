@@ -7,9 +7,7 @@ import io.ep2p.kademlia.exception.GetException;
 import io.ep2p.kademlia.exception.StoreException;
 import io.ep2p.kademlia.model.GetAnswer;
 import io.ep2p.kademlia.model.StoreAnswer;
-import io.ep2p.kademlia.node.KademliaRepositoryNode;
-import io.ep2p.kademlia.node.KademliaSyncRepositoryNode;
-import io.ep2p.kademlia.node.SampleRepository;
+import io.ep2p.kademlia.node.*;
 import io.ep2p.kademlia.util.BoundedHashUtil;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -17,7 +15,6 @@ import org.junit.jupiter.api.Test;
 import java.math.BigInteger;
 
 
-//todo
 public class BigIntDataStorageTest {
 
     @Test
@@ -32,9 +29,11 @@ public class BigIntDataStorageTest {
         nodeApi.registerNode(node0);
         node0.start();
 
+        Thread.sleep(100);
 
         for(int i = 1; i < Math.pow(2, NodeSettings.Default.IDENTIFIER_SIZE); i++){
             KademliaRepositoryNode<BigInteger, EmptyConnectionInfo, Integer, String> aNode = new KademliaRepositoryNode<>(BigInteger.valueOf(i), nodeApi, new EmptyConnectionInfo(), new SampleRepository());
+            Thread.sleep(100);
             nodeApi.registerNode(aNode);
             aNode.bootstrap(node0);
         }

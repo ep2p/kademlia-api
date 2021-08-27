@@ -239,7 +239,7 @@ public class KademliaNode<ID extends Number, C extends ConnectionInfo> extends N
         distances.forEach(distance -> {
             FindNodeAnswer<ID, C> findNodeAnswer = routingTable.findClosest(distance);
             if (findNodeAnswer.getNodes().size() > 0) {
-                if(!referencedNodes.contains(findNodeAnswer.getNodes().get(0)))
+                if(!findNodeAnswer.getNodes().get(0).getId().equals(getId()) && !referencedNodes.contains(findNodeAnswer.getNodes().get(0)))
                     referencedNodes.add(findNodeAnswer.getNodes().get(0));
             }
         });

@@ -15,7 +15,6 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 //uses previous node to join network instead of node 0
-//todo
 public class NodesJoiningUsingPreviousNodeTest {
 
     @Test
@@ -54,10 +53,10 @@ public class NodesJoiningUsingPreviousNodeTest {
 
         Assertions.assertTrue(listContainsAll(map.get(0), 1,2,4,8));
         Assertions.assertTrue(listContainsAll(map.get(1), 0,3,5,9));
-        Assertions.assertTrue(listContainsAll(map.get(2), 3,0,6,10));
-        Assertions.assertTrue(listContainsAll(map.get(3), 2,1,7,11));
+        Assertions.assertTrue(listContainsAll(map.get(2), 4,3,0,6,10));
+        Assertions.assertTrue(listContainsAll(map.get(3), 4,2,1,7,11));
         Assertions.assertTrue(listContainsAll(map.get(15), 14,13,11,7));
-        Assertions.assertTrue(listContainsAll(map.get(7), 6,5,3,15));
+        Assertions.assertTrue(listContainsAll(map.get(7), 8,6,5,3,15));
 
     }
 

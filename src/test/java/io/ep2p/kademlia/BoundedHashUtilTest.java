@@ -4,6 +4,8 @@ import io.ep2p.kademlia.util.BoundedHashUtil;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import java.math.BigInteger;
+
 public class BoundedHashUtilTest {
     @Test
     public void testBoundedHash(){
@@ -12,5 +14,6 @@ public class BoundedHashUtilTest {
         Integer input = 1573985150;
         Assertions.assertEquals(Integer.valueOf(126), boundedHashUtil1.hash(input, Integer.class));
         Assertions.assertEquals(input, boundedHashUtil2.hash(input, Integer.class));
+        Assertions.assertEquals(BigInteger.valueOf(input), boundedHashUtil2.hash(input, BigInteger.class));
     }
 }

@@ -12,7 +12,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-//todo
 public class NodesJoiningTest {
 
     @Test
@@ -35,12 +34,14 @@ public class NodesJoiningTest {
         nodeApi.registerNode(node0);
         node0.setKademliaNodeListener(listener);
         node0.start();
+        Thread.sleep(100);
 
         for(int i = 1; i < Math.pow(2, NodeSettings.Default.IDENTIFIER_SIZE); i++){
             KademliaNode<Integer, EmptyConnectionInfo> nextNode = new KademliaNode<>(i, nodeApi, new EmptyConnectionInfo());
             nodeApi.registerNode(nextNode);
             nextNode.setKademliaNodeListener(listener);
             nextNode.bootstrap(node0);
+            Thread.sleep(100);
         }
 
 
@@ -53,8 +54,8 @@ public class NodesJoiningTest {
         Assertions.assertTrue(listContainsAll(map.get(1), 0,3,5,9));
         Assertions.assertTrue(listContainsAll(map.get(2), 3,0,6,10));
         Assertions.assertTrue(listContainsAll(map.get(3), 2,1,7,11));
-        Assertions.assertTrue(listContainsAll(map.get(15), 14,13,11,7));
-        Assertions.assertTrue(listContainsAll(map.get(7), 6,5,3,15));
+        Assertions.assertTrue(listContainsAll(map.get(15), 0,14,13,11,7));
+        Assertions.assertTrue(listContainsAll(map.get(7), 0,6,5,3,15));
     }
 
     private boolean listContainsAll(List<Node<Integer, EmptyConnectionInfo>> referencedNodes, Integer... nodeIds){

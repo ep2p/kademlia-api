@@ -15,7 +15,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-//todo
 public class NodesReJoinTest {
 
     @Test
@@ -55,8 +54,8 @@ public class NodesReJoinTest {
         }
         Thread.sleep((long)(1.1D * NodeSettings.Default.REFERENCED_NODES_UPDATE_PERIOD * 1000L));
 
-        Assertions.assertTrue(listContainsAll(map.get(15), 14,13,11,7));
-        Assertions.assertTrue(listContainsAll(map.get(7), 6,5,3,15));
+        Assertions.assertTrue(listContainsAll(map.get(15), 0,14,13,11,7));
+        Assertions.assertTrue(listContainsAll(map.get(7), 0,6,5,3,15));
         System.out.println("7 and 15 know each other");
 
         //When node7 leaves network, node 15 should no longer hold reference to it
@@ -73,7 +72,7 @@ public class NodesReJoinTest {
         node7 = new KademliaNode<>(7, node7.getRoutingTable(), nodeApi, new EmptyConnectionInfo());
         node7.start();
         Thread.sleep((long)(1.1D * NodeSettings.Default.REFERENCED_NODES_UPDATE_PERIOD * 1000L));
-        Assertions.assertTrue(listContainsAll(map.get(15), 14,13,11,7));
+        Assertions.assertTrue(listContainsAll(map.get(15), 0,14,13,11,7));
         System.out.println("15 knows about 7 again after it (7) rejoined");
     }
 

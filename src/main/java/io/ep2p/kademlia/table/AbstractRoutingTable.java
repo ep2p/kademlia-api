@@ -11,6 +11,7 @@ import io.ep2p.kademlia.NodeSettings;
 import io.ep2p.kademlia.connection.ConnectionInfo;
 import io.ep2p.kademlia.model.FindNodeAnswer;
 import io.ep2p.kademlia.node.Node;
+import io.ep2p.kademlia.node.external.ExternalNode;
 import lombok.NoArgsConstructor;
 
 import java.util.Collections;
@@ -85,7 +86,7 @@ public abstract class AbstractRoutingTable<ID extends Number, C extends Connecti
     BucketHelper.addToAnswer(bucket, findNodeAnswer, destinationId);
 
     // For every node (max common.BucketSize and lte identifier size) and add it to answer
-    for (int i = 1; findNodeAnswer.size() < this.nodeSettings.getIdentifierSize() && ((bucket.getId() - i) >= 0 ||
+    for (int i = 1; findNodeAnswer.size() < this.nodeSettings.getBucketSize() && ((bucket.getId() - i) >= 0 ||
                                     (bucket.getId() + i) <= this.nodeSettings.getIdentifierSize()); i++) {
       //Check the previous buckets
       if (bucket.getId() - i >= 0) {
