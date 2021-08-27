@@ -1,5 +1,6 @@
 package io.ep2p.kademlia.node;
 
+import io.ep2p.kademlia.NodeSettings;
 import io.ep2p.kademlia.connection.ConnectionInfo;
 import io.ep2p.kademlia.connection.NodeConnectionApi;
 import io.ep2p.kademlia.exception.GetException;
@@ -31,13 +32,26 @@ public class KademliaSyncRepositoryNode<ID extends Number, C extends ConnectionI
     private final Map<K, GetAnswer<ID, K, V>> getMap = new ConcurrentHashMap<>();
     private final Map<K, Lock> getLockMap = new HashMap<>();
 
-    public KademliaSyncRepositoryNode(ID nodeId, RoutingTable<ID, C, Bucket<ID, C>> routingTable, NodeConnectionApi<ID, C> nodeConnectionApi, C connectionInfo, KademliaRepository<K, V> kademliaRepository) {
-        super(nodeId, routingTable, nodeConnectionApi, connectionInfo, kademliaRepository);
+    public KademliaSyncRepositoryNode(ID nodeId, RoutingTable<ID, C, Bucket<ID, C>> routingTable, NodeConnectionApi<ID, C> nodeConnectionApi, C connectionInfo, NodeSettings nodeSettings, KademliaRepository<K, V> kademliaRepository, KeyHashGenerator<ID, K> keyHashGenerator) {
+        super(nodeId, routingTable, nodeConnectionApi, connectionInfo, nodeSettings, kademliaRepository, keyHashGenerator);
     }
 
-    public KademliaSyncRepositoryNode(ID nodeId, RoutingTable<ID, C, Bucket<ID, C>> routingTable, NodeConnectionApi<ID, C> nodeConnectionApi, C connectionInfo, KademliaRepository<K, V> kademliaRepository, KeyHashGenerator<ID, K> keyHashGenerator) {
-        super(nodeId, routingTable, nodeConnectionApi, connectionInfo, kademliaRepository, keyHashGenerator);
+    public KademliaSyncRepositoryNode(ID nodeId, NodeConnectionApi<ID, C> nodeConnectionApi, C connectionInfo, NodeSettings nodeSettings, KademliaRepository<K, V> kademliaRepository, KeyHashGenerator<ID, K> keyHashGenerator) {
+        super(nodeId, nodeConnectionApi, connectionInfo, nodeSettings, kademliaRepository, keyHashGenerator);
     }
+
+    public KademliaSyncRepositoryNode(ID nodeId, NodeConnectionApi<ID, C> nodeConnectionApi, C connectionInfo, KademliaRepository<K, V> kademliaRepository, KeyHashGenerator<ID, K> keyHashGenerator) {
+        super(nodeId, nodeConnectionApi, connectionInfo, kademliaRepository, keyHashGenerator);
+    }
+
+    public KademliaSyncRepositoryNode(ID nodeId, NodeConnectionApi<ID, C> nodeConnectionApi, C connectionInfo, KademliaRepository<K, V> kademliaRepository) {
+        super(nodeId, nodeConnectionApi, connectionInfo, kademliaRepository);
+    }
+
+    public KademliaSyncRepositoryNode(ID nodeId, RoutingTable<ID, C, Bucket<ID, C>> routingTable, NodeConnectionApi<ID, C> nodeConnectionApi, C connectionInfo, NodeSettings nodeSettings, KademliaRepository<K, V> kademliaRepository) {
+        super(nodeId, routingTable, nodeConnectionApi, connectionInfo, nodeSettings, kademliaRepository);
+    }
+
 
     /**
      * @param key data key to store

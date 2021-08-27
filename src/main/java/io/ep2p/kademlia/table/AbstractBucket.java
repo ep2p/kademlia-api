@@ -6,8 +6,8 @@
 
 package io.ep2p.kademlia.table;
 
-import io.ep2p.kademlia.node.Node;
 import io.ep2p.kademlia.connection.ConnectionInfo;
+import io.ep2p.kademlia.node.Node;
 
 import java.util.List;
 import java.util.Map;

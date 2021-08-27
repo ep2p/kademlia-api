@@ -1,6 +1,6 @@
 package io.ep2p.kademlia.util;
 
-import io.ep2p.kademlia.Common;
+import io.ep2p.kademlia.NodeSettings;
 
 public interface KeyHashGenerator<ID extends Number, K> {
 
@@ -15,8 +15,12 @@ public interface KeyHashGenerator<ID extends Number, K> {
         private final Class<ID> nodeIdClass;
 
         public Default(Class<ID> nodeIdClass) {
+            this(nodeIdClass, NodeSettings.Default.build());
+        }
+
+        public Default(Class<ID> nodeIdClass, NodeSettings nodeSettings) {
             this.nodeIdClass = nodeIdClass;
-            this.boundedHashUtil = new BoundedHashUtil(Common.IDENTIFIER_SIZE);
+            this.boundedHashUtil = new BoundedHashUtil(nodeSettings.getIdentifierSize());
         }
 
         @Override

@@ -1,11 +1,9 @@
 package io.ep2p.kademlia;
 
-import io.ep2p.kademlia.node.*;
 import io.ep2p.kademlia.connection.EmptyConnectionInfo;
 import io.ep2p.kademlia.connection.LocalNodeConnectionApi;
 import io.ep2p.kademlia.exception.BootstrapException;
 import io.ep2p.kademlia.node.*;
-import io.ep2p.kademlia.table.SimpleRoutingTableFactory;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -20,9 +18,8 @@ public class NodesJoiningTest {
     public void canPeersJoinNetwork() throws BootstrapException, InterruptedException {
         LocalNodeConnectionApi<Integer> nodeApi = new LocalNodeConnectionApi<>();
         NodeIdFactory nodeIdFactory = new IncrementalNodeIdFactory();
-        SimpleRoutingTableFactory routingTableFactory = new SimpleRoutingTableFactory();
-        Common.IDENTIFIER_SIZE = 4;
-        Common.REFERENCED_NODES_UPDATE_PERIOD_SEC = 5;
+        NodeSettings.Default.IDENTIFIER_SIZE = 4;
+        NodeSettings.Default.REFERENCED_NODES_UPDATE_PERIOD = 5;
 
         Map<Integer, List<Node<Integer, EmptyConnectionInfo>>> map = new ConcurrentHashMap<>();
 
@@ -33,23 +30,23 @@ public class NodesJoiningTest {
             }
         };
 
-        KademliaNode<Integer, EmptyConnectionInfo> node0 = new KademliaNode<>(nodeIdFactory.getNodeId(), routingTableFactory.getRoutingTable(0), nodeApi, new EmptyConnectionInfo());
+        KademliaNode<Integer, EmptyConnectionInfo> node0 = new KademliaNode<>(nodeIdFactory.getNodeId(), nodeApi, new EmptyConnectionInfo());
         nodeApi.registerNode(node0);
         node0.setKademliaNodeListener(listener);
         node0.start();
 
-        for(int i = 1; i < Math.pow(2, Common.IDENTIFIER_SIZE); i++){
-            KademliaNode<Integer, EmptyConnectionInfo> nextNode = new KademliaNode<>(i, routingTableFactory.getRoutingTable(i), nodeApi, new EmptyConnectionInfo());
+        for(int i = 1; i < Math.pow(2, NodeSettings.Default.IDENTIFIER_SIZE); i++){
+            KademliaNode<Integer, EmptyConnectionInfo> nextNode = new KademliaNode<>(i, nodeApi, new EmptyConnectionInfo());
             nodeApi.registerNode(nextNode);
             nextNode.setKademliaNodeListener(listener);
             nextNode.bootstrap(node0);
         }
 
 
-        while (map.size() <= Common.IDENTIFIER_SIZE){
+        while (map.size() <= NodeSettings.Default.IDENTIFIER_SIZE){
             //wait
         }
-        Thread.sleep((long)(1.4D * Common.REFERENCED_NODES_UPDATE_PERIOD_SEC * 1000L));
+        Thread.sleep((long)(1.4D * NodeSettings.Default.REFERENCED_NODES_UPDATE_PERIOD * 1000L));
 
         Assertions.assertTrue(listContainsAll(map.get(0), 1,2,4,8));
         Assertions.assertTrue(listContainsAll(map.get(1), 0,3,5,9));

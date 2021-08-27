@@ -1,6 +1,5 @@
 package io.ep2p.kademlia;
 
-import io.ep2p.kademlia.node.*;
 import io.ep2p.kademlia.connection.EmptyConnectionInfo;
 import io.ep2p.kademlia.connection.LocalNodeConnectionApi;
 import io.ep2p.kademlia.connection.LongRunningLocalNodeConnectionApi;
@@ -10,7 +9,6 @@ import io.ep2p.kademlia.exception.StoreException;
 import io.ep2p.kademlia.model.GetAnswer;
 import io.ep2p.kademlia.model.StoreAnswer;
 import io.ep2p.kademlia.node.*;
-import io.ep2p.kademlia.table.SimpleRoutingTableFactory;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -24,18 +22,17 @@ public class DataStorageThreadTest {
     public void canStoreDataWhenCalledInMultipleThreads() throws BootstrapException, StoreException, InterruptedException, GetException {
         LocalNodeConnectionApi<Integer> nodeApi = new LocalNodeConnectionApi<>();
         NodeIdFactory nodeIdFactory = new IncrementalNodeIdFactory();
-        SimpleRoutingTableFactory routingTableFactory = new SimpleRoutingTableFactory();
-        Common.IDENTIFIER_SIZE = 4;
-        Common.REFERENCED_NODES_UPDATE_PERIOD_SEC = 2;
+        NodeSettings.Default.IDENTIFIER_SIZE = 4;
+        NodeSettings.Default.REFERENCED_NODES_UPDATE_PERIOD = 2;
 
         //bootstrap node
-        KademliaSyncRepositoryNode<Integer, EmptyConnectionInfo, Integer, String> node0 = new KademliaSyncRepositoryNode<>(nodeIdFactory.getNodeId(), routingTableFactory.getRoutingTable(0), nodeApi, new EmptyConnectionInfo(), new SampleRepository());
+        KademliaSyncRepositoryNode<Integer, EmptyConnectionInfo, Integer, String> node0 = new KademliaSyncRepositoryNode<>(nodeIdFactory.getNodeId(), nodeApi, new EmptyConnectionInfo(), new SampleRepository());
         nodeApi.registerNode(node0);
         node0.start();
 
 
-        for(int i = 1; i < Math.pow(2, Common.IDENTIFIER_SIZE); i++){
-            KademliaRepositoryNode<Integer, EmptyConnectionInfo, Integer, String> aNode = new KademliaRepositoryNode<>(i, routingTableFactory.getRoutingTable(i), nodeApi, new EmptyConnectionInfo(), new SampleRepository());
+        for(int i = 1; i < Math.pow(2, NodeSettings.Default.IDENTIFIER_SIZE); i++){
+            KademliaRepositoryNode<Integer, EmptyConnectionInfo, Integer, String> aNode = new KademliaRepositoryNode<>(i, nodeApi, new EmptyConnectionInfo(), new SampleRepository());
             nodeApi.registerNode(aNode);
             aNode.bootstrap(node0);
         }
@@ -81,18 +78,17 @@ public class DataStorageThreadTest {
     public void getsValidTimeoutOnLongStore() throws BootstrapException, StoreException, InterruptedException, GetException {
         LongRunningLocalNodeConnectionApi<Integer> nodeApi = new LongRunningLocalNodeConnectionApi<>();
         NodeIdFactory nodeIdFactory = new IncrementalNodeIdFactory();
-        SimpleRoutingTableFactory routingTableFactory = new SimpleRoutingTableFactory();
-        Common.IDENTIFIER_SIZE = 4;
-        Common.REFERENCED_NODES_UPDATE_PERIOD_SEC = 2;
+        NodeSettings.Default.IDENTIFIER_SIZE = 4;
+        NodeSettings.Default.REFERENCED_NODES_UPDATE_PERIOD = 2;
 
         //bootstrap node
-        KademliaSyncRepositoryNode<Integer, EmptyConnectionInfo, Integer, String> node0 = new KademliaSyncRepositoryNode<>(nodeIdFactory.getNodeId(), routingTableFactory.getRoutingTable(0), nodeApi, new EmptyConnectionInfo(), new SampleRepository());
+        KademliaSyncRepositoryNode<Integer, EmptyConnectionInfo, Integer, String> node0 = new KademliaSyncRepositoryNode<>(nodeIdFactory.getNodeId(), nodeApi, new EmptyConnectionInfo(), new SampleRepository());
         nodeApi.registerNode(node0);
         node0.start();
 
 
-        for(int i = 1; i < Math.pow(2, Common.IDENTIFIER_SIZE); i++){
-            KademliaRepositoryNode<Integer, EmptyConnectionInfo, Integer, String> aNode = new KademliaRepositoryNode<>(i, routingTableFactory.getRoutingTable(i), nodeApi, new EmptyConnectionInfo(), new SampleRepository());
+        for(int i = 1; i < Math.pow(2, NodeSettings.Default.IDENTIFIER_SIZE); i++){
+            KademliaRepositoryNode<Integer, EmptyConnectionInfo, Integer, String> aNode = new KademliaRepositoryNode<>(i, nodeApi, new EmptyConnectionInfo(), new SampleRepository());
             nodeApi.registerNode(aNode);
             aNode.bootstrap(node0);
         }
@@ -109,18 +105,17 @@ public class DataStorageThreadTest {
     public void getsValidTimeoutOnLongGetRequest() throws InterruptedException, BootstrapException, StoreException, GetException {
         LongRunningLocalNodeConnectionApi<Integer> nodeApi = new LongRunningLocalNodeConnectionApi<>(); //important
         NodeIdFactory nodeIdFactory = new IncrementalNodeIdFactory();
-        SimpleRoutingTableFactory routingTableFactory = new SimpleRoutingTableFactory();
-        Common.IDENTIFIER_SIZE = 4;
-        Common.REFERENCED_NODES_UPDATE_PERIOD_SEC = 2;
+        NodeSettings.Default.IDENTIFIER_SIZE = 4;
+        NodeSettings.Default.REFERENCED_NODES_UPDATE_PERIOD = 2;
 
         //bootstrap node
-        KademliaSyncRepositoryNode<Integer, EmptyConnectionInfo, Integer, String> node0 = new KademliaSyncRepositoryNode<>(nodeIdFactory.getNodeId(), routingTableFactory.getRoutingTable(0), nodeApi, new EmptyConnectionInfo(), new SampleRepository());
+        KademliaSyncRepositoryNode<Integer, EmptyConnectionInfo, Integer, String> node0 = new KademliaSyncRepositoryNode<>(nodeIdFactory.getNodeId(), nodeApi, new EmptyConnectionInfo(), new SampleRepository());
         nodeApi.registerNode(node0);
         node0.start();
 
 
-        for(int i = 1; i < (Math.pow(2, Common.IDENTIFIER_SIZE) / 2); i++){
-            KademliaRepositoryNode<Integer, EmptyConnectionInfo, Integer, String> aNode = new KademliaRepositoryNode<>(i * 2, routingTableFactory.getRoutingTable(i * 2), nodeApi, new EmptyConnectionInfo(), new SampleRepository());
+        for(int i = 1; i < (Math.pow(2, NodeSettings.Default.IDENTIFIER_SIZE) / 2); i++){
+            KademliaRepositoryNode<Integer, EmptyConnectionInfo, Integer, String> aNode = new KademliaRepositoryNode<>(i * 2, nodeApi, new EmptyConnectionInfo(), new SampleRepository());
             nodeApi.registerNode(aNode);
             aNode.bootstrap(node0);
         }

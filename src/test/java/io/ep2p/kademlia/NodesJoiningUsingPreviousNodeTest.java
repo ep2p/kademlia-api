@@ -6,7 +6,6 @@ import io.ep2p.kademlia.exception.BootstrapException;
 import io.ep2p.kademlia.node.KademliaNode;
 import io.ep2p.kademlia.node.KademliaNodeListener;
 import io.ep2p.kademlia.node.Node;
-import io.ep2p.kademlia.table.SimpleRoutingTableFactory;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -21,9 +20,8 @@ public class NodesJoiningUsingPreviousNodeTest {
     @Test
     public void canPeersJoinNetwork() throws BootstrapException, InterruptedException {
         LocalNodeConnectionApi<Integer> nodeApi = new LocalNodeConnectionApi<>();
-        SimpleRoutingTableFactory routingTableFactory = new SimpleRoutingTableFactory();
-        Common.IDENTIFIER_SIZE = 4;
-        Common.REFERENCED_NODES_UPDATE_PERIOD_SEC = 5;
+        NodeSettings.Default.IDENTIFIER_SIZE = 4;
+        NodeSettings.Default.REFERENCED_NODES_UPDATE_PERIOD = 5;
 
         Map<Integer, List<Node<Integer, EmptyConnectionInfo>>> map = new ConcurrentHashMap<>();
 
@@ -34,13 +32,13 @@ public class NodesJoiningUsingPreviousNodeTest {
             }
         };
 
-        KademliaNode<Integer, EmptyConnectionInfo> previousNode = new KademliaNode<>(0, routingTableFactory.getRoutingTable(0), nodeApi, new EmptyConnectionInfo());
+        KademliaNode<Integer, EmptyConnectionInfo> previousNode = new KademliaNode<>(0, nodeApi, new EmptyConnectionInfo());
         nodeApi.registerNode(previousNode);
         previousNode.setKademliaNodeListener(listener);
         previousNode.start();
 
-        for(int i = 1; i < Math.pow(2, Common.IDENTIFIER_SIZE); i++){
-            KademliaNode<Integer, EmptyConnectionInfo> nextNode = new KademliaNode<>(i, routingTableFactory.getRoutingTable(i), nodeApi, new EmptyConnectionInfo());
+        for(int i = 1; i < Math.pow(2, NodeSettings.Default.IDENTIFIER_SIZE); i++){
+            KademliaNode<Integer, EmptyConnectionInfo> nextNode = new KademliaNode<>(i, nodeApi, new EmptyConnectionInfo());
             nodeApi.registerNode(nextNode);
             nextNode.setKademliaNodeListener(listener);
             nextNode.bootstrap(previousNode);
@@ -48,10 +46,10 @@ public class NodesJoiningUsingPreviousNodeTest {
         }
 
 
-        while (map.size() <= Common.IDENTIFIER_SIZE){
+        while (map.size() <= NodeSettings.Default.IDENTIFIER_SIZE){
             //wait
         }
-        Thread.sleep((long)(1.1D * Common.REFERENCED_NODES_UPDATE_PERIOD_SEC * 1000L));
+        Thread.sleep((long)(1.1D * NodeSettings.Default.REFERENCED_NODES_UPDATE_PERIOD * 1000L));
 
         Assertions.assertTrue(listContainsAll(map.get(0), 1,2,4,8));
         Assertions.assertTrue(listContainsAll(map.get(1), 0,3,5,9));

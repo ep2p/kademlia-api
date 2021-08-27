@@ -7,10 +7,11 @@
 package io.ep2p.kademlia.table;
 
 
-import io.ep2p.kademlia.Common;
+import io.ep2p.kademlia.NodeSettings;
+import io.ep2p.kademlia.connection.ConnectionInfo;
 import io.ep2p.kademlia.model.FindNodeAnswer;
 import io.ep2p.kademlia.node.Node;
-import io.ep2p.kademlia.connection.ConnectionInfo;
+import lombok.NoArgsConstructor;
 
 import java.util.Collections;
 import java.util.Date;
@@ -21,19 +22,22 @@ import java.util.Vector;
  * @param <C> Your implementation of connection info
  * @param <B> Bucket type
  */
+@NoArgsConstructor
 public abstract class AbstractRoutingTable<ID extends Number, C extends ConnectionInfo, B extends Bucket<ID, C>> implements RoutingTable<ID, C, B> {
   /* Bucket list */
   protected Vector<B> buckets;
   /* Id of the routing table owner (node id) */
   protected ID id;
+  protected NodeSettings nodeSettings;
 
   /**
    * @param id Node id of the table owner
    */
-  public AbstractRoutingTable(ID id) {
+  public AbstractRoutingTable(ID id, NodeSettings nodeSettings) {
     this.id = id;
+    this.nodeSettings = nodeSettings;
     buckets = new Vector<B>();
-    for (int i = 0; i < Common.IDENTIFIER_SIZE + 1; i++) {
+    for (int i = 0; i < nodeSettings.getIdentifierSize() + 1; i++) {
       buckets.add(createBucketOfId(i));
     }
   }
@@ -81,15 +85,15 @@ public abstract class AbstractRoutingTable<ID extends Number, C extends Connecti
     BucketHelper.addToAnswer(bucket, findNodeAnswer, destinationId);
 
     // For every node (max common.BucketSize and lte identifier size) and add it to answer
-    for (int i = 1; findNodeAnswer.size() < Common.BUCKET_SIZE && ((bucket.getId() - i) >= 0 ||
-                                    (bucket.getId() + i) <= Common.IDENTIFIER_SIZE); i++) {
+    for (int i = 1; findNodeAnswer.size() < this.nodeSettings.getIdentifierSize() && ((bucket.getId() - i) >= 0 ||
+                                    (bucket.getId() + i) <= this.nodeSettings.getIdentifierSize()); i++) {
       //Check the previous buckets
       if (bucket.getId() - i >= 0) {
         Bucket<ID, C> bucketP = this.buckets.get(bucket.getId() - i);
         BucketHelper.addToAnswer(bucketP, findNodeAnswer, destinationId);
       }
       //Check the next buckets
-      if (bucket.getId() + i <= Common.IDENTIFIER_SIZE) {
+      if (bucket.getId() + i <= this.nodeSettings.getIdentifierSize()) {
         Bucket<ID, C> bucketN = this.buckets.get(bucket.getId() + i);
         BucketHelper.addToAnswer(bucketN, findNodeAnswer, destinationId);
       }
@@ -98,7 +102,7 @@ public abstract class AbstractRoutingTable<ID extends Number, C extends Connecti
     //We sort the list
     Collections.sort(findNodeAnswer.getNodes());
     //We trim the list
-    while (findNodeAnswer.size() > Common.FIND_NODE_SIZE) {
+    while (findNodeAnswer.size() > this.nodeSettings.getIdentifierSize()) {
       findNodeAnswer.remove(findNodeAnswer.size() - 1); //TODO: Not the best thing.
     }
     return findNodeAnswer;
@@ -117,5 +121,9 @@ public abstract class AbstractRoutingTable<ID extends Number, C extends Connecti
       }
     }
     return string.toString();
+  }
+
+  public NodeSettings getNodeSettings() {
+    return nodeSettings;
   }
 }
