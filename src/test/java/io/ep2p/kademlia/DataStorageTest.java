@@ -26,9 +26,11 @@ public class DataStorageTest {
         nodeApi.registerNode(node0);
         node0.start();
 
+        Thread.sleep(100);
 
         for(int i = 1; i < Math.pow(2, NodeSettings.Default.IDENTIFIER_SIZE); i++){
             KademliaRepositoryNode<Integer, EmptyConnectionInfo, Integer, String> aNode = new KademliaRepositoryNode<>(i, nodeApi, new EmptyConnectionInfo(), new SampleRepository());
+            Thread.sleep(100);
             nodeApi.registerNode(aNode);
             aNode.bootstrap(node0);
         }
