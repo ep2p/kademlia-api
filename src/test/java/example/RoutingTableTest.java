@@ -1,6 +1,6 @@
 package example;
 
-import io.ep2p.kademlia.Common;
+import io.ep2p.kademlia.NodeSettings;
 import io.ep2p.kademlia.connection.EmptyConnectionInfo;
 import io.ep2p.kademlia.connection.LocalNodeConnectionApi;
 import io.ep2p.kademlia.node.IncrementalNodeIdFactory;
@@ -8,28 +8,28 @@ import io.ep2p.kademlia.node.KademliaSyncRepositoryNode;
 import io.ep2p.kademlia.node.NodeIdFactory;
 import io.ep2p.kademlia.node.SampleRepository;
 import io.ep2p.kademlia.table.Bucket;
+import io.ep2p.kademlia.table.DefaultRoutingTableFactory;
 import io.ep2p.kademlia.table.RoutingTable;
-import io.ep2p.kademlia.table.SimpleRoutingTableFactory;
 
 public class RoutingTableTest {
     public static void main(String[] args) {
         LocalNodeConnectionApi nodeApi = new LocalNodeConnectionApi();
         NodeIdFactory nodeIdFactory = new IncrementalNodeIdFactory();
-        SimpleRoutingTableFactory routingTableFactory = new SimpleRoutingTableFactory();
-        Common.IDENTIFIER_SIZE = 4;
-        Common.REFERENCED_NODES_UPDATE_PERIOD_SEC = 2;
-        RoutingTable<Integer, EmptyConnectionInfo, Bucket<Integer, EmptyConnectionInfo>> routingTable = routingTableFactory.getRoutingTable(0);
+        NodeSettings.Default.IDENTIFIER_SIZE = 4;
+        NodeSettings.Default.REFERENCED_NODES_UPDATE_PERIOD = 2;
+        RoutingTable<Integer, EmptyConnectionInfo, Bucket<Integer, EmptyConnectionInfo>> routingTable =
+                new DefaultRoutingTableFactory<Integer, EmptyConnectionInfo, Bucket<Integer, EmptyConnectionInfo>>().getRoutingTable(0);
 
-        KademliaSyncRepositoryNode<Integer, EmptyConnectionInfo, Integer, String> node0 = new KademliaSyncRepositoryNode<>(nodeIdFactory.getNodeId(), routingTableFactory.getRoutingTable(0), nodeApi, new EmptyConnectionInfo(), new SampleRepository());
-        KademliaSyncRepositoryNode<Integer, EmptyConnectionInfo, Integer, String> node1 = new KademliaSyncRepositoryNode<>(nodeIdFactory.getNodeId(), routingTableFactory.getRoutingTable(1), nodeApi, new EmptyConnectionInfo(), new SampleRepository());
-        KademliaSyncRepositoryNode<Integer, EmptyConnectionInfo, Integer, String> node2 = new KademliaSyncRepositoryNode<>(nodeIdFactory.getNodeId(), routingTableFactory.getRoutingTable(2), nodeApi, new EmptyConnectionInfo(), new SampleRepository());
-        KademliaSyncRepositoryNode<Integer, EmptyConnectionInfo, Integer, String> node3 = new KademliaSyncRepositoryNode<>(nodeIdFactory.getNodeId(), routingTableFactory.getRoutingTable(3), nodeApi, new EmptyConnectionInfo(), new SampleRepository());
-        KademliaSyncRepositoryNode<Integer, EmptyConnectionInfo, Integer, String> node4 = new KademliaSyncRepositoryNode<>(nodeIdFactory.getNodeId(), routingTableFactory.getRoutingTable(4), nodeApi, new EmptyConnectionInfo(), new SampleRepository());
-        KademliaSyncRepositoryNode<Integer, EmptyConnectionInfo, Integer, String> node5 = new KademliaSyncRepositoryNode<>(nodeIdFactory.getNodeId(), routingTableFactory.getRoutingTable(5), nodeApi, new EmptyConnectionInfo(), new SampleRepository());
-        KademliaSyncRepositoryNode<Integer, EmptyConnectionInfo, Integer, String> node6 = new KademliaSyncRepositoryNode<>(nodeIdFactory.getNodeId(), routingTableFactory.getRoutingTable(6), nodeApi, new EmptyConnectionInfo(), new SampleRepository());
-        KademliaSyncRepositoryNode<Integer, EmptyConnectionInfo, Integer, String> node7 = new KademliaSyncRepositoryNode<>(nodeIdFactory.getNodeId(), routingTableFactory.getRoutingTable(7), nodeApi, new EmptyConnectionInfo(), new SampleRepository());
-        KademliaSyncRepositoryNode<Integer, EmptyConnectionInfo, Integer, String> node8 = new KademliaSyncRepositoryNode<>(nodeIdFactory.getNodeId(), routingTableFactory.getRoutingTable(8), nodeApi, new EmptyConnectionInfo(), new SampleRepository());
-        KademliaSyncRepositoryNode<Integer, EmptyConnectionInfo, Integer, String> node9 = new KademliaSyncRepositoryNode<>(nodeIdFactory.getNodeId(), routingTableFactory.getRoutingTable(9), nodeApi, new EmptyConnectionInfo(), new SampleRepository());
+        KademliaSyncRepositoryNode<Integer, EmptyConnectionInfo, Integer, String> node0 = new KademliaSyncRepositoryNode<>(nodeIdFactory.getNodeId(), nodeApi, new EmptyConnectionInfo(), new SampleRepository());
+        KademliaSyncRepositoryNode<Integer, EmptyConnectionInfo, Integer, String> node1 = new KademliaSyncRepositoryNode<>(nodeIdFactory.getNodeId(), nodeApi, new EmptyConnectionInfo(), new SampleRepository());
+        KademliaSyncRepositoryNode<Integer, EmptyConnectionInfo, Integer, String> node2 = new KademliaSyncRepositoryNode<>(nodeIdFactory.getNodeId(), nodeApi, new EmptyConnectionInfo(), new SampleRepository());
+        KademliaSyncRepositoryNode<Integer, EmptyConnectionInfo, Integer, String> node3 = new KademliaSyncRepositoryNode<>(nodeIdFactory.getNodeId(), nodeApi, new EmptyConnectionInfo(), new SampleRepository());
+        KademliaSyncRepositoryNode<Integer, EmptyConnectionInfo, Integer, String> node4 = new KademliaSyncRepositoryNode<>(nodeIdFactory.getNodeId(), nodeApi, new EmptyConnectionInfo(), new SampleRepository());
+        KademliaSyncRepositoryNode<Integer, EmptyConnectionInfo, Integer, String> node5 = new KademliaSyncRepositoryNode<>(nodeIdFactory.getNodeId(), nodeApi, new EmptyConnectionInfo(), new SampleRepository());
+        KademliaSyncRepositoryNode<Integer, EmptyConnectionInfo, Integer, String> node6 = new KademliaSyncRepositoryNode<>(nodeIdFactory.getNodeId(), nodeApi, new EmptyConnectionInfo(), new SampleRepository());
+        KademliaSyncRepositoryNode<Integer, EmptyConnectionInfo, Integer, String> node7 = new KademliaSyncRepositoryNode<>(nodeIdFactory.getNodeId(), nodeApi, new EmptyConnectionInfo(), new SampleRepository());
+        KademliaSyncRepositoryNode<Integer, EmptyConnectionInfo, Integer, String> node8 = new KademliaSyncRepositoryNode<>(nodeIdFactory.getNodeId(), nodeApi, new EmptyConnectionInfo(), new SampleRepository());
+        KademliaSyncRepositoryNode<Integer, EmptyConnectionInfo, Integer, String> node9 = new KademliaSyncRepositoryNode<>(nodeIdFactory.getNodeId(), nodeApi, new EmptyConnectionInfo(), new SampleRepository());
 
 
 

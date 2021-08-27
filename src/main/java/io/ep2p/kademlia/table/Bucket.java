@@ -1,7 +1,7 @@
 package io.ep2p.kademlia.table;
 
-import io.ep2p.kademlia.node.Node;
 import io.ep2p.kademlia.connection.ConnectionInfo;
+import io.ep2p.kademlia.node.Node;
 
 import java.io.Serializable;
 import java.util.List;

@@ -1,6 +1,6 @@
 package io.ep2p.kademlia.node;
 
-import io.ep2p.kademlia.Common;
+import io.ep2p.kademlia.NodeSettings;
 import io.ep2p.kademlia.connection.ConnectionInfo;
 import io.ep2p.kademlia.model.FindNodeAnswer;
 import io.ep2p.kademlia.table.Bucket;
@@ -15,19 +15,23 @@ import io.ep2p.kademlia.util.BoundedHashUtil;
  * @param <V> storage value type
  */
 public class RedistributionKademliaNodeListener<ID extends Number, C extends ConnectionInfo, K, V> implements KademliaNodeListener<ID, C, K, V> {
-    private final BoundedHashUtil boundedHashUtil = new BoundedHashUtil(Common.IDENTIFIER_SIZE);
+    private final BoundedHashUtil boundedHashUtil;
     private final boolean distributeOnShutdown;
     private final ShutdownDistributionListener<ID, C> shutdownDistributionListener;
 
 
-    public RedistributionKademliaNodeListener(boolean distributeOnShutdown, ShutdownDistributionListener<ID, C> shutdownDistributionListener) {
+    public RedistributionKademliaNodeListener(boolean distributeOnShutdown, ShutdownDistributionListener<ID, C> shutdownDistributionListener, NodeSettings nodeSettings) {
         this.distributeOnShutdown = distributeOnShutdown;
         this.shutdownDistributionListener = shutdownDistributionListener;
+        this.boundedHashUtil = new BoundedHashUtil(nodeSettings.getIdentifierSize());
+    }
+
+    public RedistributionKademliaNodeListener(boolean distributeOnShutdown, ShutdownDistributionListener<ID, C> shutdownDistributionListener) {
+        this(distributeOnShutdown, shutdownDistributionListener, NodeSettings.Default.build());
     }
 
     public RedistributionKademliaNodeListener() {
-        this.distributeOnShutdown = false;
-        this.shutdownDistributionListener = null;
+        this(false, null);
     }
 
     @Override

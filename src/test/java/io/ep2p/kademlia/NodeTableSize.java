@@ -6,7 +6,6 @@ import io.ep2p.kademlia.exception.BootstrapException;
 import io.ep2p.kademlia.node.KademliaNode;
 import io.ep2p.kademlia.node.KademliaNodeListener;
 import io.ep2p.kademlia.table.Bucket;
-import io.ep2p.kademlia.table.SimpleRoutingTableFactory;
 
 import java.util.List;
 
@@ -14,21 +13,20 @@ public class NodeTableSize {
 
     public static void main(String[] args) throws BootstrapException, InterruptedException {
         LocalNodeConnectionApi nodeApi = new LocalNodeConnectionApi();
-        Common.IDENTIFIER_SIZE = 9;
-        Common.REFERENCED_NODES_UPDATE_PERIOD_SEC = 2;
-        SimpleRoutingTableFactory routingTableFactory = new SimpleRoutingTableFactory();
+        NodeSettings.Default.IDENTIFIER_SIZE = 9;
+        NodeSettings.Default.REFERENCED_NODES_UPDATE_PERIOD = 2;
 
-        KademliaNode<Integer, EmptyConnectionInfo> node0 = new KademliaNode<>(0, routingTableFactory.getRoutingTable(0), nodeApi, new EmptyConnectionInfo());
+        KademliaNode<Integer, EmptyConnectionInfo> node0 = new KademliaNode<>(0, nodeApi, new EmptyConnectionInfo());
         nodeApi.registerNode(node0);
         node0.start();
 
         KademliaNode<Integer, EmptyConnectionInfo> lastNode = null;
 
-        for(int i = 1; i < Math.pow(2, Common.IDENTIFIER_SIZE); i++){
-            KademliaNode<Integer, EmptyConnectionInfo> nextNode = new KademliaNode<>(i, routingTableFactory.getRoutingTable(i), nodeApi, new EmptyConnectionInfo());
+        for(int i = 1; i < Math.pow(2, NodeSettings.Default.IDENTIFIER_SIZE); i++){
+            KademliaNode<Integer, EmptyConnectionInfo> nextNode = new KademliaNode<>(i, nodeApi, new EmptyConnectionInfo());
             nodeApi.registerNode(nextNode);
             nextNode.bootstrap(node0);
-            if(i == Math.pow(2, Common.IDENTIFIER_SIZE) - 1){
+            if(i == Math.pow(2, NodeSettings.Default.IDENTIFIER_SIZE) - 1){
                 lastNode = nextNode;
             }
         }

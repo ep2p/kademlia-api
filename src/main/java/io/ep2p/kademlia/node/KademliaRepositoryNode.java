@@ -1,6 +1,6 @@
 package io.ep2p.kademlia.node;
 
-import io.ep2p.kademlia.Common;
+import io.ep2p.kademlia.NodeSettings;
 import io.ep2p.kademlia.connection.ConnectionInfo;
 import io.ep2p.kademlia.connection.NodeConnectionApi;
 import io.ep2p.kademlia.connection.StorageNodeApi;
@@ -35,18 +35,34 @@ public class KademliaRepositoryNode<ID extends Number, C extends ConnectionInfo,
     private KeyHashGenerator<ID, K> keyHashGenerator;
 
 
-    public KademliaRepositoryNode(ID nodeId, RoutingTable<ID, C, Bucket<ID, C>> routingTable, NodeConnectionApi<ID, C> nodeConnectionApi, C connectionInfo, KademliaRepository<K, V> kademliaRepository, KeyHashGenerator<ID, K> keyHashGenerator) {
-        super(nodeId, routingTable, nodeConnectionApi, connectionInfo);
+    public KademliaRepositoryNode(ID nodeId, RoutingTable<ID, C, Bucket<ID, C>> routingTable, NodeConnectionApi<ID, C> nodeConnectionApi, C connectionInfo, NodeSettings nodeSettings, KademliaRepository<K, V> kademliaRepository, KeyHashGenerator<ID, K> keyHashGenerator) {
+        super(nodeId, routingTable, nodeConnectionApi, connectionInfo, nodeSettings);
         this.kademliaRepository = kademliaRepository;
         this.keyHashGenerator = keyHashGenerator;
     }
 
+    public KademliaRepositoryNode(ID nodeId, NodeConnectionApi<ID, C> nodeConnectionApi, C connectionInfo, NodeSettings nodeSettings, KademliaRepository<K, V> kademliaRepository, KeyHashGenerator<ID, K> keyHashGenerator) {
+        super(nodeId, nodeConnectionApi, connectionInfo, nodeSettings);
+        this.kademliaRepository = kademliaRepository;
+        this.keyHashGenerator = keyHashGenerator;
+    }
 
-    public KademliaRepositoryNode(ID nodeId, RoutingTable<ID, C, Bucket<ID, C>> routingTable, NodeConnectionApi<ID, C> nodeConnectionApi, C connectionInfo, KademliaRepository<K, V> kademliaRepository) {
-        this(nodeId, routingTable, nodeConnectionApi, connectionInfo, kademliaRepository, new KeyHashGenerator.Default<>((Class<ID>) nodeId.getClass()));
+    public KademliaRepositoryNode(ID nodeId, NodeConnectionApi<ID, C> nodeConnectionApi, C connectionInfo, KademliaRepository<K, V> kademliaRepository, KeyHashGenerator<ID, K> keyHashGenerator) {
+        this(nodeId, nodeConnectionApi, connectionInfo, NodeSettings.Default.build(), kademliaRepository, keyHashGenerator);
+    }
+
+    @SuppressWarnings("unchecked")
+    public KademliaRepositoryNode(ID nodeId, NodeConnectionApi<ID, C> nodeConnectionApi, C connectionInfo, KademliaRepository<K, V> kademliaRepository) {
+        this(nodeId, nodeConnectionApi, connectionInfo, kademliaRepository, new KeyHashGenerator.Default<>((Class<ID>) nodeId.getClass()));
+    }
+
+    @SuppressWarnings("unchecked")
+    public KademliaRepositoryNode(ID nodeId, RoutingTable<ID, C, Bucket<ID, C>> routingTable, NodeConnectionApi<ID, C> nodeConnectionApi, C connectionInfo, NodeSettings nodeSettings, KademliaRepository<K, V> kademliaRepository) {
+        this(nodeId, routingTable, nodeConnectionApi, connectionInfo, nodeSettings, kademliaRepository, new KeyHashGenerator.Default<>((Class<ID>) nodeId.getClass(), nodeSettings));
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public KademliaNodeListener<ID, C, K, V> getKademliaNodeListener() {
         return (KademliaNodeListener<ID, C, K, V>) super.getKademliaNodeListener();
     }
@@ -122,7 +138,7 @@ public class KademliaRepositoryNode<ID extends Number, C extends ConnectionInfo,
             throw new StoreException("Node is not running");
         StoreAnswer<ID, K> storeAnswer = null;
         ID hash = hash(key);
-        //if current requester should persist data, do it immediatly
+        //if current requester should persist data, do it immediately
         if(getId().equals(hash)) {
             storeAnswer = doStore(key, value);
         }else {
@@ -199,7 +215,7 @@ public class KademliaRepositoryNode<ID extends Number, C extends ConnectionInfo,
     /* --- */
 
     protected StoreAnswer<ID, K> storeDataToClosestNode(Node<ID, C> requester, List<ExternalNode<ID, C>> externalNodeList, K key, V value, Node<ID, C> nodeToIgnore){
-        Date date = DateUtil.getDateOfSecondsAgo(Common.LAST_SEEN_SECONDS_TO_CONSIDER_ALIVE);
+        Date date = DateUtil.getDateOfSecondsAgo(this.getNodeSettings().getMaximumLastSeenAgeToConsiderAlive());
         StoreAnswer<ID, K> storeAnswer = null;
         for (ExternalNode<ID, C> externalNode : externalNodeList) {
             //if current node is closest node, store the value
@@ -243,7 +259,7 @@ public class KademliaRepositoryNode<ID extends Number, C extends ConnectionInfo,
         GetAnswer<ID, K, V> getAnswer = null;
         ID hash = hash(key);
         FindNodeAnswer<ID, C> findNodeAnswer = getRoutingTable().findClosest(hash);
-        Date date = DateUtil.getDateOfSecondsAgo(Common.LAST_SEEN_SECONDS_TO_CONSIDER_ALIVE);
+        Date date = DateUtil.getDateOfSecondsAgo(this.getNodeSettings().getMaximumLastSeenAgeToConsiderAlive());
         for (ExternalNode<ID, C> externalNode : findNodeAnswer.getNodes()) {
             //ignore self because we already checked if current node holds the data or not
             //Also ignore nodeToIgnore if its not null

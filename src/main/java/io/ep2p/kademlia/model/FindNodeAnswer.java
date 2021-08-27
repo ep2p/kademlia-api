@@ -6,7 +6,6 @@
 
 package io.ep2p.kademlia.model;
 
-import io.ep2p.kademlia.Common;
 import io.ep2p.kademlia.connection.ConnectionInfo;
 import io.ep2p.kademlia.node.external.ExternalNode;
 import lombok.Getter;
@@ -53,7 +52,7 @@ public class FindNodeAnswer<ID extends Number, C extends ConnectionInfo> extends
    * @param findNodeAnswer another answer
    * @return number of nodes added to answer
    */
-  public int merge(FindNodeAnswer<ID, C> findNodeAnswer) {
+  public int merge(FindNodeAnswer<ID, C> findNodeAnswer, int findNodeSize) {
     int nbAdded = 0;
 
     for (ExternalNode<ID, C> c: findNodeAnswer.getNodes()) {
@@ -64,7 +63,7 @@ public class FindNodeAnswer<ID extends Number, C extends ConnectionInfo> extends
     }
     Collections.sort(nodes);
     //Trim the list
-    while (findNodeAnswer.size() > Common.FIND_NODE_SIZE) {
+    while (findNodeAnswer.size() > findNodeSize) {
       findNodeAnswer.remove(findNodeAnswer.size() - 1);
     }
     return nbAdded;

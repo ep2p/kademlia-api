@@ -1,7 +1,7 @@
 package io.ep2p.kademlia.node;
 
 
-import io.ep2p.kademlia.Common;
+import io.ep2p.kademlia.NodeSettings;
 import io.ep2p.kademlia.connection.ConnectionInfo;
 import io.ep2p.kademlia.connection.NodeApi;
 import io.ep2p.kademlia.connection.NodeConnectionApi;
@@ -12,7 +12,9 @@ import io.ep2p.kademlia.model.FindNodeAnswer;
 import io.ep2p.kademlia.model.PingAnswer;
 import io.ep2p.kademlia.node.external.ExternalNode;
 import io.ep2p.kademlia.table.Bucket;
+import io.ep2p.kademlia.table.DefaultRoutingTableFactory;
 import io.ep2p.kademlia.table.RoutingTable;
+import io.ep2p.kademlia.table.RoutingTableFactory;
 import io.ep2p.kademlia.util.KadDistanceUtil;
 import lombok.Getter;
 
@@ -20,9 +22,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.*;
-
-import static io.ep2p.kademlia.Common.BOOTSTRAP_NODE_CALL_TIMEOUT_SEC;
-import static io.ep2p.kademlia.Common.REFERENCED_NODES_UPDATE_PERIOD_SEC;
 
 
 /**
@@ -35,18 +34,35 @@ public class KademliaNode<ID extends Number, C extends ConnectionInfo> extends N
     @Getter
     private final NodeConnectionApi<ID, C> nodeConnectionApi;
     @Getter
-    private final RoutingTable<ID, C, Bucket<ID, C>> routingTable;
+    private RoutingTable<ID, C, Bucket<ID, C>> routingTable;
     @Getter
     private List<Node<ID, C>> referencedNodes;
     @Getter
     private KademliaNodeListener<ID, C, ?, ?> kademliaNodeListener = new KademliaNodeListener.Default<ID, C>();
+    @Getter
+    private final NodeSettings nodeSettings;
     private volatile boolean running;
 
     //None-Accessible fields
     private final ExecutorService executorService = Executors.newFixedThreadPool(1);
     private final ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
 
-    public KademliaNode(ID nodeId, RoutingTable<ID, C, Bucket<ID, C>> routingTable, NodeConnectionApi<ID, C> nodeConnectionApi, C connectionInfo) {
+    public KademliaNode(ID nodeId, RoutingTable<ID, C, Bucket<ID, C>> routingTable, NodeConnectionApi<ID, C> nodeConnectionApi, C connectionInfo){
+        this(nodeId, routingTable, nodeConnectionApi, connectionInfo, NodeSettings.Default.build());
+    }
+
+    public KademliaNode(ID nodeId, NodeConnectionApi<ID, C> nodeConnectionApi, C connectionInfo){
+        this(nodeId, nodeConnectionApi, connectionInfo, NodeSettings.Default.build());
+    }
+
+    public KademliaNode(ID nodeId, NodeConnectionApi<ID, C> nodeConnectionApi, C connectionInfo, NodeSettings nodeSettings) {
+        this(nodeId, null, nodeConnectionApi, connectionInfo, nodeSettings);
+        RoutingTableFactory<ID, C, Bucket<ID, C>> factory = new DefaultRoutingTableFactory<>(nodeSettings);
+        this.routingTable = factory.getRoutingTable(id);
+    }
+
+    public KademliaNode(ID nodeId, RoutingTable<ID, C, Bucket<ID, C>> routingTable, NodeConnectionApi<ID, C> nodeConnectionApi, C connectionInfo, NodeSettings nodeSettings) {
+        this.nodeSettings = nodeSettings;
         this.setId(nodeId);
         this.setConnectionInfo(connectionInfo);
         this.nodeConnectionApi = nodeConnectionApi;
@@ -71,7 +87,7 @@ public class KademliaNode<ID extends Number, C extends ConnectionInfo> extends N
         });
 
         try {
-            FindNodeAnswer<ID, C> findNodeAnswer = findNodeAnswerFuture.get(BOOTSTRAP_NODE_CALL_TIMEOUT_SEC, TimeUnit.SECONDS);
+            FindNodeAnswer<ID, C> findNodeAnswer = findNodeAnswerFuture.get(this.getNodeSettings().getBootstrapNodeCallTimeout(), TimeUnit.SECONDS);
             if(!findNodeAnswer.isAlive())
                 throw new BootstrapException(bootstrapNode);
             //Add bootstrap node to routing table
@@ -185,7 +201,7 @@ public class KademliaNode<ID extends Number, C extends ConnectionInfo> extends N
                 //Check if they are available, otherwise remove them from routing table
                 pingAndAddResults(referencedNodes);
             }
-        }, 0, REFERENCED_NODES_UPDATE_PERIOD_SEC, TimeUnit.SECONDS);
+        }, 0, this.getNodeSettings().getReferencedNodesUpdatePeriod(), TimeUnit.SECONDS);
         kademliaNodeListener.onStartupComplete(this);
     }
 
@@ -219,11 +235,11 @@ public class KademliaNode<ID extends Number, C extends ConnectionInfo> extends N
      */
     protected void makeReferenceNodes(){
         referencedNodes = new CopyOnWriteArrayList<>();
-        List<ID> distances = KadDistanceUtil.getNodesWithDistance(getId(), Common.IDENTIFIER_SIZE);
+        List<ID> distances = KadDistanceUtil.getNodesWithDistance(getId(), this.getNodeSettings().getIdentifierSize());
         distances.forEach(distance -> {
             FindNodeAnswer<ID, C> findNodeAnswer = routingTable.findClosest(distance);
             if (findNodeAnswer.getNodes().size() > 0) {
-                if(!referencedNodes.contains(findNodeAnswer.getNodes().get(0)))
+                if(!findNodeAnswer.getNodes().get(0).getId().equals(getId()) && !referencedNodes.contains(findNodeAnswer.getNodes().get(0)))
                     referencedNodes.add(findNodeAnswer.getNodes().get(0));
             }
         });
@@ -237,13 +253,13 @@ public class KademliaNode<ID extends Number, C extends ConnectionInfo> extends N
     protected void getClosestNodesFromAliveNodes(Node<ID, C> bootstrapNode) {
         int bucketId = routingTable.findBucket(bootstrapNode.getId()).getId();
         final Set<ID> destinations = new LinkedHashSet<>();
-        for (int i = 0; ((bucketId - i) > 0 || (bucketId + i) <= Common.IDENTIFIER_SIZE) && i < Common.JOIN_BUCKETS_QUERIES; i++) {
+        for (int i = 0; ((bucketId - i) > 0 || (bucketId + i) <= this.getNodeSettings().getIdentifierSize()) && i < this.getNodeSettings().getJoinBucketQueries(); i++) {
             Number idInBucket = -1;
             if (bucketId - i > 0) {
                 idInBucket = routingTable.getIdInPrefix(this.getId(),bucketId - i);
                 destinations.add((ID) idInBucket);
             }
-            if (bucketId + i <= Common.IDENTIFIER_SIZE) {
+            if (bucketId + i <= this.getNodeSettings().getIdentifierSize()) {
                 idInBucket = routingTable.getIdInPrefix(this.getId(),bucketId + i);
             }
             if(!idInBucket.equals(-1))
@@ -263,7 +279,7 @@ public class KademliaNode<ID extends Number, C extends ConnectionInfo> extends N
     protected int sendFindNodeToBest(FindNodeAnswer<ID, C> findNodeAnswer) {
         ID destination = findNodeAnswer.getDestinationId();
         int i;
-        for (i = 0; i < Common.ALPHA && i < findNodeAnswer.size(); i++) {
+        for (i = 0; i < this.getNodeSettings().getAlpha() && i < findNodeAnswer.size(); i++) {
             ExternalNode<ID, C> externalNode = findNodeAnswer.getNodes().get(i);
             if (!externalNode.getId().equals(this.getId())) {
                 FindNodeAnswer<ID, C> findNodeAnswer1 = nodeConnectionApi.findNode(this, externalNode, destination);

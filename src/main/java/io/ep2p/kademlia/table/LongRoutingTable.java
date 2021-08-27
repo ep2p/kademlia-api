@@ -7,15 +7,15 @@
 package io.ep2p.kademlia.table;
 
 
-import io.ep2p.kademlia.Common;
+import io.ep2p.kademlia.NodeSettings;
 import io.ep2p.kademlia.connection.ConnectionInfo;
 
 public class LongRoutingTable<C extends ConnectionInfo> extends AbstractRoutingTable<Long, C, LongBucket<C>> {
 
   private static final long serialVersionUID = 3002310308952493026L;
 
-  public LongRoutingTable(Long id) {
-    super(id);
+  public LongRoutingTable(Long id, NodeSettings nodeSettings) {
+    super(id, nodeSettings);
   }
 
   @Override
@@ -40,9 +40,9 @@ public class LongRoutingTable<C extends ConnectionInfo> extends AbstractRoutingT
 
   /* Returns the corresponding node prefix for a given id */
   public int getNodePrefix(Long id) {
-    for (int j = 0; j < Common.IDENTIFIER_SIZE; j++) {
-      if ((id >> (Common.IDENTIFIER_SIZE - 1 - j) & 0x1) != 0) {
-        return Common.IDENTIFIER_SIZE - j;
+    for (int j = 0; j < this.nodeSettings.getIdentifierSize(); j++) {
+      if ((id >> (this.nodeSettings.getIdentifierSize() - 1 - j) & 0x1) != 0) {
+        return this.nodeSettings.getIdentifierSize() - j;
       }
     }
     return 0;

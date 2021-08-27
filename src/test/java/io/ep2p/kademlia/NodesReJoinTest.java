@@ -7,7 +7,6 @@ import io.ep2p.kademlia.exception.ShutdownException;
 import io.ep2p.kademlia.node.KademliaNode;
 import io.ep2p.kademlia.node.KademliaNodeListener;
 import io.ep2p.kademlia.node.Node;
-import io.ep2p.kademlia.table.SimpleRoutingTableFactory;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -21,9 +20,8 @@ public class NodesReJoinTest {
     @Test
     public void canPeersLeaveAndRejoin() throws BootstrapException, InterruptedException, ShutdownException {
         LocalNodeConnectionApi<Integer> nodeApi = new LocalNodeConnectionApi<>();
-        SimpleRoutingTableFactory routingTableFactory = new SimpleRoutingTableFactory();
-        Common.IDENTIFIER_SIZE = 4;
-        Common.REFERENCED_NODES_UPDATE_PERIOD_SEC = 2;
+        NodeSettings.Default.IDENTIFIER_SIZE = 4;
+        NodeSettings.Default.REFERENCED_NODES_UPDATE_PERIOD = 2;
 
         Map<Integer, List<Node<Integer, EmptyConnectionInfo>>> map = new ConcurrentHashMap<>();
 
@@ -34,15 +32,15 @@ public class NodesReJoinTest {
             }
         };
 
-        KademliaNode<Integer, EmptyConnectionInfo> node0 = new KademliaNode<Integer, EmptyConnectionInfo>(0, routingTableFactory.getRoutingTable(0), nodeApi, new EmptyConnectionInfo());
+        KademliaNode<Integer, EmptyConnectionInfo> node0 = new KademliaNode<Integer, EmptyConnectionInfo>(0, nodeApi, new EmptyConnectionInfo());
         nodeApi.registerNode(node0);
         node0.setKademliaNodeListener(listener);
         node0.start();
 
         KademliaNode<Integer, EmptyConnectionInfo> node7 = null;
 
-        for(int i = 1; i < Math.pow(2, Common.IDENTIFIER_SIZE); i++){
-            KademliaNode<Integer, EmptyConnectionInfo> aNode = new KademliaNode<>(i, routingTableFactory.getRoutingTable(i), nodeApi, new EmptyConnectionInfo());
+        for(int i = 1; i < Math.pow(2, NodeSettings.Default.IDENTIFIER_SIZE); i++){
+            KademliaNode<Integer, EmptyConnectionInfo> aNode = new KademliaNode<>(i, nodeApi, new EmptyConnectionInfo());
             nodeApi.registerNode(aNode);
             aNode.setKademliaNodeListener(listener);
             aNode.bootstrap(node0);
@@ -51,30 +49,30 @@ public class NodesReJoinTest {
         }
 
 
-        while (map.size() <= Common.IDENTIFIER_SIZE){
+        while (map.size() <= NodeSettings.Default.IDENTIFIER_SIZE){
             //wait
         }
-        Thread.sleep((long)(1.1D * Common.REFERENCED_NODES_UPDATE_PERIOD_SEC * 1000L));
+        Thread.sleep((long)(1.1D * NodeSettings.Default.REFERENCED_NODES_UPDATE_PERIOD * 1000L));
 
-        Assertions.assertTrue(listContainsAll(map.get(15), 14,13,11,7));
-        Assertions.assertTrue(listContainsAll(map.get(7), 6,5,3,15));
+        Assertions.assertTrue(listContainsAll(map.get(15), 0,14,13,11,7));
+        Assertions.assertTrue(listContainsAll(map.get(7), 0,6,5,3,15));
         System.out.println("7 and 15 know each other");
 
         //When node7 leaves network, node 15 should no longer hold reference to it
         assert node7 != null;
         node7.stop();
-        Thread.sleep((long)(1.1D * Common.REFERENCED_NODES_UPDATE_PERIOD_SEC * 1000L));
+        Thread.sleep((long)(1.1D * NodeSettings.Default.REFERENCED_NODES_UPDATE_PERIOD * 1000L));
         Assertions.assertTrue(listDoesntContain(map.get(15), 7));
         System.out.println("15 doesnt know 7 after it (7) left network");
 
 
         //When node7 comes back to network, node 15 should be informed and reference to it again
-        //We have to recreate node 7, cause once a node shutsdown it cant start again (since executors shutdown too)
+        //We have to recreate node 7, cause once a node shuts-down it cant start again (since executors shutdown too)
         KademliaNode<Integer, EmptyConnectionInfo> finalNode = node7;
         node7 = new KademliaNode<>(7, node7.getRoutingTable(), nodeApi, new EmptyConnectionInfo());
         node7.start();
-        Thread.sleep((long)(1.1D * Common.REFERENCED_NODES_UPDATE_PERIOD_SEC * 1000L));
-        Assertions.assertTrue(listContainsAll(map.get(15), 14,13,11,7));
+        Thread.sleep((long)(1.1D * NodeSettings.Default.REFERENCED_NODES_UPDATE_PERIOD * 1000L));
+        Assertions.assertTrue(listContainsAll(map.get(15), 0,14,13,11,7));
         System.out.println("15 knows about 7 again after it (7) rejoined");
     }
 
