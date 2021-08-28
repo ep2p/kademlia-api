@@ -29,7 +29,6 @@ public class NodeSettings implements Serializable {
     public static int ALPHA = 3;
     public static int IDENTIFIER_SIZE = 128;
     public static int REFERENCED_NODES_UPDATE_PERIOD = 30;
-    /* Maximum size of the buckets */
     public static int BUCKET_SIZE = 20;
     public static int FIND_NODE_SIZE = 20;
     public static int JOIN_BUCKET_QUERIES = 1;

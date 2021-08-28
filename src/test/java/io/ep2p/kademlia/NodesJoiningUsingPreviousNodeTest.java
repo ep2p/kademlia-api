@@ -46,10 +46,9 @@ public class NodesJoiningUsingPreviousNodeTest {
         }
 
 
-        while (map.size() <= NodeSettings.Default.IDENTIFIER_SIZE){
+        while (map.size() < Math.pow(2, NodeSettings.Default.IDENTIFIER_SIZE)){
             //wait
         }
-        Thread.sleep((long)(1.1D * NodeSettings.Default.REFERENCED_NODES_UPDATE_PERIOD * 1000L));
 
         Assertions.assertTrue(listContainsAll(map.get(0), 1,2,4,8));
         Assertions.assertTrue(listContainsAll(map.get(1), 0,3,5,9));
