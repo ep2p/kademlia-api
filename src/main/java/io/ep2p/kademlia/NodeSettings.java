@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
+import java.util.concurrent.TimeUnit;
 
 @Builder
 @Data
@@ -22,7 +23,21 @@ public class NodeSettings implements Serializable {
   public int findNodeSize;
   public int joinBucketQueries;
   public int maximumLastSeenAgeToConsiderAlive;
-  
+  public boolean enabledRepublishing;
+  public RepublishSettings republishSettings;
+
+  @Builder
+  @Data
+  @AllArgsConstructor
+  @NoArgsConstructor
+  public static class RepublishSettings {
+    public int republishIntervalValue = 30;
+    public TimeUnit republishIntervalUnit = TimeUnit.MINUTES;
+    public int republishQueryValue = 1;
+    public TimeUnit republishQueryUnit = TimeUnit.HOURS;
+    public int republishQuerySize = 100;
+  }
+
   public static class Default {
     public static long BOOTSTRAP_NODE_CALL_TIMEOUT = 100;
     public static long STORE_TIMEOUT = 20;
@@ -33,6 +48,8 @@ public class NodeSettings implements Serializable {
     public static int FIND_NODE_SIZE = 20;
     public static int JOIN_BUCKET_QUERIES = 1;
     public static int MAXIMUM_LAST_SEEN_AGE_TO_CONSIDER_ALIVE = 20;
+    public static boolean ENABLED_KEY_REPUBLISHING = false;
+    public static RepublishSettings REPUBLISH_SETTINGS = new RepublishSettings();
 
     public static NodeSettings build(){
       return NodeSettings.builder()
@@ -45,6 +62,8 @@ public class NodeSettings implements Serializable {
               .findNodeSize(FIND_NODE_SIZE)
               .joinBucketQueries(JOIN_BUCKET_QUERIES)
               .maximumLastSeenAgeToConsiderAlive(MAXIMUM_LAST_SEEN_AGE_TO_CONSIDER_ALIVE)
+              .enabledRepublishing(ENABLED_KEY_REPUBLISHING)
+              .republishSettings(ENABLED_KEY_REPUBLISHING ? REPUBLISH_SETTINGS : null)
               .build();
     }
   }
