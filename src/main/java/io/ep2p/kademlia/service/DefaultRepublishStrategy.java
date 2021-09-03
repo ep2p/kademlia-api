@@ -8,10 +8,7 @@ import io.ep2p.kademlia.node.external.ExternalNode;
 import io.ep2p.kademlia.table.Bucket;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -66,14 +63,11 @@ public class DefaultRepublishStrategy<ID extends Number, C extends ConnectionInf
 
         // Register listener to remove key from repository if republish was successful
         // If the listener is already decorated, skip it (second if)
-        if (
-            this.kademliaRepositoryNode.getKademliaNodeListener() instanceof RepublishKademliaNodeListenerDecorator
-        ){
+        if (!(
+                this.kademliaRepositoryNode.getKademliaNodeListener() instanceof RepublishKademliaNodeListenerDecorator
+        )){
             this.kademliaRepositoryNode.setKademliaNodeListener(
-                    new RepublishKademliaNodeListenerDecorator<>(
-                            this.kademliaRepositoryNode.getKademliaNodeListener(),
-                            this.timestampAwareKademliaRepository
-                    )
+                    new RepublishKademliaNodeListenerDecorator<>(this.kademliaRepositoryNode.getKademliaNodeListener())
             );
         }
     }
@@ -151,18 +145,17 @@ public class DefaultRepublishStrategy<ID extends Number, C extends ConnectionInf
 
 
     public static class RepublishKademliaNodeListenerDecorator<ID extends Number, C extends ConnectionInfo, K, V> extends KademliaNodeListenerDecorator<ID, C, K, V>{
-        private final KademliaRepository<K, V> kademliaRepository;
 
-        public RepublishKademliaNodeListenerDecorator(KademliaNodeListener<ID, C, K, V> kademliaNodeListener, KademliaRepository<K, V> kademliaRepository) {
+        public RepublishKademliaNodeListenerDecorator(KademliaNodeListener<ID, C, K, V> kademliaNodeListener) {
             super(kademliaNodeListener);
-            this.kademliaRepository = kademliaRepository;
         }
 
         @Override
         public void onKeyStoredResult(KademliaNode<ID, C> kademliaNode, Node<ID, C> node, K key, boolean success) {
             super.onKeyStoredResult(kademliaNode, node, key, success);
-            if (success && !node.getId().equals(kademliaNode.getId()) && this.kademliaRepository.contains(key)){
-                this.kademliaRepository.remove(key);
+            KademliaRepositoryNode<ID, C, K, V> repositoryNode = (KademliaRepositoryNode<ID, C, K, V>) kademliaNode;
+            if (success && !node.getId().equals(kademliaNode.getId()) && repositoryNode.getKademliaRepository().contains(key)){
+                repositoryNode.getKademliaRepository().remove(key);
             }
         }
     }

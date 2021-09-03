@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 public class SampleRepository implements KademliaRepository<Integer, String> {
-    private final Map<Integer, String> data = new HashMap<>();
+    protected final Map<Integer, String> data = new HashMap<>();
 
     @Override
     public void store(Integer key, String value) {

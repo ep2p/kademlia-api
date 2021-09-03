@@ -16,7 +16,7 @@ public class LocalNodeConnectionApi<ID extends Number> implements NodeConnection
     protected final Map<ID, KademliaNode<ID, EmptyConnectionInfo>> nodeMap = new ConcurrentHashMap<>();
 
     public void registerNode(KademliaNode<ID, EmptyConnectionInfo> node){
-        System.out.println("Registring node with id " + node.getId());
+        System.out.println("Registering node with id " + node.getId());
         nodeMap.putIfAbsent(node.getId(), node);
     }
 
