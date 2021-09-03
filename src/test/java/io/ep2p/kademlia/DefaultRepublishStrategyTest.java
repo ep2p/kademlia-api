@@ -1,6 +1,5 @@
 package io.ep2p.kademlia;
 
-import io.ep2p.kademlia.NodeSettings;
 import io.ep2p.kademlia.connection.EmptyConnectionInfo;
 import io.ep2p.kademlia.connection.LocalNodeConnectionApi;
 import io.ep2p.kademlia.exception.BootstrapException;
