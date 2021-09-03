@@ -5,18 +5,22 @@ import io.ep2p.kademlia.connection.ConnectionInfo;
 import io.ep2p.kademlia.connection.NodeConnectionApi;
 import io.ep2p.kademlia.connection.StorageNodeApi;
 import io.ep2p.kademlia.exception.GetException;
+import io.ep2p.kademlia.exception.ShutdownException;
 import io.ep2p.kademlia.exception.StoreException;
 import io.ep2p.kademlia.model.FindNodeAnswer;
 import io.ep2p.kademlia.model.GetAnswer;
 import io.ep2p.kademlia.model.PingAnswer;
 import io.ep2p.kademlia.model.StoreAnswer;
 import io.ep2p.kademlia.node.external.ExternalNode;
+import io.ep2p.kademlia.service.RepublishStrategy;
+import io.ep2p.kademlia.service.RepublishStrategyFactory;
 import io.ep2p.kademlia.table.Bucket;
 import io.ep2p.kademlia.table.RoutingTable;
 import io.ep2p.kademlia.util.DateUtil;
 import io.ep2p.kademlia.util.KeyHashGenerator;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.Date;
 import java.util.List;
@@ -28,24 +32,31 @@ import java.util.List;
  * @param <K> storage key type
  * @param <V> storage value type
  */
+@Slf4j
 public class KademliaRepositoryNode<ID extends Number, C extends ConnectionInfo, K, V> extends KademliaNode<ID, C> implements StorageNodeApi<ID, C, K, V> {
     @Getter
-    private final KademliaRepository<K,V> kademliaRepository;
+    private KademliaRepository<K,V> kademliaRepository;
     @Setter
     @Getter
     private KeyHashGenerator<ID, K> keyHashGenerator;
+    @Getter
+    protected RepublishStrategy<ID, C, K, V> republishStrategy;
 
 
     public KademliaRepositoryNode(ID nodeId, RoutingTable<ID, C, Bucket<ID, C>> routingTable, NodeConnectionApi<ID, C> nodeConnectionApi, C connectionInfo, NodeSettings nodeSettings, KademliaRepository<K, V> kademliaRepository, KeyHashGenerator<ID, K> keyHashGenerator) {
         super(nodeId, routingTable, nodeConnectionApi, connectionInfo, nodeSettings);
-        this.kademliaRepository = kademliaRepository;
-        this.keyHashGenerator = keyHashGenerator;
+        this.init(kademliaRepository, keyHashGenerator);
     }
 
     public KademliaRepositoryNode(ID nodeId, NodeConnectionApi<ID, C> nodeConnectionApi, C connectionInfo, NodeSettings nodeSettings, KademliaRepository<K, V> kademliaRepository, KeyHashGenerator<ID, K> keyHashGenerator) {
         super(nodeId, nodeConnectionApi, connectionInfo, nodeSettings);
+        this.init(kademliaRepository, keyHashGenerator);
+    }
+
+    private void init(KademliaRepository<K, V> kademliaRepository, KeyHashGenerator<ID, K> keyHashGenerator){
         this.kademliaRepository = kademliaRepository;
         this.keyHashGenerator = keyHashGenerator;
+        this.initRepublishStrategy();
     }
 
     public KademliaRepositoryNode(ID nodeId, NodeConnectionApi<ID, C> nodeConnectionApi, C connectionInfo, KademliaRepository<K, V> kademliaRepository, KeyHashGenerator<ID, K> keyHashGenerator) {
@@ -60,6 +71,37 @@ public class KademliaRepositoryNode<ID extends Number, C extends ConnectionInfo,
     @SuppressWarnings("unchecked")
     public KademliaRepositoryNode(ID nodeId, RoutingTable<ID, C, Bucket<ID, C>> routingTable, NodeConnectionApi<ID, C> nodeConnectionApi, C connectionInfo, NodeSettings nodeSettings, KademliaRepository<K, V> kademliaRepository) {
         this(nodeId, routingTable, nodeConnectionApi, connectionInfo, nodeSettings, kademliaRepository, new KeyHashGenerator.Default<>((Class<ID>) nodeId.getClass(), nodeSettings));
+    }
+
+    protected void initRepublishStrategy(){
+        if (this.getNodeSettings().isEnabledRepublishing()){
+            if (this.kademliaRepository instanceof TimestampAwareKademliaRepository){
+                this.republishStrategy = RepublishStrategyFactory.getRepublishStrategy();
+                this.republishStrategy.configure(
+                    this,
+                    this.getNodeSettings().getRepublishSettings(),
+                    (TimestampAwareKademliaRepository<K, V>) this.getKademliaRepository()
+                );
+            }else {
+                log.error("Can not initialize republish-strategy since kademliaRepository is not instance of TimestampAwareKademliaRepository");
+            }
+        }
+    }
+
+    @Override
+    public void stop() throws ShutdownException {
+        super.stop();
+        if (this.republishStrategy != null){
+            this.republishStrategy.stop();
+        }
+    }
+
+    @Override
+    public void start() {
+        super.start();
+        if (this.republishStrategy != null){
+            this.republishStrategy.start();
+        }
     }
 
     @Override

@@ -109,7 +109,7 @@ public class KademliaNode<ID extends Number, C extends ConnectionInfo> extends N
         });
         kademliaNodeListener.onBootstrapDone(this);
         if(!isRunning())
-            start();
+            this.start();
     }
 
     /* P2P API */
