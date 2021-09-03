@@ -32,6 +32,7 @@ public class KademliaRepositoryNode<ID extends Number, C extends ConnectionInfo,
     @Getter
     private final KademliaRepository<K,V> kademliaRepository;
     @Setter
+    @Getter
     private KeyHashGenerator<ID, K> keyHashGenerator;
 
 
@@ -138,7 +139,13 @@ public class KademliaRepositoryNode<ID extends Number, C extends ConnectionInfo,
             throw new StoreException("Node is not running");
         StoreAnswer<ID, K> storeAnswer = null;
         ID hash = hash(key);
-        //if current requester should persist data, do it immediately
+
+        // If some other node is calling the store, and that other node is not this node, but the origin request is by this node, then persist it
+        if (caller != null && !caller.getId().equals(getId()) && requester.getId().equals(getId())){
+            return doStore(key, value);
+        }
+
+        //if current node should persist data, do it immediately
         if(getId().equals(hash)) {
             storeAnswer = doStore(key, value);
         }else {

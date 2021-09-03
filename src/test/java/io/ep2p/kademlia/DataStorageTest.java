@@ -8,6 +8,7 @@ import io.ep2p.kademlia.exception.StoreException;
 import io.ep2p.kademlia.model.GetAnswer;
 import io.ep2p.kademlia.model.StoreAnswer;
 import io.ep2p.kademlia.node.*;
+import io.ep2p.kademlia.service.DefaultRepublishStrategy;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

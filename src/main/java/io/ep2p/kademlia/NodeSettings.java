@@ -31,11 +31,11 @@ public class NodeSettings implements Serializable {
   @AllArgsConstructor
   @NoArgsConstructor
   public static class RepublishSettings {
-    public int republishIntervalValue = 30;
-    public TimeUnit republishIntervalUnit = TimeUnit.MINUTES;
-    public int republishQueryValue = 1;
-    public TimeUnit republishQueryUnit = TimeUnit.HOURS;
-    public int republishQuerySize = 100;
+    private long republishIntervalValue = 30;
+    private TimeUnit republishIntervalUnit = TimeUnit.MINUTES;
+    private int republishQueryValue = 1;
+    private TimeUnit republishQueryUnit = TimeUnit.HOURS;
+    private int republishQuerySize = 100;
   }
 
   public static class Default {
