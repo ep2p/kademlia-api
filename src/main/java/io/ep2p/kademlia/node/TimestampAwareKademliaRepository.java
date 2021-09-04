@@ -4,5 +4,5 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 public interface TimestampAwareKademliaRepository<K,V> extends KademliaRepository<K, V> {
-    Map<K, V> getDataOlderThan(int amount, TimeUnit unit, int size);
+    Map<K, V> getDataOlderThan(int amount, TimeUnit unit, int page, int size);
 }

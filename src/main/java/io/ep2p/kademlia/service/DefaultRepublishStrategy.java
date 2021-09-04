@@ -5,13 +5,11 @@ import io.ep2p.kademlia.connection.ConnectionInfo;
 import io.ep2p.kademlia.model.FindNodeAnswer;
 import io.ep2p.kademlia.node.*;
 import io.ep2p.kademlia.node.external.ExternalNode;
-import io.ep2p.kademlia.table.Bucket;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -65,7 +63,7 @@ public class DefaultRepublishStrategy<ID extends Number, C extends ConnectionInf
         this.isRunning = false;
 
         // Register listener to remove key from repository if republish was successful
-        // If the listener is already decorated, skip it (second if)
+        // If the listener is already decorated, skip it
         if (!(
                 this.kademliaRepositoryNode.getKademliaNodeListener() instanceof RepublishKademliaNodeListenerDecorator
         )){
@@ -97,14 +95,20 @@ public class DefaultRepublishStrategy<ID extends Number, C extends ConnectionInf
     @Override
     public void run() {
         Map<K, V> result = null;
+        int page = 1;
         while ((
                 result = this.timestampAwareKademliaRepository.getDataOlderThan(
                         this.republishSettings.getRepublishQueryTimeValue(),
                         this.republishSettings.getRepublishQueryUnit(),
-                        this.republishSettings.getRepublishQuerySize()
+                        page,
+                        this.republishSettings.getRepublishQuerySizePerPage()
                 )
         ).size() > 0){
+            page++;
             result.forEach(this::handleKeyRepublish);
+            if (result.size() < this.republishSettings.getRepublishQuerySizePerPage()){
+                break;
+            }
         }
     }
 

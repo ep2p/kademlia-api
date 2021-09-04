@@ -35,7 +35,7 @@ public class NodeSettings implements Serializable {
     private TimeUnit republishIntervalUnit = TimeUnit.MINUTES;
     private int republishQueryTimeValue = 1;
     private TimeUnit republishQueryUnit = TimeUnit.HOURS;
-    private int republishQuerySize = 100;
+    private int republishQuerySizePerPage = 20;
   }
 
   public static class Default {
@@ -49,7 +49,7 @@ public class NodeSettings implements Serializable {
     public static int JOIN_BUCKET_QUERIES = 1;
     public static int MAXIMUM_LAST_SEEN_AGE_TO_CONSIDER_ALIVE = 20;
     public static boolean ENABLED_KEY_REPUBLISHING = false;
-    public static RepublishSettings REPUBLISH_SETTINGS = new RepublishSettings();
+    public static RepublishSettings REPUBLISH_SETTINGS;
 
     public static NodeSettings build(){
       return NodeSettings.builder()
