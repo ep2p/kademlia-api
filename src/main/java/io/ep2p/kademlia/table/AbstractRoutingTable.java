@@ -58,11 +58,22 @@ public abstract class AbstractRoutingTable<ID extends Number, C extends Connecti
       //If the element is already in the bucket, we update it and push it to the front of the bucket.
       bucket.pushToFront(node.getId());
       return false;
-    } else {
-      bucket.add(node);
-      return true;
+    } else if(bucket.size() < this.nodeSettings.getBucketSize() ){
+        bucket.add(node);
+        return true;
+    } else{
+        //ping nodes in bucket to replace with the new node if any node is not alive
+        for (ID nId : bucket.nodeIds){
+            if(!getNodeConnectionApi().ping(this, externalNode)).isAlive()){
+                bucket.remove(nId);
+                bucket.add(0, node);
+                return true;
+            }
+        }
     }
+      return false;
   }
+
 
   /**
    * Delete node from table
