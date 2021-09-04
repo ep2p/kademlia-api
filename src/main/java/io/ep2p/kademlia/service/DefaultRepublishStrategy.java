@@ -99,7 +99,7 @@ public class DefaultRepublishStrategy<ID extends Number, C extends ConnectionInf
         Map<K, V> result = null;
         while ((
                 result = this.timestampAwareKademliaRepository.getDataOlderThan(
-                        this.republishSettings.getRepublishQueryValue(),
+                        this.republishSettings.getRepublishQueryTimeValue(),
                         this.republishSettings.getRepublishQueryUnit(),
                         this.republishSettings.getRepublishQuerySize()
                 )
@@ -130,17 +130,6 @@ public class DefaultRepublishStrategy<ID extends Number, C extends ConnectionInf
             }
             results.add(node);
             break;
-        }
-
-        // Add random node from each bucket
-        Random random = new Random();
-        for (Bucket<ID, C> bucket : this.kademliaRepositoryNode.getRoutingTable().getBuckets()) {
-            List<ID> nodeIds = bucket.getNodeIds();
-            ID randomNodeId = nodeIds.get(random.nextInt(nodeIds.size()));
-            Node<ID, C> node = bucket.getNode(randomNodeId);
-            if (!results.contains(node)){
-                results.add(node);
-            }
         }
 
         return results;

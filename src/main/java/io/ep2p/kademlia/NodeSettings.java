@@ -33,7 +33,7 @@ public class NodeSettings implements Serializable {
   public static class RepublishSettings {
     private long republishIntervalValue = 30;
     private TimeUnit republishIntervalUnit = TimeUnit.MINUTES;
-    private int republishQueryValue = 1;
+    private int republishQueryTimeValue = 1;
     private TimeUnit republishQueryUnit = TimeUnit.HOURS;
     private int republishQuerySize = 100;
   }

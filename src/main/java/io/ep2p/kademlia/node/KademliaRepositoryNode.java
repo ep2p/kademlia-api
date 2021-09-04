@@ -271,10 +271,12 @@ public class KademliaRepositoryNode<ID extends Number, C extends ConnectionInfo,
             if(externalNode.getId().equals(getId())){
                 kademliaRepository.store(key, value);
                 storeAnswer = getNewStoreAnswer(key, StoreAnswer.Result.STORED, this);
-                //if requester of storing is not current node, tell them about storing result
                 break;
             }else {
-                if(nodeToIgnore != null && nodeToIgnore.getId().equals(externalNode.getId())){
+                if (nodeToIgnore != null && nodeToIgnore.getId().equals(externalNode.getId())){
+                    continue;
+                }
+                if (requester.getId().equals(externalNode.getId())){
                     continue;
                 }
                 //otherwise try next close requester in routing table
