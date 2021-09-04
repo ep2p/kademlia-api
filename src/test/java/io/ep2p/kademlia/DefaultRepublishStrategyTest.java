@@ -23,7 +23,7 @@ public class DefaultRepublishStrategyTest {
         NodeSettings.RepublishSettings republishSettings = NodeSettings.RepublishSettings.builder()
                 .republishIntervalUnit(TimeUnit.SECONDS)
                 .republishIntervalValue(REPUBLISH_INTERVAL_SEC_CONSTANT)
-                .republishQuerySize(100)
+                .republishQuerySizePerPage(100)
                 .build();
 
         NodeIdFactory nodeIdFactory = new IncrementalNodeIdFactory();
@@ -69,7 +69,7 @@ public class DefaultRepublishStrategyTest {
 
         Assertions.assertTrue(node11.getKademliaRepository().contains(data.hashCode()));
 
-
+        nodeApi.stopAll();
     }
 
 }

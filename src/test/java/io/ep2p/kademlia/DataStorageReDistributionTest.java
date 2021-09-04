@@ -72,6 +72,8 @@ public class DataStorageReDistributionTest {
 
         System.out.println("Successfully retrieved `"+ data +"` from node " + getAnswer.getNodeId());
         Thread.sleep(1000);
+
+        nodeApi.stopAll();
     }
 
 
@@ -135,6 +137,8 @@ public class DataStorageReDistributionTest {
 
         System.out.println("Successfully retrieved `"+ data +"` from node " + getAnswer.getNodeId());
         Thread.sleep(1000);
+
+        nodeApi.stopAll();
     }
 
 }

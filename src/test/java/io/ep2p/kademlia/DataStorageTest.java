@@ -51,6 +51,7 @@ public class DataStorageTest {
 
         System.out.println("Successfully retrieved `"+ data +"` from node " + getAnswer.getNodeId());
 
+        nodeApi.stopAll();
     }
 
     @Test
@@ -88,6 +89,8 @@ public class DataStorageTest {
         Assertions.assertEquals(getAnswer.getValue(), data, "GetAnswer value was " + storeAnswer.getResult());
 
         System.out.println("Successfully retrieved `"+ data +"` from node " + getAnswer.getNodeId());
+
+        nodeApi.stopAll();
     }
 
 }

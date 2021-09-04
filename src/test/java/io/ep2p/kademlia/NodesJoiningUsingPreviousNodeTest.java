@@ -57,6 +57,7 @@ public class NodesJoiningUsingPreviousNodeTest {
         Assertions.assertTrue(listContainsAll(map.get(15), 14,13,11,7));
         Assertions.assertTrue(listContainsAll(map.get(7), 8,6,5,3,15));
 
+        nodeApi.stopAll();
     }
 
     private boolean listContainsAll(List<Node<Integer, EmptyConnectionInfo>> referencedNodes, Integer... nodeIds){

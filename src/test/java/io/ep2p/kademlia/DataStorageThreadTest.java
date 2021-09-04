@@ -99,6 +99,7 @@ public class DataStorageThreadTest {
         StoreAnswer<Integer, Integer> storeAnswer = node0.store(data.hashCode(), data, 100, TimeUnit.MILLISECONDS, true);
         Assertions.assertEquals(storeAnswer.getResult(), StoreAnswer.Result.TIMEOUT, "Could not get timeout from store answer");
 
+        nodeApi.stopAll();
     }
 
     @Test
@@ -131,6 +132,8 @@ public class DataStorageThreadTest {
 
         GetAnswer<Integer,Integer, String> getAnswer = node0.get(data.hashCode(), 100, TimeUnit.MILLISECONDS);
         Assertions.assertEquals(getAnswer.getResult(), GetAnswer.Result.TIMEOUT, "GetAnswer Result was " + storeAnswer.getResult());
+
+        nodeApi.stopAll();
     }
 
 

@@ -74,6 +74,8 @@ public class NodesReJoinTest {
         Thread.sleep((long)(1.1D * NodeSettings.Default.REFERENCED_NODES_UPDATE_PERIOD * 1000L));
         Assertions.assertTrue(listContainsAll(map.get(15), 0,14,13,11,7));
         System.out.println("15 knows about 7 again after it (7) rejoined");
+
+        nodeApi.stopAll();
     }
 
     private boolean listDoesntContain(List<Node<Integer, EmptyConnectionInfo>> referencedNodes, Integer... nodeIds){

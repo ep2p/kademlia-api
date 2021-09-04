@@ -1,6 +1,7 @@
 package io.ep2p.kademlia.connection;
 
 import io.ep2p.kademlia.exception.NodeIsOfflineException;
+import io.ep2p.kademlia.exception.ShutdownException;
 import io.ep2p.kademlia.model.FindNodeAnswer;
 import io.ep2p.kademlia.model.PingAnswer;
 import io.ep2p.kademlia.node.KademliaNode;
@@ -128,5 +129,16 @@ public class LocalNodeConnectionApi<ID extends Number> implements NodeConnection
         }
     }
 
+    public void stopAll(){
+        this.nodeMap.forEach((k, v) -> {
+            try {
+                if (v.isRunning()) {
+                    v.stop();
+                }
+            } catch (ShutdownException e) {
+                e.printStackTrace();
+            }
+        });
+    }
 
 }

@@ -57,6 +57,7 @@ public class BigIntDataStorageTest {
 
         System.out.println("Successfully retrieved `"+ data +"` from node " + getAnswer.getNodeId());
 
+        nodeApi.stopAll();
     }
 
     @Test
@@ -93,6 +94,8 @@ public class BigIntDataStorageTest {
         Assertions.assertEquals(getAnswer.getValue(), data, "GetAnswer value was " + storeAnswer.getResult());
 
         System.out.println("Successfully retrieved `"+ data +"` from node " + getAnswer.getNodeId());
+
+        nodeApi.stopAll();
     }
 
     public static void main(String[] args) {
