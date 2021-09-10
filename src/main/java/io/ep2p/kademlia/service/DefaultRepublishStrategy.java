@@ -13,6 +13,8 @@ import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  *
@@ -34,6 +36,7 @@ public class DefaultRepublishStrategy<ID extends Number, C extends ConnectionInf
     private TimestampAwareKademliaRepository<K, V> timestampAwareKademliaRepository;
     private ScheduledExecutorService scheduledExecutorService = null;
     private volatile boolean isRunning = false;
+    private final Lock lock = new ReentrantLock();
 
     @Override
     public void configure(
@@ -94,20 +97,29 @@ public class DefaultRepublishStrategy<ID extends Number, C extends ConnectionInf
 
     @Override
     public void run() {
-        Map<K, V> result = null;
-        int page = 1;
-        while ((
-                result = this.timestampAwareKademliaRepository.getDataOlderThan(
-                        this.republishSettings.getRepublishQueryTimeValue(),
-                        this.republishSettings.getRepublishQueryUnit(),
-                        page,
-                        this.republishSettings.getRepublishQuerySizePerPage()
-                )
-        ).size() > 0){
-            page++;
-            result.forEach(this::handleKeyRepublish);
-            if (result.size() < this.republishSettings.getRepublishQuerySizePerPage()){
-                break;
+        boolean l = this.lock.tryLock();
+        if (l){
+            try {
+                Map<K, V> result = null;
+                int page = 1;
+                while ((
+                        result = this.timestampAwareKademliaRepository.getDataOlderThan(
+                                this.republishSettings.getRepublishQueryTimeValue(),
+                                this.republishSettings.getRepublishQueryUnit(),
+                                page,
+                                this.republishSettings.getRepublishQuerySizePerPage()
+                        )
+                ).size() > 0){
+                    page++;
+                    result.forEach(this::handleKeyRepublish);
+                    if (result.size() < this.republishSettings.getRepublishQuerySizePerPage()){
+                        break;
+                    }
+                }
+            }catch (Exception e){
+                log.error("Caught error while running republish strategy", e);
+            }finally {
+                this.lock.unlock();
             }
         }
     }
