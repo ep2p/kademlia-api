@@ -126,7 +126,7 @@ For these cases, you can use or extend `com.github.ep2p.kademlia.node.Redistribu
 
 ## Key Hashing
 
-One of the most important aspects of a DHT (Distributed hash table) is how we use the hash for keys to make them unique or identifiable. You can pass an implementation of [KeyHashGenerator](https://github.com/ep2p/kademlia-api/blob/main/src/main/java/com/github/ep2p/kademlia/util/KeyHashGenerator.java). The Default one will use `key.hashCode()` and changes it's size to ID size of your node.
+One of the most important aspects of a DHT (Distributed hash table) is how we use the hash for keys to make them unique or identifiable. You can pass an implementation of [KeyHashGenerator](https://github.com/ep2p/kademlia-api/blob/main/src/main/java/io/ep2p/kademlia/util/KeyHashGenerator.java). The Default one will use `key.hashCode()` and changes it's size to ID size of your node.
 
 ---
 
