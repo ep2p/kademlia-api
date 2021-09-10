@@ -101,7 +101,7 @@ Once you get used to API, this listener can be a big help in making some changes
 ## Generics
 Note that KademliaNode and all its subclasses are Generic. 
 
-The first generic type is for ID of the node, and you can choose between `Integer`, `Long`, `BigInteger` as these are the only ones supported and you should decide on which on to use based on your GUID space size. For example on **Eleuth Node System** Biginteger is being used since node IDs are `SHA1` of a public keys. You can [choose the appropriate `RoutingTable`](https://github.com/ep2p/kademlia-api/tree/main/src/main/java/com/github/ep2p/kademlia/table) implementation based on this key size. There is an implementation available for all of the three supported ID types.
+The first generic type is for ID of the node, and you can choose between `Integer`, `Long`, `BigInteger` as these are the only ones supported and you should decide on which on to use based on your GUID space size. For example on **Eleuth Node System** Biginteger is being used since node IDs are `SHA1` of a public keys. You can [choose the appropriate `RoutingTable`](https://github.com/ep2p/kademlia-api/tree/main/src/main/java/io/ep2p/kademlia/table) implementation based on this key size. There is an implementation available for all of the three supported ID types.
 
 The second generic type is type of your class that implements `ConnectionInfo`.
 
