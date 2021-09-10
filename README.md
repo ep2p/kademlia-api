@@ -13,10 +13,33 @@ Therefore, its your responsibility to choose how you want your nodes contact eac
 Create your implementation of `com.github.ep2p.kademlia.connection.ConnectionInfo` which can represent connection information for each node to contact.
 This can simply be `ip` and `port` for a TCP/UDP connection. Keep your implementation simple and Serializable.
 
-### NodeConnectionApi
-Create your implementation of `com.github.ep2p.kademlia.connection.NodeConnectionApi` based on earlier implemented ConnectionInfo. This API is called when a node wants to send requests/data to other nodes.
 
-Note that there are 4 methods which their implementation is not mandatory:
+```
+.=====================================================.             .=====================================================.
+|                                    .----------------|             |                                                     |
+|                                    | Connection API |----         |-----------------------------------------------------|
+|                                    '----------------|    \        |----------------.                   |                |
+|-----------------------------------------------------|     \------>|    Node API    |   KADEMLIA NODE   |  Routing Table |
+|                |                   .----------------|             |----------------'                   |                |
+| Routing Table  |   KADEMLIA NODE   |    Node API    |<---         |-----------------------------------------------------|
+|                |                   '----------------|    \        |----------------.                                    |
+|-----------------------------------------------------|     \-------| Connection API |                                    |
+|                                                     |             |----------------'                                    |
+'====================================================='             '====================================================='
+
+                                                         Figure 1
+```
+
+
+### NodeConnectionApi
+This API is called when a node wants to send requests/data to other nodes. Create your implementation of `com.github.ep2p.kademlia.connection.NodeConnectionApi` based on earlier implemented ConnectionInfo.
+
+Example:
+
+Lets assume that `ConnectionInfo` is a string for HTTP address to send requests to: `http://localhost/8080/`. Your `NodeConnectionApi` implementation might want to use an HTTP Client to send different requests (`Ping`, `Bootstrap`, `Find`, ...) to this address by serializing the request into JSON format. The point is that you can choose HTTP, RPC, TCP Socket or even UDP packets to send such requests. You have a wide range of choices on how to implemenet the protocl of which your nodes use to contact eachother. 
+
+
+Note that there are 4 methods which their implementation is **not mandatory** unless you want to also store data on your nodes (**DHT**):
 ```java
 default <K, V> void storeAsync(Node<C> caller, Node<C> requester,  Node<C> node, K key, V value){} //Make sure its async
 default <K> void getRequest(Node<C> caller, Node<C> requester, Node<C> node, K key){}
@@ -24,10 +47,10 @@ default <K, V> void sendGetResults(Node<C> caller, Node<C> requester, K key, V v
 default <K> void sendStoreResults(Node<C> caller, Node<C> requester, K key, boolean success){}
 ```
 
-Normally this Kademlia abstraction doesn't care about storing data. It only joins peers in the network. If you want to create something like DHT and store data, you need to implement these methods too.
-
 ### NodeApi
 If you call any Node Api methods on one end through `NodeConnectionApi`. on the other end you need to receive them and call appropriate method on you KademliaNode.
+For example, if you used an HTTP Client to send requests, you would need an HTTP Server on the other side to retrieve the requests, parse them and pass them to KademliaNode.
+
 Make sure your protocol supports requests for methods available in `com.github.ep2p.kademlia.connection.NodeApi` and also `com.github.ep2p.kademlia.connection.StorageNodeApi` if you are storing data as well.
 
 To make it more clear, you implement **NodeConnectionApi** for requests that are leaving the node, and **NodeApi** (or **StorageNodeApi**) for incoming requests to your node. A big advantage is that you can control the incoming requests, sign them, validate them, or anything you want to do with them before you pass them to Kademlia node.
@@ -36,7 +59,7 @@ To make it more clear, you implement **NodeConnectionApi** for requests that are
 Notice that `RoutingTable` and its buckets are Serializable. So you will easily be able to write it to a file. When you are creating an instance of your node, you can pass a new routing table or use one from disk.
 At this stage, there is no helper class for writing routing table on disk.
 
-## Kademlia Node Usage
+## Usage of KademliaNode class
 
 Currently there are 3 classes that can be used to create a kademlia node.
 
