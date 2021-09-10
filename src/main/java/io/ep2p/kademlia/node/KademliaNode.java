@@ -6,6 +6,7 @@ import io.ep2p.kademlia.connection.ConnectionInfo;
 import io.ep2p.kademlia.connection.NodeApi;
 import io.ep2p.kademlia.connection.NodeConnectionApi;
 import io.ep2p.kademlia.exception.BootstrapException;
+import io.ep2p.kademlia.exception.FullBucketException;
 import io.ep2p.kademlia.exception.NodeIsOfflineException;
 import io.ep2p.kademlia.exception.ShutdownException;
 import io.ep2p.kademlia.model.FindNodeAnswer;
@@ -191,7 +192,11 @@ public class KademliaNode<ID extends Number, C extends ConnectionInfo> extends N
      */
     public void start(){
         setRunning(true);
-        routingTable.update(copy(this));
+        try {
+            routingTable.update(copy(this));
+        }catch (FullBucketException e){
+            //todo
+        }
         //Find maximum n (where n is identifier size) nodes periodically, Check if they are available, otherwise remove them from routing table
         scheduledExecutorService.scheduleAtFixedRate(new Runnable() {
             @Override
@@ -224,9 +229,20 @@ public class KademliaNode<ID extends Number, C extends ConnectionInfo> extends N
      * Add another node to this node's routing table
      * @param node External node to add
      */
-    protected void addNode(Node<ID, C> node){
-        if (routingTable.update(copy(node))) {
-            kademliaNodeListener.onNewNodeAvailable(this, node);
+    protected void addNode(Node<ID, C> node) {
+        try {
+            if (routingTable.update(copy(node))) {
+                kademliaNodeListener.onNewNodeAvailable(this, node);
+            }
+        } catch (FullBucketException e) {
+            Bucket<ID, C> bucket = getRoutingTable().findBucket(node.getId());
+            for (ID nId : bucket.getNodeIds()) {
+                if (!getNodeConnectionApi().ping(this, bucket.getNode(nId)).isAlive()) {
+                    bucket.remove(nId);
+                    bucket.add(node);
+                    kademliaNodeListener.onNewNodeAvailable(this, node);
+                }
+            }
         }
     }
 

@@ -7,6 +7,15 @@
 # BlueJ files
 *.ctxt
 
+# IDEA specific git ignore
+.idea/
+*.iml
+*.iws
+.classpath
+.project
+.settings
+.metadata
+
 # Mobile Tools for Java (J2ME)
 .mtj.tmp/
 
