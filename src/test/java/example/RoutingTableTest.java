@@ -3,6 +3,7 @@ package example;
 import io.ep2p.kademlia.NodeSettings;
 import io.ep2p.kademlia.connection.EmptyConnectionInfo;
 import io.ep2p.kademlia.connection.LocalNodeConnectionApi;
+import io.ep2p.kademlia.exception.FullBucketException;
 import io.ep2p.kademlia.node.IncrementalNodeIdFactory;
 import io.ep2p.kademlia.node.KademliaSyncRepositoryNode;
 import io.ep2p.kademlia.node.NodeIdFactory;
@@ -12,7 +13,7 @@ import io.ep2p.kademlia.table.DefaultRoutingTableFactory;
 import io.ep2p.kademlia.table.RoutingTable;
 
 public class RoutingTableTest {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws FullBucketException {
         LocalNodeConnectionApi nodeApi = new LocalNodeConnectionApi();
         NodeIdFactory nodeIdFactory = new IncrementalNodeIdFactory();
         NodeSettings.Default.IDENTIFIER_SIZE = 4;
