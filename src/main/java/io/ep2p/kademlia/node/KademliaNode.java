@@ -18,6 +18,7 @@ import io.ep2p.kademlia.table.RoutingTable;
 import io.ep2p.kademlia.table.RoutingTableFactory;
 import io.ep2p.kademlia.util.KadDistanceUtil;
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -30,6 +31,7 @@ import java.util.concurrent.*;
  * @param <ID> Number type of node ID between supported types
  * @param <C> Your implementation of connection info
  */
+@Slf4j
 public class KademliaNode<ID extends Number, C extends ConnectionInfo> extends Node<ID, C> implements NodeApi<ID, C> {
     //Accessible fields
     @Getter
@@ -195,7 +197,7 @@ public class KademliaNode<ID extends Number, C extends ConnectionInfo> extends N
         try {
             routingTable.update(copy(this));
         }catch (FullBucketException e){
-            //todo
+            log.error(e.getMessage(), e);
         }
         //Find maximum n (where n is identifier size) nodes periodically, Check if they are available, otherwise remove them from routing table
         scheduledExecutorService.scheduleAtFixedRate(new Runnable() {
