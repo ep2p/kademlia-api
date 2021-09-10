@@ -66,17 +66,17 @@ Currently there are 3 classes that can be used to create a kademlia node.
 To create a KademliaNode **without capability of storing data**, try:
 
 ```java
-KademliaNode<?, ?> node = new KademliaNode<>(yourNodeId, routingTable, nodeConnectionApi, connectionInfoImplForThisNode);
+KademliaNode<?, ?> node = new KademliaNode<>(yourNodeId, nodeConnectionApi, connectionInfo);
 ```
 
 And to create a KademliaNode **capable of storing data**, try:
 
 ```java
-KademliaRepositoryNode<?, ?, Integer, String> aNode = new KademliaRepositoryNode<>(yourNodeId, routingTable, nodeConnectionApi, connectionInfoImplForThisNode, repository);
+KademliaRepositoryNode<?, ?, Integer, String> aNode = new KademliaRepositoryNode<>(yourNodeId, nodeConnectionApi, connectionInfo, repository);
 ```
 or
 ```java
-KademliaSyncRepositoryNode<?, ?, Integer, String> aNode = new KademliaSyncRepositoryNode<>(yourNodeId, routingTable, nodeConnectionApi, connectionInfoImplForThisNode, repository);
+KademliaSyncRepositoryNode<?, ?, Integer, String> aNode = new KademliaSyncRepositoryNode<>(yourNodeId, routingTable, nodeConnectionApi, connectionInfo, repository);
 ```
 Where `Integer` is data storage key type, `String` is data storage value type, and `repository` is data storage implementation. It's a good practice to keep storage outside ram and avoid data loss on node shutdowns, but the choice is yours.
 
@@ -98,12 +98,21 @@ node.setKademliaNodeListener(...)
 ```
 Once you get used to API, this listener can be a big help in making some changes to your nodes behaviour. See next section, Re-Distribution.
 
-## Generic
+## Generics
 Note that KademliaNode and all its subclasses are Generic. 
 
 The first generic type is for ID of the node, and you can choose between `Integer`, `Long`, `BigInteger` as these are the only ones supported and you should decide on which on to use based on your GUID space size. For example on **Eleuth Node System** Biginteger is being used since node IDs are `SHA1` of a public keys. You can [choose the appropriate `RoutingTable`](https://github.com/ep2p/kademlia-api/tree/main/src/main/java/com/github/ep2p/kademlia/table) implementation based on this key size. There is an implementation available for all of the three supported ID types.
 
 The second generic type is type of your class that implements `ConnectionInfo`.
+
+## Configuration
+
+You can configure your node by passing an instance of `NodeSettings` to `KademliaNode` or it's subclasses. By default they use the configuration from `NodeSettings.Default` which has static fields. You can edit `NodeSettings.Default` if all of the nodes that you want to have in a single application are having the same configuration.
+
+## Republishing Keys
+
+To make sure keys are distributed in valid nodes we can define a strategy which will publish keys every `N` `TimeUnit` (for example, every 15 minutes).
+To enable the publishing strategy set `enabledRepublishing` to `True` in `NodeSettings`. The default strategy is set in `RepublishStrategyFactory` and is configurable through `NodeSettings.RepublishSettings`. Note that republish strategy needs to know when each `<K, V>` has entered your repository implementation. So your kademlia repository also has to impelement `TimestampAwareKademliaRepository<K,V>`.
 
 ## Re-Distribution
 
@@ -113,7 +122,7 @@ Or there are situations where a node is shutting down and it's good practice for
 
 Of course one important parameter here is size of values as it will take much longer to pass large values to other nodes and you must prevent application shutdown till this re-distribution ends.
 
-For these cases, you can use or extend `com.github.ep2p.kademlia.node.RedistributionKademliaNodeListener` as your listener. It will handle data redistribution when new nodes appear. Also by passing `ShutdownDistributionListener` it handles data redistribution when node is shutting down.
+For these cases, you can use or extend `com.github.ep2p.kademlia.node.RedistributionKademliaNodeListener` as your listener. It will handle data redistribution when new nodes appear in the routing table. Also by passing `ShutdownDistributionListener` it handles data redistribution when node is shutting down.
 
 ## Key Hashing
 
@@ -135,7 +144,7 @@ Using **maven central**
 <dependency>
     <groupId>io.ep2p</groupId>
     <artifactId>kademlia-api</artifactId>
-    <version>2.2.1-RELEASE</version>
+    <version>3.0.0-RELEASE</version>
 </dependency>
 ```
 
