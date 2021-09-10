@@ -9,6 +9,7 @@ package io.ep2p.kademlia.table;
 
 import io.ep2p.kademlia.NodeSettings;
 import io.ep2p.kademlia.connection.ConnectionInfo;
+import io.ep2p.kademlia.exception.FullBucketException;
 import io.ep2p.kademlia.model.FindNodeAnswer;
 import io.ep2p.kademlia.node.Node;
 import lombok.NoArgsConstructor;
@@ -50,7 +51,7 @@ public abstract class AbstractRoutingTable<ID extends Number, C extends Connecti
    * @param node to add or update (push to front)
    * @return if node is added newly (not updated)
    */
-  public boolean update(Node<ID, C> node) {
+  public boolean update(Node<ID, C> node) throws FullBucketException {
     //Setting last seen date on node
     node.setLastSeen(new Date());
     Bucket<ID, C> bucket = this.findBucket(node.getId());
@@ -58,11 +59,13 @@ public abstract class AbstractRoutingTable<ID extends Number, C extends Connecti
       //If the element is already in the bucket, we update it and push it to the front of the bucket.
       bucket.pushToFront(node.getId());
       return false;
-    } else {
+    } else if (bucket.size() < this.nodeSettings.getBucketSize()) {
       bucket.add(node);
       return true;
     }
+    throw new FullBucketException();
   }
+
 
   /**
    * Delete node from table

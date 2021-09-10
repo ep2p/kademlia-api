@@ -26,6 +26,12 @@
             <organization>Eleuth P2P</organization>
             <organizationUrl>https://ep2p.io</organizationUrl>
         </developer>
+        <developer>
+            <name>Pegah Maboudi</name>
+            <email>pegah.m86@gmail.com</email>
+            <organization>Eleuth P2P</organization>
+            <organizationUrl>https://ep2p.io</organizationUrl>
+        </developer>
     </developers>
 
     <scm>

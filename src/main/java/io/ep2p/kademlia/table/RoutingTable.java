@@ -1,6 +1,7 @@
 package io.ep2p.kademlia.table;
 
 import io.ep2p.kademlia.connection.ConnectionInfo;
+import io.ep2p.kademlia.exception.FullBucketException;
 import io.ep2p.kademlia.model.FindNodeAnswer;
 import io.ep2p.kademlia.node.Node;
 
@@ -34,7 +35,7 @@ public interface RoutingTable<ID extends Number, C extends ConnectionInfo, B ext
      * @param node to update
      * @return if node is added newly
      */
-    boolean update(Node<ID, C> node);
+    boolean update(Node<ID, C> node) throws FullBucketException;
     /**
      * Delete node from table
      * @param node to delete
