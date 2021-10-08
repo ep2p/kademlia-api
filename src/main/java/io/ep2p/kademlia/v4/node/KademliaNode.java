@@ -1,24 +1,23 @@
 package io.ep2p.kademlia.v4.node;
 
 import io.ep2p.kademlia.NodeSettings;
+import io.ep2p.kademlia.model.FindNodeAnswer;
+import io.ep2p.kademlia.util.KadDistanceUtil;
 import io.ep2p.kademlia.v4.connection.ConnectionInfo;
 import io.ep2p.kademlia.v4.connection.MessageSender;
 import io.ep2p.kademlia.v4.exception.HandlerNotFoundException;
+import io.ep2p.kademlia.v4.message.FindNodeRequestMessage;
 import io.ep2p.kademlia.v4.message.KademliaMessage;
 import io.ep2p.kademlia.v4.message.handler.MessageHandler;
-import io.ep2p.kademlia.v4.service.BootstrapKademliaService;
-import io.ep2p.kademlia.v4.service.PingerKademliaService;
 import io.ep2p.kademlia.v4.table.Bucket;
 import io.ep2p.kademlia.v4.table.RoutingTable;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.Serializable;
+import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.*;
 
 @Slf4j
 public class KademliaNode<ID extends Number, C extends ConnectionInfo> implements KademliaNodeAPI<ID, C> {
@@ -35,9 +34,9 @@ public class KademliaNode<ID extends Number, C extends ConnectionInfo> implement
 
 
     //** None Accessible Fields **//
-    private final Map<String, MessageHandler<ID, C>> messageHandlerRegistry = new ConcurrentHashMap<>();
-    private final ExecutorService executorService = Executors.newFixedThreadPool(1);
-    private final ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
+    protected final Map<String, MessageHandler<ID, C>> messageHandlerRegistry = new ConcurrentHashMap<>();
+    protected final ExecutorService executorService = Executors.newFixedThreadPool(1);
+    protected final ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
 
 
     public KademliaNode(ID id, C connectionInfo, RoutingTable<ID, C, Bucket<ID, C>> routingTable, MessageSender<ID, C> messageSender, NodeSettings nodeSettings) {
@@ -51,18 +50,12 @@ public class KademliaNode<ID extends Number, C extends ConnectionInfo> implement
     @Override
     public void start() {
         this.init();
-        PingerKademliaService<ID, C> pingerKademliaService = new PingerKademliaService<>(this);
-        this.scheduledExecutorService.scheduleAtFixedRate(
-                pingerKademliaService,
-                0,
-                this.getNodeSettings().getPingServiceScheduleTimeValue(),
-                this.getNodeSettings().getPingServiceScheduleTimeUnit()
-        );
+        pingSchedule();
     }
 
     @Override
     public void start(Node<ID, C> bootstrapNode) {
-        this.executorService.submit(new BootstrapKademliaService<ID, C>(this, bootstrapNode));
+        this.bootstrap(bootstrapNode);
         this.start();
     }
 
@@ -86,8 +79,51 @@ public class KademliaNode<ID extends Number, C extends ConnectionInfo> implement
         this.messageHandlerRegistry.put(type, messageHandler);
     }
 
+
+    //***************************//
+    //** None-API methods here **//
+    //***************************//
+
     //todo: register message listeners here
     protected final void init(){
 
+    }
+
+    protected void bootstrap(Node<ID, C> bootstrapNode){
+        final KademliaNodeAPI<ID, C> caller = this;
+        this.getRoutingTable().update(bootstrapNode); // TODO: node type
+        this.executorService.submit(new Runnable() {
+            @Override
+            public void run() {
+                FindNodeRequestMessage<ID, C> message = new FindNodeRequestMessage<>();
+                message.setData(caller.getId());
+                getMessageSender().sendMessage(caller, bootstrapNode, message);
+            }
+        });
+    }
+
+    protected void pingSchedule(){
+        final KademliaNodeAPI<ID, C> caller = this;
+        this.scheduledExecutorService.scheduleAtFixedRate(
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        List<Node<ID, C>> referencedNodes = new CopyOnWriteArrayList<>();
+
+                        List<ID> distances = KadDistanceUtil.getNodesWithDistance(getId(), getNodeSettings().getIdentifierSize());
+                        distances.forEach(distance -> {
+                            FindNodeAnswer<ID, C> findNodeAnswer = getRoutingTable().findClosest(distance);
+                            if (findNodeAnswer.getNodes().size() > 0) {
+                                // TODO: node type
+                                if(!findNodeAnswer.getNodes().get(0).getId().equals(getId()) && !referencedNodes.contains(findNodeAnswer.getNodes().get(0)))
+                                    referencedNodes.add(findNodeAnswer.getNodes().get(0));
+                            }
+                        });
+                    }
+                },
+                0,
+                this.getNodeSettings().getPingServiceScheduleTimeValue(),
+                this.getNodeSettings().getPingServiceScheduleTimeUnit()
+        );
     }
 }
