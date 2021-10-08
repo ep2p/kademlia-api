@@ -11,10 +11,10 @@ import java.io.Serializable;
 @Setter
 public abstract class KademliaMessage<ID extends Number, C extends ConnectionInfo, D extends Serializable> {
     private D data;
-    private final String TYPE;
+    private final String type;
     private Node<ID, C> node;
 
     protected KademliaMessage(String type) {
-        TYPE = type;
+        this.type = type;
     }
 }
