@@ -69,6 +69,7 @@ public class KademliaNode<ID extends Number, C extends ConnectionInfo> implement
     public void stop() {
         this.executorService.shutdownNow();
         this.scheduledExecutorService.shutdownNow();
+        this.isRunning = false;
     }
 
     @Override
