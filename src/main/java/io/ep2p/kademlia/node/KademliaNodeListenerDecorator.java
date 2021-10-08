@@ -1,6 +1,6 @@
 package io.ep2p.kademlia.node;
 
-import io.ep2p.kademlia.connection.ConnectionInfo;
+import io.ep2p.kademlia.v4.connection.ConnectionInfo;
 import io.ep2p.kademlia.exception.NodeIsOfflineException;
 
 import java.util.List;

@@ -2,7 +2,7 @@ package io.ep2p.kademlia.node;
 
 
 import io.ep2p.kademlia.NodeSettings;
-import io.ep2p.kademlia.connection.ConnectionInfo;
+import io.ep2p.kademlia.v4.connection.ConnectionInfo;
 import io.ep2p.kademlia.connection.NodeApi;
 import io.ep2p.kademlia.connection.NodeConnectionApi;
 import io.ep2p.kademlia.exception.BootstrapException;
@@ -12,10 +12,10 @@ import io.ep2p.kademlia.exception.ShutdownException;
 import io.ep2p.kademlia.model.FindNodeAnswer;
 import io.ep2p.kademlia.model.PingAnswer;
 import io.ep2p.kademlia.node.external.ExternalNode;
-import io.ep2p.kademlia.table.Bucket;
-import io.ep2p.kademlia.table.DefaultRoutingTableFactory;
-import io.ep2p.kademlia.table.RoutingTable;
-import io.ep2p.kademlia.table.RoutingTableFactory;
+import io.ep2p.kademlia.v4.table.Bucket;
+import io.ep2p.kademlia.v4.table.DefaultRoutingTableFactory;
+import io.ep2p.kademlia.v4.table.RoutingTable;
+import io.ep2p.kademlia.v4.table.RoutingTableFactory;
 import io.ep2p.kademlia.util.KadDistanceUtil;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;

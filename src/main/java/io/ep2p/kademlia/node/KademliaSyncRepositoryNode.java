@@ -1,14 +1,14 @@
 package io.ep2p.kademlia.node;
 
 import io.ep2p.kademlia.NodeSettings;
-import io.ep2p.kademlia.connection.ConnectionInfo;
+import io.ep2p.kademlia.v4.connection.ConnectionInfo;
 import io.ep2p.kademlia.connection.NodeConnectionApi;
 import io.ep2p.kademlia.exception.GetException;
 import io.ep2p.kademlia.exception.StoreException;
 import io.ep2p.kademlia.model.GetAnswer;
 import io.ep2p.kademlia.model.StoreAnswer;
-import io.ep2p.kademlia.table.Bucket;
-import io.ep2p.kademlia.table.RoutingTable;
+import io.ep2p.kademlia.v4.table.Bucket;
+import io.ep2p.kademlia.v4.table.RoutingTable;
 import io.ep2p.kademlia.util.KeyHashGenerator;
 import lombok.SneakyThrows;
 

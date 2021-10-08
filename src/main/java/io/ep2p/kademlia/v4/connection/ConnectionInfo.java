@@ -1,4 +1,4 @@
-package io.ep2p.kademlia.connection;
+package io.ep2p.kademlia.v4.connection;
 
 import java.io.Serializable;
 

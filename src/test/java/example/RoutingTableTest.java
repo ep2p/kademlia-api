@@ -8,9 +8,9 @@ import io.ep2p.kademlia.node.IncrementalNodeIdFactory;
 import io.ep2p.kademlia.node.KademliaSyncRepositoryNode;
 import io.ep2p.kademlia.node.NodeIdFactory;
 import io.ep2p.kademlia.node.SampleRepository;
-import io.ep2p.kademlia.table.Bucket;
-import io.ep2p.kademlia.table.DefaultRoutingTableFactory;
-import io.ep2p.kademlia.table.RoutingTable;
+import io.ep2p.kademlia.v4.table.Bucket;
+import io.ep2p.kademlia.v4.table.DefaultRoutingTableFactory;
+import io.ep2p.kademlia.v4.table.RoutingTable;
 
 public class RoutingTableTest {
     public static void main(String[] args) throws FullBucketException {

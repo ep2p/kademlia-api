@@ -4,14 +4,14 @@
 /* This program is free software; you can redistribute it and/or modify it
  * under the terms of the license (GNU LGPL) which comes with this package. */
 
-package io.ep2p.kademlia.table;
+package io.ep2p.kademlia.v4.table;
 
-import io.ep2p.kademlia.connection.ConnectionInfo;
+import io.ep2p.kademlia.v4.connection.ConnectionInfo;
 
-public class LongBucket<C extends ConnectionInfo> extends AbstractBucket<Long, C> {
-  private static final long serialVersionUID = -6314496739729756505L;
+public class IntegerBucket<C extends ConnectionInfo> extends AbstractBucket<Integer, C> {
+  private static final long serialVersionUID = 4210483953921617691L;
 
-  public LongBucket(int id) {
+  public IntegerBucket(int id) {
     super(id);
   }
 }

@@ -6,7 +6,7 @@
 
 package io.ep2p.kademlia.node.external;
 
-import io.ep2p.kademlia.connection.ConnectionInfo;
+import io.ep2p.kademlia.v4.connection.ConnectionInfo;
 import io.ep2p.kademlia.node.Node;
 import lombok.Getter;
 import lombok.Setter;

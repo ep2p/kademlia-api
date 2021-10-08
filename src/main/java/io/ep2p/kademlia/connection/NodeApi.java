@@ -4,6 +4,7 @@ import io.ep2p.kademlia.exception.NodeIsOfflineException;
 import io.ep2p.kademlia.model.FindNodeAnswer;
 import io.ep2p.kademlia.model.PingAnswer;
 import io.ep2p.kademlia.node.Node;
+import io.ep2p.kademlia.v4.connection.ConnectionInfo;
 
 /**
  * @param <ID> Number type of node ID between supported types

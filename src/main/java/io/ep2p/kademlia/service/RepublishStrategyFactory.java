@@ -1,6 +1,6 @@
 package io.ep2p.kademlia.service;
 
-import io.ep2p.kademlia.connection.ConnectionInfo;
+import io.ep2p.kademlia.v4.connection.ConnectionInfo;
 
 public class RepublishStrategyFactory {
     public static Provider PROVIDER = new DefaultProvider();

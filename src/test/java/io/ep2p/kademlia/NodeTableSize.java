@@ -5,7 +5,7 @@ import io.ep2p.kademlia.connection.LocalNodeConnectionApi;
 import io.ep2p.kademlia.exception.BootstrapException;
 import io.ep2p.kademlia.node.KademliaNode;
 import io.ep2p.kademlia.node.KademliaNodeListener;
-import io.ep2p.kademlia.table.Bucket;
+import io.ep2p.kademlia.v4.table.Bucket;
 
 import java.util.List;
 
