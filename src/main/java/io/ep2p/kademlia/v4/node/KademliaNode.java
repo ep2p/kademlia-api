@@ -12,9 +12,11 @@ import io.ep2p.kademlia.v4.message.handler.MessageHandler;
 import io.ep2p.kademlia.v4.table.Bucket;
 import io.ep2p.kademlia.v4.table.RoutingTable;
 import lombok.Getter;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.Serializable;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.*;
@@ -79,6 +81,11 @@ public class KademliaNode<ID extends Number, C extends ConnectionInfo> implement
         this.messageHandlerRegistry.put(type, messageHandler);
     }
 
+    @Override
+    public void setLastSeen(Date date) {
+        // Nothing to do here
+    }
+
 
     //***************************//
     //** None-API methods here **//
@@ -89,9 +96,10 @@ public class KademliaNode<ID extends Number, C extends ConnectionInfo> implement
 
     }
 
+    @SneakyThrows
     protected void bootstrap(Node<ID, C> bootstrapNode){
         final KademliaNodeAPI<ID, C> caller = this;
-        this.getRoutingTable().update(bootstrapNode); // TODO: node type
+        this.getRoutingTable().update(bootstrapNode);
         this.executorService.submit(new Runnable() {
             @Override
             public void run() {
@@ -114,7 +122,6 @@ public class KademliaNode<ID extends Number, C extends ConnectionInfo> implement
                         distances.forEach(distance -> {
                             FindNodeAnswer<ID, C> findNodeAnswer = getRoutingTable().findClosest(distance);
                             if (findNodeAnswer.getNodes().size() > 0) {
-                                // TODO: node type
                                 if(!findNodeAnswer.getNodes().get(0).getId().equals(getId()) && !referencedNodes.contains(findNodeAnswer.getNodes().get(0)))
                                     referencedNodes.add(findNodeAnswer.getNodes().get(0));
                             }

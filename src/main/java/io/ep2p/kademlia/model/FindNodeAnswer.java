@@ -7,7 +7,7 @@
 package io.ep2p.kademlia.model;
 
 import io.ep2p.kademlia.v4.connection.ConnectionInfo;
-import io.ep2p.kademlia.node.external.ExternalNode;
+import io.ep2p.kademlia.v4.node.external.ExternalNode;
 import lombok.Getter;
 
 import java.util.ArrayList;

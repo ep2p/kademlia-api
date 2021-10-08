@@ -1,7 +1,7 @@
-package io.ep2p.kademlia.node.external;
+package io.ep2p.kademlia.v4.node.external;
 
 import io.ep2p.kademlia.v4.connection.ConnectionInfo;
-import io.ep2p.kademlia.node.Node;
+import io.ep2p.kademlia.v4.node.Node;
 
 import java.math.BigInteger;
 
@@ -10,9 +10,6 @@ import java.math.BigInteger;
  * @param <C> Your implementation of connection info
  */
 public class BigIntegerExternalNode<C extends ConnectionInfo> extends ExternalNode<BigInteger, C> {
-
-    public BigIntegerExternalNode() {
-    }
 
     public BigIntegerExternalNode(Node<BigInteger, C> node, BigInteger distance) {
         super(node, distance);

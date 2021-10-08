@@ -4,7 +4,7 @@ import io.ep2p.kademlia.NodeSettings;
 import io.ep2p.kademlia.v4.connection.ConnectionInfo;
 import io.ep2p.kademlia.model.FindNodeAnswer;
 import io.ep2p.kademlia.node.*;
-import io.ep2p.kademlia.node.external.ExternalNode;
+import io.ep2p.kademlia.v4.node.external.ExternalNode;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;

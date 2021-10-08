@@ -4,12 +4,15 @@
 /* This program is free software; you can redistribute it and/or modify it
  * under the terms of the license (GNU LGPL) which comes with this package. */
 
-package io.ep2p.kademlia.node.external;
+package io.ep2p.kademlia.v4.node.external;
 
 import io.ep2p.kademlia.v4.connection.ConnectionInfo;
-import io.ep2p.kademlia.node.Node;
+import io.ep2p.kademlia.v4.node.Node;
+import io.ep2p.kademlia.v4.node.NodeDecorator;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.util.Date;
 
 /**
  * Kademlia node from outside of the system (other kademlia nodes are implementation of this class when they are seen in this system)
@@ -18,14 +21,14 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-public abstract class ExternalNode<ID extends Number, C extends ConnectionInfo> extends Node<ID, C> implements Comparable<Object> {
+public abstract class ExternalNode<ID extends Number, C extends ConnectionInfo> extends NodeDecorator<ID, C> implements Comparable<Object> {
   protected ID distance;
-
-  public ExternalNode() {
-  }
+  @Getter
+  @Setter
+  private Date lastSeen;
 
   public ExternalNode(Node<ID, C> node, ID distance) {
-    setNode(node);
+    super(node);
     this.distance = distance;
   }
 
@@ -35,5 +38,4 @@ public abstract class ExternalNode<ID extends Number, C extends ConnectionInfo> 
   public String toString() {
     return "ExternalNode [id=" + getId() + ", distance=" + distance + "]";
   }
-
 }

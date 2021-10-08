@@ -7,7 +7,7 @@
 package io.ep2p.kademlia.v4.table;
 
 import io.ep2p.kademlia.v4.connection.ConnectionInfo;
-import io.ep2p.kademlia.node.Node;
+import io.ep2p.kademlia.v4.node.Node;
 
 import java.util.List;
 import java.util.Map;

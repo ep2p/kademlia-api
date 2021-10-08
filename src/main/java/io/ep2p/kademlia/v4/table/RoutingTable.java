@@ -3,7 +3,7 @@ package io.ep2p.kademlia.v4.table;
 import io.ep2p.kademlia.v4.connection.ConnectionInfo;
 import io.ep2p.kademlia.exception.FullBucketException;
 import io.ep2p.kademlia.model.FindNodeAnswer;
-import io.ep2p.kademlia.node.Node;
+import io.ep2p.kademlia.v4.node.Node;
 
 import java.io.Serializable;
 import java.util.Vector;
