@@ -16,8 +16,9 @@ public interface KademliaNodeAPI<ID extends Number, C extends ConnectionInfo> ex
     void start();
     void start(Node<ID, C> bootstrapNode);
     void stop();
+    void isRunning();
     MessageSender<ID, C> getMessageSender();
     NodeSettings getNodeSettings();
-    <I extends Serializable, O extends Serializable> KademliaMessage<ID, C, O> onMessage(KademliaMessage<ID, C, I> message) throws HandlerNotFoundException;
+    KademliaMessage<ID, C, ? extends Serializable> onMessage(KademliaMessage<ID, C, ? extends Serializable> message) throws HandlerNotFoundException;
     void registerMessageHandler(String type, MessageHandler<ID, C> messageHandler);
 }

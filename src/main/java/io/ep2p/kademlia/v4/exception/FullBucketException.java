@@ -1,4 +1,4 @@
-package io.ep2p.kademlia.exception;
+package io.ep2p.kademlia.v4.exception;
 
 /**
  * Exception thrown when storing data on node fails

@@ -8,12 +8,15 @@ import io.ep2p.kademlia.v4.connection.MessageSender;
 import io.ep2p.kademlia.v4.exception.HandlerNotFoundException;
 import io.ep2p.kademlia.v4.message.FindNodeRequestMessage;
 import io.ep2p.kademlia.v4.message.KademliaMessage;
+import io.ep2p.kademlia.v4.message.PongKademliaMessage;
 import io.ep2p.kademlia.v4.message.handler.MessageHandler;
+import io.ep2p.kademlia.v4.message.handler.PongMessageHandler;
 import io.ep2p.kademlia.v4.table.Bucket;
 import io.ep2p.kademlia.v4.table.RoutingTable;
 import lombok.Getter;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import lombok.var;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -68,9 +71,14 @@ public class KademliaNode<ID extends Number, C extends ConnectionInfo> implement
     }
 
     @Override
-    public <I extends Serializable, O extends Serializable> KademliaMessage<ID, C, O> onMessage(KademliaMessage<ID, C, I> message) throws HandlerNotFoundException {
+    public void isRunning() {
+        // TODO
+    }
+
+    @Override
+    public KademliaMessage<ID, C, ? extends Serializable> onMessage(KademliaMessage<ID, C, ? extends Serializable> message) throws HandlerNotFoundException {
         assert message != null;
-        MessageHandler<ID, C> messageHandler = messageHandlerRegistry.get(message.getType());
+        var messageHandler = messageHandlerRegistry.get(message.getType());
         if (messageHandler == null)
             throw new HandlerNotFoundException(message.getType());
         return messageHandler.handle(this, message);
@@ -93,7 +101,7 @@ public class KademliaNode<ID extends Number, C extends ConnectionInfo> implement
 
     //todo: register message listeners here
     protected final void init(){
-
+        this.registerMessageHandler(PongKademliaMessage.TYPE, new PongMessageHandler<ID, C>());
     }
 
     @SneakyThrows

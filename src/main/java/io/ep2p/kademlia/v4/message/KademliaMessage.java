@@ -1,6 +1,6 @@
 package io.ep2p.kademlia.v4.message;
 
-import io.ep2p.kademlia.node.Node;
+import io.ep2p.kademlia.v4.node.Node;
 import io.ep2p.kademlia.v4.connection.ConnectionInfo;
 import lombok.Getter;
 import lombok.Setter;
