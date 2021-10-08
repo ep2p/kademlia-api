@@ -11,6 +11,7 @@ import io.ep2p.kademlia.exception.HandlerNotFoundException;
 import lombok.Getter;
 
 import java.io.Serializable;
+import java.util.concurrent.Future;
 
 public abstract class KademliaNodeAPIDecorator<ID extends Number, C extends ConnectionInfo> implements KademliaNodeAPI<ID, C> {
     @Getter
@@ -31,13 +32,13 @@ public abstract class KademliaNodeAPIDecorator<ID extends Number, C extends Conn
     }
 
     @Override
-    public void start(Node<ID, C> bootstrapNode) {
-        this.getKademliaNode().start(bootstrapNode);
+    public Future<Boolean> start(Node<ID, C> bootstrapNode) {
+        return this.getKademliaNode().start(bootstrapNode);
     }
 
     @Override
-    public void isRunning() {
-        this.getKademliaNode().isRunning();
+    public boolean isRunning() {
+        return this.getKademliaNode().isRunning();
     }
 
     @Override

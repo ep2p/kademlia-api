@@ -1,11 +1,13 @@
 package io.ep2p.kademlia.message.handler;
 
 import io.ep2p.kademlia.connection.ConnectionInfo;
+import io.ep2p.kademlia.exception.HandlerNotFoundException;
 import io.ep2p.kademlia.message.EmptyKademliaMessage;
 import io.ep2p.kademlia.message.FindNodeResponseMessage;
 import io.ep2p.kademlia.message.KademliaMessage;
 import io.ep2p.kademlia.message.PingKademliaMessage;
 import io.ep2p.kademlia.node.KademliaNodeAPI;
+import lombok.var;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -20,7 +22,12 @@ public class FindNodeResponseMessageHandler<ID extends Number, C extends Connect
             @Override
             public void run() {
                 ((FindNodeResponseMessage<ID, C>) message).getData().getNodes().forEach(externalNode -> {
-                    kademliaNode.getMessageSender().sendMessage(kademliaNode, externalNode, new PingKademliaMessage<>());
+                    var response = kademliaNode.getMessageSender().sendMessage(kademliaNode, externalNode, new PingKademliaMessage<>());
+                    try {
+                        kademliaNode.onMessage(response);
+                    } catch (HandlerNotFoundException e) {
+                        // TODO
+                    }
                 });
             }
         });

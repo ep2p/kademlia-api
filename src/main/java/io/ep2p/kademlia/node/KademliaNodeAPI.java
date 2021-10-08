@@ -10,13 +10,14 @@ import io.ep2p.kademlia.exception.HandlerNotFoundException;
 import io.ep2p.kademlia.message.handler.MessageHandler;
 
 import java.io.Serializable;
+import java.util.concurrent.Future;
 
 public interface KademliaNodeAPI<ID extends Number, C extends ConnectionInfo> extends Node<ID, C> {
     RoutingTable<ID, C, Bucket<ID, C>> getRoutingTable();
     void start();
-    void start(Node<ID, C> bootstrapNode);
+    Future<Boolean> start(Node<ID, C> bootstrapNode);
     void stop();
-    void isRunning();
+    boolean isRunning();
     MessageSender<ID, C> getMessageSender();
     NodeSettings getNodeSettings();
     KademliaMessage<ID, C, ? extends Serializable> onMessage(KademliaMessage<ID, C, ? extends Serializable> message) throws HandlerNotFoundException;

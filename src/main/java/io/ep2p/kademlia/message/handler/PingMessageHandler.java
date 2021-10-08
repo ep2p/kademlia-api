@@ -10,6 +10,7 @@ import io.ep2p.kademlia.node.KademliaNodeAPI;
 public class PingMessageHandler<ID extends Number, C extends ConnectionInfo> implements MessageHandler<ID, C> {
 
     @Override
+    @SuppressWarnings("unchecked")
     public <I extends KademliaMessage<ID, C, ?>, O extends KademliaMessage<ID, C, ?>> O handle(KademliaNodeAPI<ID, C> kademliaNode, I message) {
         return (O) doHandle(kademliaNode, (PingKademliaMessage<ID, C>) message);
     }
@@ -20,6 +21,6 @@ public class PingMessageHandler<ID extends Number, C extends ConnectionInfo> imp
         } catch (FullBucketException e) {
             //TODO: log
         }
-        return new PongKademliaMessage<ID, C>();
+        return new PongKademliaMessage<ID, C>(new PongKademliaMessage.PongData(kademliaNode.isRunning()));
     }
 }
