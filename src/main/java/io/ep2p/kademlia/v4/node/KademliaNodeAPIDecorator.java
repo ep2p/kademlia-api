@@ -1,6 +1,9 @@
 package io.ep2p.kademlia.v4.node;
 
+import io.ep2p.kademlia.NodeSettings;
 import io.ep2p.kademlia.v4.connection.ConnectionInfo;
+import io.ep2p.kademlia.v4.connection.MessageSender;
+import io.ep2p.kademlia.v4.exception.HandlerNotFoundException;
 import io.ep2p.kademlia.v4.message.KademliaMessage;
 import io.ep2p.kademlia.v4.message.handler.MessageHandler;
 import io.ep2p.kademlia.v4.table.Bucket;
@@ -38,12 +41,32 @@ public abstract class KademliaNodeAPIDecorator<ID extends Number, C extends Conn
     }
 
     @Override
-    public <I extends Serializable, O extends Serializable> KademliaMessage<ID, C, O> onMessage(KademliaMessage<ID, C, I> message) {
+    public <I extends Serializable, O extends Serializable> KademliaMessage<ID, C, O> onMessage(KademliaMessage<ID, C, I> message) throws HandlerNotFoundException {
         return this.getKademliaNode().onMessage(message);
     }
 
     @Override
     public void registerMessageHandler(String type, MessageHandler<ID, C> messageHandler) {
         this.getKademliaNode().registerMessageHandler(type, messageHandler);
+    }
+
+    @Override
+    public MessageSender<ID, C> getMessageSender() {
+        return this.getKademliaNode().getMessageSender();
+    }
+
+    @Override
+    public NodeSettings getNodeSettings() {
+        return this.getKademliaNode().getNodeSettings();
+    }
+
+    @Override
+    public C getConnectionInfo() {
+        return this.getKademliaNode().getConnectionInfo();
+    }
+
+    @Override
+    public ID getId() {
+        return this.getKademliaNode().getId();
     }
 }

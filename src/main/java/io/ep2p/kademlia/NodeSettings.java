@@ -26,6 +26,11 @@ public class NodeSettings implements Serializable {
   public boolean enabledRepublishing;
   public RepublishSettings republishSettings;
 
+
+  // V4
+  public int pingServiceScheduleTimeValue;
+  public TimeUnit pingServiceScheduleTimeUnit;
+
   @Builder
   @Data
   @AllArgsConstructor
