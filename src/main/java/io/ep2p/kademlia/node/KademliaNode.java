@@ -3,16 +3,13 @@ package io.ep2p.kademlia.node;
 import io.ep2p.kademlia.NodeSettings;
 import io.ep2p.kademlia.connection.ConnectionInfo;
 import io.ep2p.kademlia.connection.MessageSender;
-import io.ep2p.kademlia.message.KademliaMessage;
-import io.ep2p.kademlia.message.PongKademliaMessage;
-import io.ep2p.kademlia.message.handler.MessageHandler;
-import io.ep2p.kademlia.message.handler.PongMessageHandler;
+import io.ep2p.kademlia.message.*;
+import io.ep2p.kademlia.message.handler.*;
 import io.ep2p.kademlia.model.FindNodeAnswer;
 import io.ep2p.kademlia.table.Bucket;
 import io.ep2p.kademlia.table.RoutingTable;
 import io.ep2p.kademlia.util.KadDistanceUtil;
 import io.ep2p.kademlia.exception.HandlerNotFoundException;
-import io.ep2p.kademlia.message.FindNodeRequestMessage;
 import lombok.Getter;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -50,11 +47,11 @@ public class KademliaNode<ID extends Number, C extends ConnectionInfo> implement
         this.routingTable = routingTable;
         this.messageSender = messageSender;
         this.nodeSettings = nodeSettings;
+        this.init();
     }
 
     @Override
     public void start() {
-        this.init();
         pingSchedule();
     }
 
@@ -99,9 +96,11 @@ public class KademliaNode<ID extends Number, C extends ConnectionInfo> implement
     //** None-API methods here **//
     //***************************//
 
-    //todo: register message listeners here
     protected final void init(){
         this.registerMessageHandler(PongKademliaMessage.TYPE, new PongMessageHandler<ID, C>());
+        this.registerMessageHandler(PingKademliaMessage.TYPE, new PingMessageHandler<>());
+        this.registerMessageHandler(FindNodeRequestMessage.TYPE, new FindNodeRequestMessageHandler<>());
+        this.registerMessageHandler(FindNodeResponseMessage.TYPE, new FindNodeResponseMessageHandler<>());
     }
 
     @SneakyThrows
