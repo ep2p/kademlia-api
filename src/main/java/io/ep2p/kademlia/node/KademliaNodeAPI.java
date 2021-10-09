@@ -2,12 +2,12 @@ package io.ep2p.kademlia.node;
 
 import io.ep2p.kademlia.NodeSettings;
 import io.ep2p.kademlia.connection.ConnectionInfo;
-import io.ep2p.kademlia.message.KademliaMessage;
+import io.ep2p.kademlia.protocol.message.KademliaMessage;
 import io.ep2p.kademlia.table.Bucket;
 import io.ep2p.kademlia.table.RoutingTable;
 import io.ep2p.kademlia.connection.MessageSender;
 import io.ep2p.kademlia.exception.HandlerNotFoundException;
-import io.ep2p.kademlia.message.handler.MessageHandler;
+import io.ep2p.kademlia.protocol.handler.MessageHandler;
 
 import java.io.Serializable;
 import java.util.concurrent.Future;

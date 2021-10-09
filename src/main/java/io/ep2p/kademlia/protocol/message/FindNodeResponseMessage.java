@@ -1,4 +1,4 @@
-package io.ep2p.kademlia.message;
+package io.ep2p.kademlia.protocol.message;
 
 import io.ep2p.kademlia.connection.ConnectionInfo;
 import io.ep2p.kademlia.model.FindNodeAnswer;

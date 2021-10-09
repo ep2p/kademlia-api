@@ -1,11 +1,11 @@
-package io.ep2p.kademlia.message.handler;
+package io.ep2p.kademlia.protocol.handler;
 
 import io.ep2p.kademlia.connection.ConnectionInfo;
 import io.ep2p.kademlia.exception.HandlerNotFoundException;
-import io.ep2p.kademlia.message.EmptyKademliaMessage;
-import io.ep2p.kademlia.message.FindNodeResponseMessage;
-import io.ep2p.kademlia.message.KademliaMessage;
-import io.ep2p.kademlia.message.PingKademliaMessage;
+import io.ep2p.kademlia.protocol.message.EmptyKademliaMessage;
+import io.ep2p.kademlia.protocol.message.FindNodeResponseMessage;
+import io.ep2p.kademlia.protocol.message.KademliaMessage;
+import io.ep2p.kademlia.protocol.message.PingKademliaMessage;
 import io.ep2p.kademlia.node.KademliaNodeAPI;
 import lombok.var;
 

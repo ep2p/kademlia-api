@@ -1,10 +1,10 @@
-package io.ep2p.kademlia.message.handler;
+package io.ep2p.kademlia.protocol.handler;
 
 import io.ep2p.kademlia.connection.ConnectionInfo;
 import io.ep2p.kademlia.exception.FullBucketException;
-import io.ep2p.kademlia.message.FindNodeRequestMessage;
-import io.ep2p.kademlia.message.FindNodeResponseMessage;
-import io.ep2p.kademlia.message.KademliaMessage;
+import io.ep2p.kademlia.protocol.message.FindNodeRequestMessage;
+import io.ep2p.kademlia.protocol.message.FindNodeResponseMessage;
+import io.ep2p.kademlia.protocol.message.KademliaMessage;
 import io.ep2p.kademlia.model.FindNodeAnswer;
 import io.ep2p.kademlia.node.KademliaNodeAPI;
 import lombok.var;
