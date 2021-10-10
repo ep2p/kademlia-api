@@ -1,6 +1,8 @@
 package io.ep2p.kademlia.util;
 
 import io.ep2p.kademlia.connection.ConnectionInfo;
+import io.ep2p.kademlia.model.FindNodeAnswer;
+import io.ep2p.kademlia.node.KademliaNodeAPI;
 import io.ep2p.kademlia.node.Node;
 
 import java.math.BigInteger;
@@ -67,5 +69,20 @@ public class KadDistanceUtil {
         }
 
         return node;
+    }
+
+    public static <ID extends Number, C extends ConnectionInfo> List<Node<ID, C>> getReferencedNodes(KademliaNodeAPI<ID, C> kademliaNodeAPI){
+        List<Node<ID, C>> referencedNodes = new ArrayList<>();
+
+        List<ID> distances = KadDistanceUtil.getNodesWithDistance(kademliaNodeAPI.getId(), kademliaNodeAPI.getNodeSettings().getIdentifierSize());
+        distances.forEach(distance -> {
+            FindNodeAnswer<ID, C> findNodeAnswer = kademliaNodeAPI.getRoutingTable().findClosest(distance);
+            if (findNodeAnswer.getNodes().size() > 0) {
+                if(!findNodeAnswer.getNodes().get(0).getId().equals(kademliaNodeAPI.getId()) && !referencedNodes.contains(findNodeAnswer.getNodes().get(0)))
+                    referencedNodes.add(findNodeAnswer.getNodes().get(0));
+            }
+        });
+
+        return referencedNodes;
     }
 }

@@ -1,11 +1,14 @@
 package io.ep2p.kademlia.protocol.handler;
 
-import io.ep2p.kademlia.protocol.message.EmptyKademliaMessage;
-import io.ep2p.kademlia.protocol.message.PongKademliaMessage;
-import io.ep2p.kademlia.exception.FullBucketException;
 import io.ep2p.kademlia.connection.ConnectionInfo;
-import io.ep2p.kademlia.protocol.message.KademliaMessage;
+import io.ep2p.kademlia.exception.FullBucketException;
+import io.ep2p.kademlia.exception.HandlerNotFoundException;
 import io.ep2p.kademlia.node.KademliaNodeAPI;
+import io.ep2p.kademlia.protocol.message.EmptyKademliaMessage;
+import io.ep2p.kademlia.protocol.message.FindNodeRequestMessage;
+import io.ep2p.kademlia.protocol.message.KademliaMessage;
+import io.ep2p.kademlia.protocol.message.PongKademliaMessage;
+import lombok.var;
 
 public class PongMessageHandler<ID extends Number, C extends ConnectionInfo> implements MessageHandler<ID, C> {
     @Override
@@ -16,9 +19,16 @@ public class PongMessageHandler<ID extends Number, C extends ConnectionInfo> imp
 
     protected EmptyKademliaMessage<ID, C> doHandle(KademliaNodeAPI<ID, C> kademliaNode, PongKademliaMessage<ID, C> message){
         try {
-            kademliaNode.getRoutingTable().update(message.getNode());
+            if (kademliaNode.getRoutingTable().update(message.getNode())) {
+                FindNodeRequestMessage<ID, C> findNodeRequestMessage = new FindNodeRequestMessage<>();
+                findNodeRequestMessage.setData(kademliaNode.getId());
+                var response = kademliaNode.getMessageSender().sendMessage(kademliaNode, message.getNode(), findNodeRequestMessage);
+                kademliaNode.onMessage(response);
+            }
         } catch (FullBucketException e) {
             //TODO: log
+        } catch (HandlerNotFoundException e) {
+            //TODO
         }
         return new EmptyKademliaMessage<ID, C>();
     }

@@ -10,7 +10,7 @@ import java.io.Serializable;
 
 public class PongKademliaMessage<ID extends Number, C extends ConnectionInfo> extends KademliaMessage<ID, C, PongKademliaMessage.PongData> {
     public PongKademliaMessage() {
-        super(MessageType.PING);
+        super(MessageType.PONG);
     }
 
     public PongKademliaMessage(PongData pongData) {

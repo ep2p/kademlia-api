@@ -13,6 +13,7 @@ import lombok.Getter;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 /**
  * Answer to a "FIND_NODE" query. Contains the nodes closest to an id given
@@ -23,7 +24,7 @@ import java.util.Collections;
 public class FindNodeAnswer<ID extends Number, C extends ConnectionInfo> implements Serializable {
   private ID destinationId;
   /* Closest nodes in the answer. */
-  private final ArrayList<ExternalNode<ID, C>> nodes;
+  private List<ExternalNode<ID, C>> nodes;
 
   public FindNodeAnswer() {
     nodes = new ArrayList<ExternalNode<ID, C>>();
@@ -44,6 +45,10 @@ public class FindNodeAnswer<ID extends Number, C extends ConnectionInfo> impleme
 
   public void add(ExternalNode<ID, C> externalNode) {
     nodes.add(externalNode);
+  }
+
+  public void update(List<ExternalNode<ID, C>> nodes){
+    this.nodes = nodes;
   }
 
 

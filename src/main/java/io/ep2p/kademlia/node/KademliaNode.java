@@ -3,21 +3,21 @@ package io.ep2p.kademlia.node;
 import io.ep2p.kademlia.NodeSettings;
 import io.ep2p.kademlia.connection.ConnectionInfo;
 import io.ep2p.kademlia.connection.MessageSender;
+import io.ep2p.kademlia.exception.FullBucketException;
 import io.ep2p.kademlia.exception.HandlerNotFoundException;
 import io.ep2p.kademlia.protocol.MessageType;
 import io.ep2p.kademlia.protocol.handler.*;
-import io.ep2p.kademlia.model.FindNodeAnswer;
-import io.ep2p.kademlia.protocol.message.*;
+import io.ep2p.kademlia.protocol.message.FindNodeRequestMessage;
+import io.ep2p.kademlia.protocol.message.KademliaMessage;
+import io.ep2p.kademlia.protocol.message.PingKademliaMessage;
 import io.ep2p.kademlia.table.Bucket;
 import io.ep2p.kademlia.table.RoutingTable;
 import io.ep2p.kademlia.util.KadDistanceUtil;
 import lombok.Getter;
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import lombok.var;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -56,11 +56,16 @@ public class KademliaNode<ID extends Number, C extends ConnectionInfo> implement
     @Override
     public void start() {
         pingSchedule();
+        try {
+            getRoutingTable().update(this);
+        } catch (FullBucketException e) {
+            // Todo: force update
+        }
         this.isRunning = true;
     }
 
     @Override
-    public Future<Boolean> start(Node<ID, C> bootstrapNode) {
+    public Future<Boolean> start(Node<ID, C> bootstrapNode) throws FullBucketException {
         Future<Boolean> booleanFuture = this.bootstrap(bootstrapNode);
         this.start();
         return booleanFuture;
@@ -111,8 +116,7 @@ public class KademliaNode<ID extends Number, C extends ConnectionInfo> implement
         this.registerMessageHandler(MessageType.FIND_NODE_RES, new FindNodeResponseMessageHandler<>());
     }
 
-    @SneakyThrows
-    protected Future<Boolean> bootstrap(Node<ID, C> bootstrapNode){
+    protected Future<Boolean> bootstrap(Node<ID, C> bootstrapNode) throws FullBucketException {
         final KademliaNodeAPI<ID, C> caller = this;
         this.getRoutingTable().update(bootstrapNode);
 
@@ -128,6 +132,7 @@ public class KademliaNode<ID extends Number, C extends ConnectionInfo> implement
                     onMessage(response);
                     completableFuture.complete(true);
                 } catch (Exception e) {
+                    // Todo: log
                     completableFuture.complete(false);
                 }
             }
@@ -143,16 +148,7 @@ public class KademliaNode<ID extends Number, C extends ConnectionInfo> implement
                 new Runnable() {
                     @Override
                     public void run() {
-                        List<Node<ID, C>> referencedNodes = new ArrayList<>();
-
-                        List<ID> distances = KadDistanceUtil.getNodesWithDistance(getId(), getNodeSettings().getIdentifierSize());
-                        distances.forEach(distance -> {
-                            FindNodeAnswer<ID, C> findNodeAnswer = getRoutingTable().findClosest(distance);
-                            if (findNodeAnswer.getNodes().size() > 0) {
-                                if(!findNodeAnswer.getNodes().get(0).getId().equals(getId()) && !referencedNodes.contains(findNodeAnswer.getNodes().get(0)))
-                                    referencedNodes.add(findNodeAnswer.getNodes().get(0));
-                            }
-                        });
+                        List<Node<ID, C>> referencedNodes = KadDistanceUtil.getReferencedNodes(caller);
 
                         PingKademliaMessage<ID, C> message = new PingKademliaMessage<>();
                         referencedNodes.forEach(node -> {
@@ -166,8 +162,8 @@ public class KademliaNode<ID extends Number, C extends ConnectionInfo> implement
                     }
                 },
                 0,
-                this.getNodeSettings().getPingServiceScheduleTimeValue(),
-                this.getNodeSettings().getPingServiceScheduleTimeUnit()
+                this.getNodeSettings().getPingScheduleTimeValue(),
+                this.getNodeSettings().getPingScheduleTimeUnit()
         );
     }
 }

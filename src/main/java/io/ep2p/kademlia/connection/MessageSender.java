@@ -1,8 +1,8 @@
 package io.ep2p.kademlia.connection;
 
-import io.ep2p.kademlia.protocol.message.KademliaMessage;
 import io.ep2p.kademlia.node.KademliaNodeAPI;
 import io.ep2p.kademlia.node.Node;
+import io.ep2p.kademlia.protocol.message.KademliaMessage;
 
 import java.io.Serializable;
 

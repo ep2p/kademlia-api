@@ -1,11 +1,11 @@
 package io.ep2p.kademlia.protocol.handler;
 
+import io.ep2p.kademlia.connection.ConnectionInfo;
+import io.ep2p.kademlia.exception.FullBucketException;
+import io.ep2p.kademlia.node.KademliaNodeAPI;
+import io.ep2p.kademlia.protocol.message.KademliaMessage;
 import io.ep2p.kademlia.protocol.message.PingKademliaMessage;
 import io.ep2p.kademlia.protocol.message.PongKademliaMessage;
-import io.ep2p.kademlia.exception.FullBucketException;
-import io.ep2p.kademlia.connection.ConnectionInfo;
-import io.ep2p.kademlia.protocol.message.KademliaMessage;
-import io.ep2p.kademlia.node.KademliaNodeAPI;
 
 public class PingMessageHandler<ID extends Number, C extends ConnectionInfo> implements MessageHandler<ID, C> {
 
@@ -19,6 +19,7 @@ public class PingMessageHandler<ID extends Number, C extends ConnectionInfo> imp
         try {
             kademliaNode.getRoutingTable().update(message.getNode());
         } catch (FullBucketException e) {
+            e.printStackTrace();
             //TODO: log
         }
         return new PongKademliaMessage<ID, C>(new PongKademliaMessage.PongData(kademliaNode.isRunning()));

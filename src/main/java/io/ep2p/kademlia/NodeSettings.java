@@ -12,6 +12,7 @@ import java.util.concurrent.TimeUnit;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+// TODO: remove unused when V4 done
 public class NodeSettings implements Serializable {
   public long bootstrapNodeCallTimeout;
   public long storeTimeout;
@@ -28,8 +29,8 @@ public class NodeSettings implements Serializable {
 
 
   // V4
-  public int pingServiceScheduleTimeValue;
-  public TimeUnit pingServiceScheduleTimeUnit;
+  public int pingScheduleTimeValue;
+  public TimeUnit pingScheduleTimeUnit;
 
   @Builder
   @Data
@@ -46,13 +47,16 @@ public class NodeSettings implements Serializable {
   public static class Default {
     public static long BOOTSTRAP_NODE_CALL_TIMEOUT = 100;
     public static long STORE_TIMEOUT = 20;
-    public static int ALPHA = 3;
+    public static int ALPHA = 10;
     public static int IDENTIFIER_SIZE = 128;
     public static int REFERENCED_NODES_UPDATE_PERIOD = 30;
     public static int BUCKET_SIZE = 20;
     public static int FIND_NODE_SIZE = 20;
     public static int JOIN_BUCKET_QUERIES = 1;
     public static int MAXIMUM_LAST_SEEN_AGE_TO_CONSIDER_ALIVE = 20;
+    public static int PING_SCHEDULE_TIME_VALUE = 20;
+    public static TimeUnit PING_SCHEDULE_TIME_UNIT = TimeUnit.SECONDS;
+
     public static boolean ENABLED_KEY_REPUBLISHING = false;
     public static RepublishSettings REPUBLISH_SETTINGS;
 
@@ -67,6 +71,8 @@ public class NodeSettings implements Serializable {
               .findNodeSize(FIND_NODE_SIZE)
               .joinBucketQueries(JOIN_BUCKET_QUERIES)
               .maximumLastSeenAgeToConsiderAlive(MAXIMUM_LAST_SEEN_AGE_TO_CONSIDER_ALIVE)
+              .pingScheduleTimeUnit(PING_SCHEDULE_TIME_UNIT)
+              .pingScheduleTimeValue(PING_SCHEDULE_TIME_VALUE)
               .enabledRepublishing(ENABLED_KEY_REPUBLISHING)
               .republishSettings(ENABLED_KEY_REPUBLISHING ? REPUBLISH_SETTINGS : null)
               .build();

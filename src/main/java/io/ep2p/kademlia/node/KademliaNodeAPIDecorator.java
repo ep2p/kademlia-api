@@ -2,12 +2,13 @@ package io.ep2p.kademlia.node;
 
 import io.ep2p.kademlia.NodeSettings;
 import io.ep2p.kademlia.connection.ConnectionInfo;
-import io.ep2p.kademlia.protocol.message.KademliaMessage;
+import io.ep2p.kademlia.connection.MessageSender;
+import io.ep2p.kademlia.exception.FullBucketException;
+import io.ep2p.kademlia.exception.HandlerNotFoundException;
 import io.ep2p.kademlia.protocol.handler.MessageHandler;
+import io.ep2p.kademlia.protocol.message.KademliaMessage;
 import io.ep2p.kademlia.table.Bucket;
 import io.ep2p.kademlia.table.RoutingTable;
-import io.ep2p.kademlia.connection.MessageSender;
-import io.ep2p.kademlia.exception.HandlerNotFoundException;
 import lombok.Getter;
 
 import java.io.Serializable;
@@ -32,7 +33,7 @@ public abstract class KademliaNodeAPIDecorator<ID extends Number, C extends Conn
     }
 
     @Override
-    public Future<Boolean> start(Node<ID, C> bootstrapNode) {
+    public Future<Boolean> start(Node<ID, C> bootstrapNode) throws FullBucketException {
         return this.getKademliaNode().start(bootstrapNode);
     }
 
