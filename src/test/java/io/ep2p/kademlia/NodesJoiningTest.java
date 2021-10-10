@@ -84,10 +84,8 @@ public class NodesJoiningTest {
 
     private boolean listContainsAll(List<Node<Integer, EmptyConnectionInfo>> referencedNodes, Integer... nodeIds){
         List<Integer> nodeIdsToContain = new ArrayList<>(Arrays.asList(nodeIds));
-        List<Integer> contains = new ArrayList<>();
         for (Node<Integer, EmptyConnectionInfo> referencedNode : referencedNodes) {
             nodeIdsToContain.remove(referencedNode.getId());
-            contains.add(referencedNode.getId());
         }
         return nodeIdsToContain.size() == 0;
     }
