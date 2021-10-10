@@ -4,6 +4,7 @@ import io.ep2p.kademlia.NodeSettings;
 import io.ep2p.kademlia.connection.ConnectionInfo;
 import io.ep2p.kademlia.connection.MessageSender;
 import io.ep2p.kademlia.exception.HandlerNotFoundException;
+import io.ep2p.kademlia.protocol.MessageType;
 import io.ep2p.kademlia.protocol.handler.*;
 import io.ep2p.kademlia.model.FindNodeAnswer;
 import io.ep2p.kademlia.protocol.message.*;
@@ -102,10 +103,10 @@ public class KademliaNode<ID extends Number, C extends ConnectionInfo> implement
     //***************************//
 
     protected final void init(){
-        this.registerMessageHandler(PongKademliaMessage.TYPE, new PongMessageHandler<ID, C>());
-        this.registerMessageHandler(PingKademliaMessage.TYPE, new PingMessageHandler<>());
-        this.registerMessageHandler(FindNodeRequestMessage.TYPE, new FindNodeRequestMessageHandler<>());
-        this.registerMessageHandler(FindNodeResponseMessage.TYPE, new FindNodeResponseMessageHandler<>());
+        this.registerMessageHandler(MessageType.PONG, new PongMessageHandler<ID, C>());
+        this.registerMessageHandler(MessageType.PING, new PingMessageHandler<>());
+        this.registerMessageHandler(MessageType.FIND_NODE_REQ, new FindNodeRequestMessageHandler<>());
+        this.registerMessageHandler(MessageType.FIND_NODE_RES, new FindNodeResponseMessageHandler<>());
     }
 
     @SneakyThrows
