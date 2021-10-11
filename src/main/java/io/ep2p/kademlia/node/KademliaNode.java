@@ -178,7 +178,6 @@ public class KademliaNode<ID extends Number, C extends ConnectionInfo> implement
                         referencedNodes.forEach(node -> {
                             try {
                                 var response = getMessageSender().sendMessage(caller, node, message);
-                                System.out.println(caller.getId() + " pinging " + node.getId() + " response: " + response.getData());
                                 onMessage(response);
                             } catch (HandlerNotFoundException e) {
                                 e.printStackTrace();
