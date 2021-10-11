@@ -122,18 +122,12 @@ public class KademliaNode<ID extends Number, C extends ConnectionInfo> implement
     //***************************//
 
     protected void gracefulShutdown(){
-        getReferencedNodes(this).forEach(node -> {
-            try {
-                getMessageSender().sendMessage(this, node, new ShutdownKademliaMessage<>());
-            }catch (Exception e){
-                //Todo: log
-            }
-        });
+        getReferencedNodes(this).forEach(node -> getMessageSender().sendMessage(this, node, new ShutdownKademliaMessage<>()));
     }
 
     protected void init(){
         this.registerMessageHandler(MessageType.EMPTY, new GeneralResponseMessageHandler<>());
-        this.registerMessageHandler(MessageType.PONG, new PongMessageHandler<ID, C>());
+        this.registerMessageHandler(MessageType.PONG, new PongMessageHandler<>());
         this.registerMessageHandler(MessageType.PING, new PingMessageHandler<>());
         this.registerMessageHandler(MessageType.FIND_NODE_REQ, new FindNodeRequestMessageHandler<>());
         this.registerMessageHandler(MessageType.FIND_NODE_RES, new FindNodeResponseMessageHandler<>());
@@ -146,19 +140,16 @@ public class KademliaNode<ID extends Number, C extends ConnectionInfo> implement
 
         CompletableFuture<Boolean> completableFuture = new CompletableFuture<>();
 
-        this.executorService.submit(new Runnable() {
-            @Override
-            public void run() {
-                FindNodeRequestMessage<ID, C> message = new FindNodeRequestMessage<>();
-                message.setData(caller.getId());
-                try {
-                    var response = getMessageSender().sendMessage(caller, bootstrapNode, message);
-                    onMessage(response);
-                    completableFuture.complete(true);
-                } catch (Exception e) {
-                    // Todo: log
-                    completableFuture.complete(false);
-                }
+        this.executorService.submit(() -> {
+            FindNodeRequestMessage<ID, C> message = new FindNodeRequestMessage<>();
+            message.setData(caller.getId());
+            try {
+                var response = getMessageSender().sendMessage(caller, bootstrapNode, message);
+                onMessage(response);
+                completableFuture.complete(true);
+            } catch (Exception e) {
+                // Todo: log
+                completableFuture.complete(false);
             }
         });
 
@@ -169,22 +160,19 @@ public class KademliaNode<ID extends Number, C extends ConnectionInfo> implement
         final KademliaNodeAPI<ID, C> caller = this;
 
         this.scheduledExecutorService.scheduleAtFixedRate(
-                new Runnable() {
-                    @Override
-                    public void run() {
-                        List<Node<ID, C>> referencedNodes = getReferencedNodes(caller);
+                () -> {
+                    List<Node<ID, C>> referencedNodes = getReferencedNodes(caller);
 
-                        PingKademliaMessage<ID, C> message = new PingKademliaMessage<>();
-                        referencedNodes.forEach(node -> {
-                            try {
-                                var response = getMessageSender().sendMessage(caller, node, message);
-                                onMessage(response);
-                            } catch (HandlerNotFoundException e) {
-                                e.printStackTrace();
-                                // TODO
-                            }
-                        });
-                    }
+                    PingKademliaMessage<ID, C> message = new PingKademliaMessage<>();
+                    referencedNodes.forEach(node -> {
+                        try {
+                            var response = getMessageSender().sendMessage(caller, node, message);
+                            onMessage(response);
+                        } catch (HandlerNotFoundException e) {
+                            e.printStackTrace();
+                            // TODO
+                        }
+                    });
                 },
                 0,
                 this.getNodeSettings().getPingScheduleTimeValue(),
