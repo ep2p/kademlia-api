@@ -11,11 +11,11 @@ import lombok.var;
 
 import java.io.Serializable;
 
-public class FindNodeRequestMessageHandler<ID extends Number, C extends ConnectionInfo> implements MessageHandler<ID, C> {
+public class FindNodeRequestMessageHandler<ID extends Number, C extends ConnectionInfo> extends GeneralResponseMessageHandler<ID, C> {
 
     @Override
     @SuppressWarnings("unchecked")
-    public <I extends KademliaMessage<ID, C, ? extends Serializable>, O extends KademliaMessage<ID, C, ? extends Serializable>> O handle(KademliaNodeAPI<ID, C> kademliaNode, I message) {
+    public <I extends KademliaMessage<ID, C, ? extends Serializable>, O extends KademliaMessage<ID, C, ? extends Serializable>> O doHandle(KademliaNodeAPI<ID, C> kademliaNode, I message) {
         return (O) doHandle(kademliaNode, (FindNodeRequestMessage<ID, C>) message);
     }
 

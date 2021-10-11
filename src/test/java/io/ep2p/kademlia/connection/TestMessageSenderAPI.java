@@ -2,6 +2,7 @@ package io.ep2p.kademlia.connection;
 
 import io.ep2p.kademlia.node.KademliaNodeAPI;
 import io.ep2p.kademlia.node.Node;
+import io.ep2p.kademlia.protocol.message.EmptyKademliaMessage;
 import io.ep2p.kademlia.protocol.message.KademliaMessage;
 import lombok.SneakyThrows;
 import lombok.var;
@@ -21,6 +22,13 @@ public class TestMessageSenderAPI<ID extends Number, C extends ConnectionInfo> i
     @Override
     @SuppressWarnings("unchecked")
     public <I extends Serializable, O extends Serializable> KademliaMessage<ID, C, I> sendMessage(KademliaNodeAPI<ID, C> caller, Node<ID, C> receiver, KademliaMessage<ID, C, O> message) {
+        if (!this.map.containsKey(receiver.getId())){
+            EmptyKademliaMessage<ID, C> kademliaMessage = new EmptyKademliaMessage<>();
+            kademliaMessage.setAlive(false);
+            kademliaMessage.setNode(receiver);
+            return (KademliaMessage<ID, C, I>) kademliaMessage;
+        }
+
         message.setNode(caller);
         var response = (KademliaMessage<ID, C, I>) this.map.get(receiver.getId()).onMessage(message);
         response.setNode(receiver);
@@ -29,7 +37,7 @@ public class TestMessageSenderAPI<ID extends Number, C extends ConnectionInfo> i
 
     public void stopAll(){
         for (KademliaNodeAPI<ID, C> kademliaNodeAPI : this.map.values()) {
-            kademliaNodeAPI.stop();
+            kademliaNodeAPI.stopNow();
         }
     }
 }

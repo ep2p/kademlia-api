@@ -10,9 +10,9 @@ import io.ep2p.kademlia.protocol.handler.*;
 import io.ep2p.kademlia.protocol.message.FindNodeRequestMessage;
 import io.ep2p.kademlia.protocol.message.KademliaMessage;
 import io.ep2p.kademlia.protocol.message.PingKademliaMessage;
+import io.ep2p.kademlia.protocol.message.ShutdownKademliaMessage;
 import io.ep2p.kademlia.table.Bucket;
 import io.ep2p.kademlia.table.RoutingTable;
-import io.ep2p.kademlia.util.KadDistanceUtil;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import lombok.var;
@@ -22,6 +22,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.*;
+
+import static io.ep2p.kademlia.util.KadDistanceUtil.getReferencedNodes;
 
 @Slf4j
 public class KademliaNode<ID extends Number, C extends ConnectionInfo> implements KademliaNodeAPI<ID, C> {
@@ -73,6 +75,16 @@ public class KademliaNode<ID extends Number, C extends ConnectionInfo> implement
 
     @Override
     public void stop() {
+        this.gracefulShutdown();
+        if (this.isRunning()){
+            this.executorService.shutdown();
+            this.scheduledExecutorService.shutdown();
+            this.isRunning = false;
+        }
+    }
+
+    @Override
+    public void stopNow() {
         if (this.isRunning()){
             this.executorService.shutdownNow();
             this.scheduledExecutorService.shutdownNow();
@@ -109,11 +121,23 @@ public class KademliaNode<ID extends Number, C extends ConnectionInfo> implement
     //** None-API methods here **//
     //***************************//
 
-    protected final void init(){
+    protected void gracefulShutdown(){
+        getReferencedNodes(this).forEach(node -> {
+            try {
+                getMessageSender().sendMessage(this, node, new ShutdownKademliaMessage<>());
+            }catch (Exception e){
+                //Todo: log
+            }
+        });
+    }
+
+    protected void init(){
+        this.registerMessageHandler(MessageType.EMPTY, new GeneralResponseMessageHandler<>());
         this.registerMessageHandler(MessageType.PONG, new PongMessageHandler<ID, C>());
         this.registerMessageHandler(MessageType.PING, new PingMessageHandler<>());
         this.registerMessageHandler(MessageType.FIND_NODE_REQ, new FindNodeRequestMessageHandler<>());
         this.registerMessageHandler(MessageType.FIND_NODE_RES, new FindNodeResponseMessageHandler<>());
+        this.registerMessageHandler(MessageType.SHUTDOWN, new ShutdownMessageHandler<>());
     }
 
     protected Future<Boolean> bootstrap(Node<ID, C> bootstrapNode) throws FullBucketException {
@@ -148,14 +172,16 @@ public class KademliaNode<ID extends Number, C extends ConnectionInfo> implement
                 new Runnable() {
                     @Override
                     public void run() {
-                        List<Node<ID, C>> referencedNodes = KadDistanceUtil.getReferencedNodes(caller);
+                        List<Node<ID, C>> referencedNodes = getReferencedNodes(caller);
 
                         PingKademliaMessage<ID, C> message = new PingKademliaMessage<>();
                         referencedNodes.forEach(node -> {
-                            var response = getMessageSender().sendMessage(caller, node, message);
                             try {
+                                var response = getMessageSender().sendMessage(caller, node, message);
+                                System.out.println(caller.getId() + " pinging " + node.getId() + " response: " + response.getData());
                                 onMessage(response);
                             } catch (HandlerNotFoundException e) {
+                                e.printStackTrace();
                                 // TODO
                             }
                         });

@@ -6,4 +6,5 @@ public interface MessageType {
     String FIND_NODE_RES = "FIND_NODE_RES";
     String PING = "PING";
     String PONG = "PONG";
+    String SHUTDOWN = "SHUTDOWN";
 }

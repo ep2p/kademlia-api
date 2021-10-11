@@ -9,15 +9,20 @@ import io.ep2p.kademlia.protocol.message.FindNodeRequestMessage;
 import io.ep2p.kademlia.protocol.message.KademliaMessage;
 import io.ep2p.kademlia.protocol.message.PongKademliaMessage;
 import lombok.var;
+import org.jetbrains.annotations.NotNull;
 
-public class PongMessageHandler<ID extends Number, C extends ConnectionInfo> implements MessageHandler<ID, C> {
+public class PongMessageHandler<ID extends Number, C extends ConnectionInfo> extends GeneralResponseMessageHandler<ID, C> {
     @Override
     @SuppressWarnings("unchecked")
-    public <I extends KademliaMessage<ID, C, ?>, O extends KademliaMessage<ID, C, ?>> O handle(KademliaNodeAPI<ID, C> kademliaNode, I message) {
+    public <I extends KademliaMessage<ID, C, ?>, O extends KademliaMessage<ID, C, ?>> O doHandle(KademliaNodeAPI<ID, C> kademliaNode, I message) {
         return (O) doHandle(kademliaNode, (PongKademliaMessage<ID, C>) message);
     }
 
-    protected EmptyKademliaMessage<ID, C> doHandle(KademliaNodeAPI<ID, C> kademliaNode, PongKademliaMessage<ID, C> message){
+    protected EmptyKademliaMessage<ID, C> doHandle(KademliaNodeAPI<ID, C> kademliaNode, @NotNull PongKademliaMessage<ID, C> message){
+        if (!message.isAlive()){
+            System.out.println(message.getNode() + " is not alive");
+            kademliaNode.getRoutingTable().delete(message.getNode());
+        }
         try {
             if (kademliaNode.getRoutingTable().update(message.getNode())) {
                 FindNodeRequestMessage<ID, C> findNodeRequestMessage = new FindNodeRequestMessage<>();

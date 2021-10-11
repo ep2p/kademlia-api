@@ -48,6 +48,11 @@ public abstract class KademliaNodeAPIDecorator<ID extends Number, C extends Conn
     }
 
     @Override
+    public void stopNow() {
+        this.getKademliaNode().stopNow();
+    }
+
+    @Override
     public KademliaMessage<ID, C, ? extends Serializable> onMessage(KademliaMessage<ID, C, ? extends Serializable> message) throws HandlerNotFoundException {
         return this.getKademliaNode().onMessage(message);
     }

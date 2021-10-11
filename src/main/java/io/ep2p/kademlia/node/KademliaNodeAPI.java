@@ -18,6 +18,9 @@ public interface KademliaNodeAPI<ID extends Number, C extends ConnectionInfo> ex
     void start();
     Future<Boolean> start(Node<ID, C> bootstrapNode) throws FullBucketException;
     void stop();
+    default void stopNow(){
+        stop();
+    }
     boolean isRunning();
     MessageSender<ID, C> getMessageSender();
     NodeSettings getNodeSettings();

@@ -13,6 +13,7 @@ public abstract class KademliaMessage<ID extends Number, C extends ConnectionInf
     private D data;
     private final String type;
     private Node<ID, C> node;
+    private boolean isAlive = true;
 
     protected KademliaMessage(String type) {
         this.type = type;
