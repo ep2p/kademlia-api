@@ -13,7 +13,7 @@ public class GeneralResponseMessageHandler<ID extends Number, C extends Connecti
             kademliaNode.getRoutingTable().delete(message.getNode());
             return (O) new EmptyKademliaMessage<ID, C>();
         }
-        return (O) doHandle(kademliaNode, message);
+        return doHandle(kademliaNode, message);
     }
 
     @SuppressWarnings("unchecked")

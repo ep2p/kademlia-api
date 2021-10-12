@@ -19,10 +19,6 @@ public class PongMessageHandler<ID extends Number, C extends ConnectionInfo> ext
     }
 
     protected EmptyKademliaMessage<ID, C> doHandle(KademliaNodeAPI<ID, C> kademliaNode, @NotNull PongKademliaMessage<ID, C> message){
-        if (!message.isAlive()){
-            System.out.println(message.getNode() + " is not alive");
-            kademliaNode.getRoutingTable().delete(message.getNode());
-        }
         try {
             if (kademliaNode.getRoutingTable().update(message.getNode())) {
                 FindNodeRequestMessage<ID, C> findNodeRequestMessage = new FindNodeRequestMessage<>();
