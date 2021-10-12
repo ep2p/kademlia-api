@@ -1,11 +1,10 @@
 package io.ep2p.kademlia.node;
 
 import io.ep2p.kademlia.connection.ConnectionInfo;
-import io.ep2p.kademlia.model.GetAnswer;
 import io.ep2p.kademlia.model.StoreAnswer;
 
 import java.io.Serializable;
-import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 public abstract class DHTKademliaNodeAPIDecorator<ID extends Number, C extends ConnectionInfo> extends KademliaNodeAPIDecorator<ID, C> implements DHTKademliaNodeAPI<ID, C> {
 
@@ -14,12 +13,12 @@ public abstract class DHTKademliaNodeAPIDecorator<ID extends Number, C extends C
     }
 
     @Override
-    public <K extends Serializable, V extends Serializable> Future<StoreAnswer<ID, K>> store(K key, V value) {
-        return ((DHTKademliaNodeAPI<ID, C>) getKademliaNode()).store(key, value);
+    public <K extends Serializable, V extends Serializable> StoreAnswer<ID, K> store(K key, V value, int timeoutVal, TimeUnit timeoutUnit) {
+        return ((DHTKademliaNodeAPI<ID, C>) getKademliaNode()).store(key, value, timeoutVal, timeoutUnit);
     }
 
     @Override
-    public <K extends Serializable, V extends Serializable> Future<GetAnswer<ID, K, V>> get(K key) {
-        return ((DHTKademliaNodeAPI<ID, C>) getKademliaNode()).get(key);
+    public <K extends Serializable, V extends Serializable> StoreAnswer<ID, K> get(K key, int timeoutVal, TimeUnit timeoutUnit) {
+        return ((DHTKademliaNodeAPI<ID, C>) getKademliaNode()).get(key, timeoutVal, timeoutUnit);
     }
 }
