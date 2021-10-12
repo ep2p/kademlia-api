@@ -7,7 +7,7 @@ import io.ep2p.kademlia.model.StoreAnswer;
 import java.io.Serializable;
 import java.util.concurrent.Future;
 
-public interface DHTKademliaNodeAPIAPI<ID extends Number, C extends ConnectionInfo> extends KademliaNodeAPI<ID, C> {
+public interface DHTKademliaNodeAPI<ID extends Number, C extends ConnectionInfo> extends KademliaNodeAPI<ID, C> {
 
     <K extends Serializable, V extends Serializable> Future<StoreAnswer<ID, K>> store(K key, V value);
     <K extends Serializable, V extends Serializable> Future<GetAnswer<ID, K, V>> get(K key);

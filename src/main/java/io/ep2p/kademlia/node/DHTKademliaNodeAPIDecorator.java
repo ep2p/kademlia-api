@@ -7,19 +7,19 @@ import io.ep2p.kademlia.model.StoreAnswer;
 import java.io.Serializable;
 import java.util.concurrent.Future;
 
-public abstract class DHTKademliaNodeAPIAPIDecorator<ID extends Number, C extends ConnectionInfo> extends KademliaNodeAPIDecorator<ID, C> implements DHTKademliaNodeAPIAPI<ID, C> {
+public abstract class DHTKademliaNodeAPIDecorator<ID extends Number, C extends ConnectionInfo> extends KademliaNodeAPIDecorator<ID, C> implements DHTKademliaNodeAPI<ID, C> {
 
-    protected DHTKademliaNodeAPIAPIDecorator(DHTKademliaNodeAPIAPI<ID, C> kademliaNode) {
+    protected DHTKademliaNodeAPIDecorator(DHTKademliaNodeAPI<ID, C> kademliaNode) {
         super(kademliaNode);
     }
 
     @Override
     public <K extends Serializable, V extends Serializable> Future<StoreAnswer<ID, K>> store(K key, V value) {
-        return ((DHTKademliaNodeAPIAPI<ID, C>) getKademliaNode()).store(key, value);
+        return ((DHTKademliaNodeAPI<ID, C>) getKademliaNode()).store(key, value);
     }
 
     @Override
     public <K extends Serializable, V extends Serializable> Future<GetAnswer<ID, K, V>> get(K key) {
-        return ((DHTKademliaNodeAPIAPI<ID, C>) getKademliaNode()).get(key);
+        return ((DHTKademliaNodeAPI<ID, C>) getKademliaNode()).get(key);
     }
 }
