@@ -16,6 +16,7 @@ import io.ep2p.kademlia.repository.KademliaRepository;
 import io.ep2p.kademlia.table.Bucket;
 import io.ep2p.kademlia.table.RoutingTable;
 import io.ep2p.kademlia.util.DateUtil;
+import lombok.Getter;
 import lombok.var;
 import org.jetbrains.annotations.Nullable;
 
@@ -28,12 +29,14 @@ import java.util.concurrent.*;
 public class DHTKademliaNode<ID extends Number, C extends ConnectionInfo, K extends Serializable, V extends Serializable> extends KademliaNode<ID, C> implements DHTKademliaNodeAPI<ID, C, K, V>, MessageHandler<ID, C> {
     protected Map<K, CompletableFuture<StoreAnswer<ID, K>>> storeMap = new ConcurrentHashMap<>();
     protected Map<K, CompletableFuture<LookupAnswer<ID, K, V>>> lookupMap = new ConcurrentHashMap<>();
-    protected final KademliaRepository<ID, C, K, V> kademliaRepository;
-    protected final KeyHashGenerator<ID, K> keyHashGenerator;
+    @Getter
+    private final KademliaRepository<K, V> kademliaRepository;
+    @Getter
+    private final KeyHashGenerator<ID, K> keyHashGenerator;
     protected final ExecutorService executorService;
     protected final ScheduledExecutorService scheduledExecutor;
 
-    public DHTKademliaNode(ID id, C connectionInfo, RoutingTable<ID, C, Bucket<ID, C>> routingTable, MessageSender<ID, C> messageSender, NodeSettings nodeSettings, KademliaRepository<ID, C, K, V> kademliaRepository, KeyHashGenerator<ID, K> keyHashGenerator) {
+    public DHTKademliaNode(ID id, C connectionInfo, RoutingTable<ID, C, Bucket<ID, C>> routingTable, MessageSender<ID, C> messageSender, NodeSettings nodeSettings, KademliaRepository<K, V> kademliaRepository, KeyHashGenerator<ID, K> keyHashGenerator) {
         super(id, connectionInfo, routingTable, messageSender, nodeSettings);
         this.executorService = Executors.newFixedThreadPool(nodeSettings.getDhtExecutorPoolSize());
         this.scheduledExecutor = Executors.newScheduledThreadPool(nodeSettings.getDhtCleanupExecutorPoolSize());
@@ -94,6 +97,7 @@ public class DHTKademliaNode<ID extends Number, C extends ConnectionInfo, K exte
                 }
 
             }catch (Throwable ex){
+                ex.printStackTrace();
                 future.completeExceptionally(ex);
                 storeMap.remove(key);
             }
@@ -139,8 +143,8 @@ public class DHTKademliaNode<ID extends Number, C extends ConnectionInfo, K exte
 
     protected LookupAnswer<ID, K, V> handleLookup(K key, int currentTry){
         // Check if current node contains data
-        if(kademliaRepository.contains(this, key)){
-            V value = kademliaRepository.get(this, key);
+        if(kademliaRepository.contains(key)){
+            V value = kademliaRepository.get(key);
             return getNewLookupAnswer(key, LookupAnswer.Result.FOUND, this, value);
         }
 
@@ -234,7 +238,7 @@ public class DHTKademliaNode<ID extends Number, C extends ConnectionInfo, K exte
         for (ExternalNode<ID, C> externalNode : externalNodeList) {
             //if current node is closest node, store the value (Scenario A)
             if(externalNode.getId().equals(getId())){
-                kademliaRepository.store(this, key, value);
+                kademliaRepository.store(key, value);
                 storeAnswer = getNewStoreAnswer(key, StoreAnswer.Result.STORED, this);
                 break;
             } else {
@@ -402,7 +406,7 @@ public class DHTKademliaNode<ID extends Number, C extends ConnectionInfo, K exte
 
 
     protected StoreAnswer<ID, K> doStore(Node<ID, C> node, K key, V value){
-        kademliaRepository.store(node, key, value);
+        kademliaRepository.store(key, value);
         return getNewStoreAnswer(key, StoreAnswer.Result.STORED, this);
     }
 

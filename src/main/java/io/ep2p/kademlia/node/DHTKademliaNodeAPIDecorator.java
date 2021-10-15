@@ -3,6 +3,7 @@ package io.ep2p.kademlia.node;
 import io.ep2p.kademlia.connection.ConnectionInfo;
 import io.ep2p.kademlia.model.LookupAnswer;
 import io.ep2p.kademlia.model.StoreAnswer;
+import io.ep2p.kademlia.repository.KademliaRepository;
 
 import java.io.Serializable;
 import java.util.concurrent.Future;
@@ -21,5 +22,15 @@ public abstract class DHTKademliaNodeAPIDecorator<ID extends Number, C extends C
     @Override
     public Future<LookupAnswer<ID, K, V>> lookup(K key) {
         return ((DHTKademliaNodeAPI<ID, C, K, V>) getKademliaNode()).lookup(key);
+    }
+
+    @Override
+    public KademliaRepository<K, V> getKademliaRepository() {
+        return ((DHTKademliaNodeAPI<ID, C, K, V>) getKademliaNode()).getKademliaRepository();
+    }
+
+    @Override
+    public KeyHashGenerator<ID, K> getKeyHashGenerator() {
+        return ((DHTKademliaNodeAPI<ID, C, K, V>) getKademliaNode()).getKeyHashGenerator();
     }
 }

@@ -1,7 +1,7 @@
 package io.ep2p.kademlia;
 
-import io.ep2p.kademlia.connection.EmptyConnectionInfo;
-import io.ep2p.kademlia.connection.TestMessageSenderAPI;
+import io.ep2p.kademlia.helpers.EmptyConnectionInfo;
+import io.ep2p.kademlia.helpers.TestMessageSenderAPI;
 import io.ep2p.kademlia.exception.FullBucketException;
 import io.ep2p.kademlia.node.KademliaNode;
 import io.ep2p.kademlia.node.KademliaNodeAPI;

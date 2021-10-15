@@ -9,6 +9,7 @@ package io.ep2p.kademlia.node.external;
 import io.ep2p.kademlia.connection.ConnectionInfo;
 import io.ep2p.kademlia.node.Node;
 import io.ep2p.kademlia.node.NodeDecorator;
+import io.ep2p.kademlia.node.decorators.DateAwareNodeDecorator;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -21,11 +22,8 @@ import java.util.Date;
  */
 @Getter
 @Setter
-public abstract class ExternalNode<ID extends Number, C extends ConnectionInfo> extends NodeDecorator<ID, C> implements Comparable<Object> {
+public abstract class ExternalNode<ID extends Number, C extends ConnectionInfo> extends DateAwareNodeDecorator<ID, C> implements Comparable<Object> {
   protected ID distance;
-  @Getter
-  @Setter
-  private Date lastSeen;
 
   public ExternalNode(Node<ID, C> node, ID distance) {
     super(node);

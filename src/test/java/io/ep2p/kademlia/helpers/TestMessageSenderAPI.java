@@ -1,8 +1,11 @@
-package io.ep2p.kademlia.connection;
+package io.ep2p.kademlia.helpers;
 
+import io.ep2p.kademlia.connection.ConnectionInfo;
+import io.ep2p.kademlia.connection.MessageSender;
 import io.ep2p.kademlia.exception.HandlerNotFoundException;
 import io.ep2p.kademlia.node.KademliaNodeAPI;
 import io.ep2p.kademlia.node.Node;
+import io.ep2p.kademlia.node.decorators.DateAwareNodeDecorator;
 import io.ep2p.kademlia.protocol.message.EmptyKademliaMessage;
 import io.ep2p.kademlia.protocol.message.KademliaMessage;
 import lombok.SneakyThrows;
@@ -33,9 +36,9 @@ public class TestMessageSenderAPI<ID extends Number, C extends ConnectionInfo> i
             return (KademliaMessage<ID, C, I>) kademliaMessage;
         }
 
-        message.setNode(caller);
+        message.setNode(new DateAwareNodeDecorator<>(caller));
         var response = (KademliaMessage<ID, C, I>) this.map.get(receiver.getId()).onMessage(message);
-        response.setNode(receiver);
+        response.setNode(new DateAwareNodeDecorator<>(receiver));
         return response;
     }
 
