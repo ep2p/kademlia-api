@@ -31,8 +31,8 @@ public class NodeSettings implements Serializable {
   // V4
   public int pingScheduleTimeValue;
   public TimeUnit pingScheduleTimeUnit;
-  public int storeRequestPoolSize;
-  public int storeAndGetCleanupPoolSize;
+  public int dhtExecutorPoolSize;
+  public int dhtCleanupExecutorPoolSize;
   public int maximumStoreAndLookupTimeoutValue;
   public TimeUnit maximumStoreAndGetTimeoutTimeUnit;
   public boolean enabledFirstStoreRequestForcePass;
@@ -64,8 +64,8 @@ public class NodeSettings implements Serializable {
     // V4
     public static int PING_SCHEDULE_TIME_VALUE = 20;
     public static TimeUnit PING_SCHEDULE_TIME_UNIT = TimeUnit.SECONDS;
-    public static int STORE_REQUEST_POOL_SIZE = 20;
-    public static int STORE_AND_GET_CLEANUP_POOL_SIZE = 40;
+    public static int DHT_EXECUTOR_POOL_SIZE = 20;
+    public static int DHT_CLEANUP_EXECUTOR_POOL_SIZE = 40;
     public static int MAXIMUM_STORE_AND_LOOKUP_TIMEOUT_VALUE = 1;
     public static TimeUnit MAXIMUM_STORE_AND_LOOKUP_TIMEOUT_TIME_UNIT = TimeUnit.MINUTES;
     public static boolean ENABLED_FIRST_STORE_REQUEST_FORCE_PASS = true;
@@ -87,8 +87,8 @@ public class NodeSettings implements Serializable {
               .maximumLastSeenAgeToConsiderAlive(MAXIMUM_LAST_SEEN_AGE_TO_CONSIDER_ALIVE)
               .pingScheduleTimeUnit(PING_SCHEDULE_TIME_UNIT)
               .pingScheduleTimeValue(PING_SCHEDULE_TIME_VALUE)
-              .storeRequestPoolSize(STORE_REQUEST_POOL_SIZE)
-              .storeAndGetCleanupPoolSize(STORE_AND_GET_CLEANUP_POOL_SIZE)
+              .dhtExecutorPoolSize(DHT_EXECUTOR_POOL_SIZE)
+              .dhtCleanupExecutorPoolSize(DHT_CLEANUP_EXECUTOR_POOL_SIZE)
               .maximumStoreAndLookupTimeoutValue(MAXIMUM_STORE_AND_LOOKUP_TIMEOUT_VALUE)
               .maximumStoreAndGetTimeoutTimeUnit(MAXIMUM_STORE_AND_LOOKUP_TIMEOUT_TIME_UNIT)
               .enabledFirstStoreRequestForcePass(ENABLED_FIRST_STORE_REQUEST_FORCE_PASS)

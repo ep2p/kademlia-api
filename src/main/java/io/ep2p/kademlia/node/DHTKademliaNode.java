@@ -34,8 +34,8 @@ public class DHTKademliaNode<ID extends Number, C extends ConnectionInfo, K exte
 
     public DHTKademliaNode(ID id, C connectionInfo, RoutingTable<ID, C, Bucket<ID, C>> routingTable, MessageSender<ID, C> messageSender, NodeSettings nodeSettings, KademliaRepository<ID, C, K, V> kademliaRepository) {
         super(id, connectionInfo, routingTable, messageSender, nodeSettings);
-        this.executorService = Executors.newFixedThreadPool(nodeSettings.getStoreRequestPoolSize());
-        this.scheduledExecutor = Executors.newScheduledThreadPool(nodeSettings.getStoreAndGetCleanupPoolSize());
+        this.executorService = Executors.newFixedThreadPool(nodeSettings.getDhtExecutorPoolSize());
+        this.scheduledExecutor = Executors.newScheduledThreadPool(nodeSettings.getDhtCleanupExecutorPoolSize());
         this.kademliaRepository = kademliaRepository;
         this.initDHTKademliaNode();
     }
