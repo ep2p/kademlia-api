@@ -17,6 +17,7 @@ import io.ep2p.kademlia.table.Bucket;
 import io.ep2p.kademlia.table.RoutingTable;
 import io.ep2p.kademlia.util.DateUtil;
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 import lombok.var;
 import org.jetbrains.annotations.Nullable;
 
@@ -26,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.*;
 
+@Slf4j
 public class DHTKademliaNode<ID extends Number, C extends ConnectionInfo, K extends Serializable, V extends Serializable> extends KademliaNode<ID, C> implements DHTKademliaNodeAPI<ID, C, K, V>, MessageHandler<ID, C> {
     protected Map<K, CompletableFuture<StoreAnswer<ID, K>>> storeMap = new ConcurrentHashMap<>();
     protected Map<K, CompletableFuture<LookupAnswer<ID, K, V>>> lookupMap = new ConcurrentHashMap<>();
@@ -277,7 +279,7 @@ public class DHTKademliaNode<ID extends Number, C extends ConnectionInfo, K exte
                         onMessage(pingAnswer);
                     } catch (HandlerNotFoundException e) {
                         // Should not get stuck here. Main objective is to store the message
-                        // Todo: log
+                        log.error(e.getMessage(), e);
                     }
                 }
             }

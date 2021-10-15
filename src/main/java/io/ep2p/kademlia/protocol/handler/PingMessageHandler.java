@@ -6,7 +6,9 @@ import io.ep2p.kademlia.node.KademliaNodeAPI;
 import io.ep2p.kademlia.protocol.message.KademliaMessage;
 import io.ep2p.kademlia.protocol.message.PingKademliaMessage;
 import io.ep2p.kademlia.protocol.message.PongKademliaMessage;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class PingMessageHandler<ID extends Number, C extends ConnectionInfo> extends GeneralResponseMessageHandler<ID, C> {
 
     @Override
@@ -20,8 +22,7 @@ public class PingMessageHandler<ID extends Number, C extends ConnectionInfo> ext
             try {
                 kademliaNode.getRoutingTable().update(message.getNode());
             } catch (FullBucketException e) {
-                e.printStackTrace();
-                //TODO: log
+                log.error(e.getMessage(), e);
             }
         }
         PongKademliaMessage<ID, C> pongKademliaMessage = new PongKademliaMessage<>();

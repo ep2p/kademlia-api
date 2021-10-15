@@ -9,9 +9,11 @@ import io.ep2p.kademlia.protocol.message.FindNodeRequestMessage;
 import io.ep2p.kademlia.protocol.message.KademliaMessage;
 import io.ep2p.kademlia.protocol.message.PongKademliaMessage;
 import io.ep2p.kademlia.util.RoutingTableUtil;
+import lombok.extern.slf4j.Slf4j;
 import lombok.var;
 import org.jetbrains.annotations.NotNull;
 
+@Slf4j
 public class PongMessageHandler<ID extends Number, C extends ConnectionInfo> extends GeneralResponseMessageHandler<ID, C> {
     @Override
     @SuppressWarnings("unchecked")
@@ -23,7 +25,7 @@ public class PongMessageHandler<ID extends Number, C extends ConnectionInfo> ext
         try {
             RoutingTableUtil.softUpdate(kademliaNode, message.getNode());
         } catch (HandlerNotFoundException e) {
-            //TODO: log
+            log.error(e.getMessage(), e);
         }
         return new EmptyKademliaMessage<ID, C>();
     }

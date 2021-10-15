@@ -6,11 +6,13 @@ import io.ep2p.kademlia.exception.HandlerNotFoundException;
 import io.ep2p.kademlia.node.KademliaNodeAPI;
 import io.ep2p.kademlia.protocol.message.*;
 import io.ep2p.kademlia.util.RoutingTableUtil;
+import lombok.extern.slf4j.Slf4j;
 import lombok.var;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+@Slf4j
 public class FindNodeResponseMessageHandler<ID extends Number, C extends ConnectionInfo> implements MessageHandler<ID, C> {
     private final ExecutorService executorService = Executors.newFixedThreadPool(1);
 
@@ -34,8 +36,7 @@ public class FindNodeResponseMessageHandler<ID extends Number, C extends Connect
                             kademliaNode.onMessage(findNodeResponse);
                         }
                     } catch (HandlerNotFoundException | FullBucketException e) {
-                        e.printStackTrace();
-                        // TODO
+                        log.error(e.getMessage(), e);
                     }
                 });
             }

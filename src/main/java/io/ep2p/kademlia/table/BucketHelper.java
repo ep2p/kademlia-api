@@ -15,7 +15,7 @@ public class BucketHelper {
 
     public static <ID extends Number, C extends ConnectionInfo> void addToAnswer(Bucket<ID, C> bucket, FindNodeAnswer<ID, C> answer, ID destination) {
         if(bucket instanceof LongBucket){
-            for (long id : ((Bucket<Long, C>) bucket).getNodeIds()) {  // TODO: limit on this
+            for (long id : ((Bucket<Long, C>) bucket).getNodeIds()) {
                 Node<Long, C> node = ((Bucket<Long, C>) bucket).getNode(id);
                 long destination1 = (Long) destination;
                 answer.add((ExternalNode<ID, C>) new LongExternalNode<C>(node,id ^ destination1));

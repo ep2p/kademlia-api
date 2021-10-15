@@ -154,8 +154,8 @@ public class KademliaNode<ID extends Number, C extends ConnectionInfo> implement
                 onMessage(response);
                 completableFuture.complete(true);
             } catch (Exception e) {
-                // Todo: log
                 completableFuture.complete(false);
+                log.error(e.getMessage(), e);
             }
         });
 
@@ -175,8 +175,7 @@ public class KademliaNode<ID extends Number, C extends ConnectionInfo> implement
                             var response = getMessageSender().sendMessage(caller, node, message);
                             onMessage(response);
                         } catch (HandlerNotFoundException e) {
-                            e.printStackTrace();
-                            // TODO
+                            log.error(e.getMessage(), e);
                         }
                     });
                 },
