@@ -12,6 +12,7 @@ import io.ep2p.kademlia.connection.ConnectionInfo;
 import io.ep2p.kademlia.exception.FullBucketException;
 import io.ep2p.kademlia.model.FindNodeAnswer;
 import io.ep2p.kademlia.node.Node;
+import io.ep2p.kademlia.util.FindNodeAnswerReducer;
 import lombok.NoArgsConstructor;
 
 import java.util.Collections;
@@ -67,6 +68,26 @@ public abstract class AbstractRoutingTable<ID extends Number, C extends Connecti
   }
 
 
+  @Override
+  public synchronized void forceUpdate(Node<ID, C> node) {
+    try {
+      this.update(node);
+    } catch (FullBucketException e) {
+      Bucket<ID, C> bucket = this.findBucket(node.getId());
+      Date date = null;
+      ID oldestNode = null;
+      for (ID nodeId : bucket.getNodeIds()) {
+        if (date == null || bucket.getNode(nodeId).getLastSeen().before(date)){
+          date = bucket.getNode(nodeId).getLastSeen();
+          oldestNode = nodeId;
+        }
+      }
+      bucket.remove(oldestNode);
+      // recursive, because some other thread may add new node to the bucket while we are making a space
+      this.forceUpdate(node);
+    }
+  }
+
   /**
    * Delete node from table
    * @param node to delete
@@ -79,6 +100,7 @@ public abstract class AbstractRoutingTable<ID extends Number, C extends Connecti
 
   /**
    * Returns the closest nodes we know to a given id
+   * TODO: probably needs a better algorithm
    * @param destinationId lookup
    * @return result for closest nodes to destination
    */
@@ -87,7 +109,7 @@ public abstract class AbstractRoutingTable<ID extends Number, C extends Connecti
     Bucket<ID, C> bucket = this.findBucket(destinationId);
     BucketHelper.addToAnswer(bucket, findNodeAnswer, destinationId);
 
-    // For every node (max common.BucketSize and lte identifier size) and add it to answer
+    // Loop over every bucket (max common.BucketSize or lte identifier size) and add it to answer
     for (int i = 1; findNodeAnswer.size() < this.nodeSettings.getBucketSize() && ((bucket.getId() - i) >= 0 ||
                                     (bucket.getId() + i) <= this.nodeSettings.getIdentifierSize()); i++) {
       //Check the previous buckets
@@ -105,10 +127,17 @@ public abstract class AbstractRoutingTable<ID extends Number, C extends Connecti
     //We sort the list
     Collections.sort(findNodeAnswer.getNodes());
     //We trim the list
-    while (findNodeAnswer.size() > this.nodeSettings.getIdentifierSize()) {
+    new FindNodeAnswerReducer<>(this.id, findNodeAnswer, this.nodeSettings.getFindNodeSize(), this.nodeSettings.getIdentifierSize()).reduce();
+    while (findNodeAnswer.size() > this.nodeSettings.getFindNodeSize()) {
       findNodeAnswer.remove(findNodeAnswer.size() - 1); //TODO: Not the best thing.
     }
     return findNodeAnswer;
+  }
+
+  @Override
+  public boolean contains(ID nodeId) {
+    Bucket<ID, C> bucket = this.findBucket(nodeId);
+    return bucket.contains(nodeId);
   }
 
   public Vector<B> getBuckets() {

@@ -8,6 +8,7 @@ package io.ep2p.kademlia.node.external;
 
 import io.ep2p.kademlia.connection.ConnectionInfo;
 import io.ep2p.kademlia.node.Node;
+import io.ep2p.kademlia.node.decorators.DateAwareNodeDecorator;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -18,14 +19,11 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-public abstract class ExternalNode<ID extends Number, C extends ConnectionInfo> extends Node<ID, C> implements Comparable<Object> {
+public abstract class ExternalNode<ID extends Number, C extends ConnectionInfo> extends DateAwareNodeDecorator<ID, C> implements Comparable<Object> {
   protected ID distance;
 
-  public ExternalNode() {
-  }
-
   public ExternalNode(Node<ID, C> node, ID distance) {
-    setNode(node);
+    super(node);
     this.distance = distance;
   }
 
@@ -35,5 +33,4 @@ public abstract class ExternalNode<ID extends Number, C extends ConnectionInfo> 
   public String toString() {
     return "ExternalNode [id=" + getId() + ", distance=" + distance + "]";
   }
-
 }

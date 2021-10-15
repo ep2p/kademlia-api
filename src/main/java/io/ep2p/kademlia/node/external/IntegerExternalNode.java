@@ -9,9 +9,6 @@ import io.ep2p.kademlia.node.Node;
  */
 public class IntegerExternalNode<C extends ConnectionInfo> extends ExternalNode<Integer, C> {
 
-    public IntegerExternalNode() {
-    }
-
     public IntegerExternalNode(Node<Integer, C> node, Integer distance) {
         super(node, distance);
     }
