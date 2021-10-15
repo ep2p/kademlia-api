@@ -58,11 +58,7 @@ public class KademliaNode<ID extends Number, C extends ConnectionInfo> implement
     @Override
     public void start() {
         pingSchedule();
-        try {
-            getRoutingTable().update(this);
-        } catch (FullBucketException e) {
-            // Todo: force update
-        }
+        getRoutingTable().forceUpdate(this);
         this.isRunning = true;
     }
 
@@ -112,6 +108,15 @@ public class KademliaNode<ID extends Number, C extends ConnectionInfo> implement
     }
 
     @Override
+    public MessageHandler<ID, C> getHandler(String type) throws HandlerNotFoundException {
+        var handler = this.messageHandlerRegistry.get(type);
+        if (handler == null){
+            throw new HandlerNotFoundException(type);
+        }
+        return handler;
+    }
+
+    @Override
     public void setLastSeen(Date date) {
         // Nothing to do here
     }
@@ -133,6 +138,7 @@ public class KademliaNode<ID extends Number, C extends ConnectionInfo> implement
         this.registerMessageHandler(MessageType.FIND_NODE_RES, new FindNodeResponseMessageHandler<>());
         this.registerMessageHandler(MessageType.SHUTDOWN, new ShutdownMessageHandler<>());
     }
+
 
     protected Future<Boolean> bootstrap(Node<ID, C> bootstrapNode) throws FullBucketException {
         final KademliaNodeAPI<ID, C> caller = this;

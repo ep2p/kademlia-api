@@ -8,6 +8,7 @@ import io.ep2p.kademlia.protocol.message.EmptyKademliaMessage;
 import io.ep2p.kademlia.protocol.message.FindNodeRequestMessage;
 import io.ep2p.kademlia.protocol.message.KademliaMessage;
 import io.ep2p.kademlia.protocol.message.PongKademliaMessage;
+import io.ep2p.kademlia.util.RoutingTableUtil;
 import lombok.var;
 import org.jetbrains.annotations.NotNull;
 
@@ -20,16 +21,9 @@ public class PongMessageHandler<ID extends Number, C extends ConnectionInfo> ext
 
     protected EmptyKademliaMessage<ID, C> doHandle(KademliaNodeAPI<ID, C> kademliaNode, @NotNull PongKademliaMessage<ID, C> message){
         try {
-            if (kademliaNode.getRoutingTable().update(message.getNode())) {
-                FindNodeRequestMessage<ID, C> findNodeRequestMessage = new FindNodeRequestMessage<>();
-                findNodeRequestMessage.setData(kademliaNode.getId());
-                var response = kademliaNode.getMessageSender().sendMessage(kademliaNode, message.getNode(), findNodeRequestMessage);
-                kademliaNode.onMessage(response);
-            }
-        } catch (FullBucketException e) {
-            //TODO: log
+            RoutingTableUtil.softUpdate(kademliaNode, message.getNode());
         } catch (HandlerNotFoundException e) {
-            //TODO
+            //TODO: log
         }
         return new EmptyKademliaMessage<ID, C>();
     }

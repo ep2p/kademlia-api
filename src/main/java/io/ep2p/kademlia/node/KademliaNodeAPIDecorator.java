@@ -81,4 +81,9 @@ public abstract class KademliaNodeAPIDecorator<ID extends Number, C extends Conn
     public ID getId() {
         return this.getKademliaNode().getId();
     }
+
+    @Override
+    public MessageHandler<ID, C> getHandler(String type) throws HandlerNotFoundException {
+        return this.getKademliaNode().getHandler(type);
+    }
 }

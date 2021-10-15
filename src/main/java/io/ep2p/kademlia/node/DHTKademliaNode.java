@@ -16,6 +16,7 @@ import io.ep2p.kademlia.repository.KademliaRepository;
 import io.ep2p.kademlia.table.Bucket;
 import io.ep2p.kademlia.table.RoutingTable;
 import io.ep2p.kademlia.util.DateUtil;
+import io.ep2p.kademlia.util.RoutingTableUtil;
 import lombok.var;
 import org.jetbrains.annotations.Nullable;
 
@@ -291,6 +292,9 @@ public class DHTKademliaNode<ID extends Number, C extends ConnectionInfo, K exte
     @Override
     @SuppressWarnings("unchecked")
     public <I extends KademliaMessage<ID, C, ?>, O extends KademliaMessage<ID, C, ?>> O handle(KademliaNodeAPI<ID, C> kademliaNode, I message) {
+        if (message.isAlive()){
+            getRoutingTable().forceUpdate(message.getNode());
+        }
         switch (message.getType()) {
             case MessageType.DHT_STORE:
                 assert message instanceof DHTStoreKademliaMessage;

@@ -31,22 +31,33 @@ public interface RoutingTable<ID extends Number, C extends ConnectionInfo, B ext
     Bucket<ID, C> findBucket(ID id);
 
     /**
-     * Updates the routing table with a new value. Returns true if node didnt exist in table before
+     * Updates the routing table with a new node. Returns true if node didnt exist in table before
      * @param node to update
      * @return if node is added newly
      */
     boolean update(Node<ID, C> node) throws FullBucketException;
+
+    /**
+     * Updating the routing table with a new node.
+     * Should definitely add the new node to the routing table even if bucket is full
+     * @param node to update
+     */
+    void forceUpdate(Node<ID, C> node);
+
     /**
      * Delete node from table
      * @param node to delete
      */
     void delete(Node<ID, C> node);
+
     /**
      * Returns the closest nodes we know to a given id
      * @param destinationId lookup
      * @return result for closest nodes to destination
      */
     FindNodeAnswer<ID, C> findClosest(ID destinationId);
+
+    boolean contains(ID nodeId);
 
     Vector<B> getBuckets();
 

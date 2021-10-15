@@ -68,6 +68,26 @@ public abstract class AbstractRoutingTable<ID extends Number, C extends Connecti
   }
 
 
+  @Override
+  public synchronized void forceUpdate(Node<ID, C> node) {
+    try {
+      this.update(node);
+    } catch (FullBucketException e) {
+      Bucket<ID, C> bucket = this.findBucket(node.getId());
+      Date date = null;
+      ID oldestNode = null;
+      for (ID nodeId : bucket.getNodeIds()) {
+        if (date == null || bucket.getNode(nodeId).getLastSeen().before(date)){
+          date = bucket.getNode(nodeId).getLastSeen();
+          oldestNode = nodeId;
+        }
+      }
+      bucket.remove(oldestNode);
+      // recursive, because some other thread may add new node to the bucket while we are making a space
+      this.forceUpdate(node);
+    }
+  }
+
   /**
    * Delete node from table
    * @param node to delete
@@ -112,6 +132,12 @@ public abstract class AbstractRoutingTable<ID extends Number, C extends Connecti
       findNodeAnswer.remove(findNodeAnswer.size() - 1); //TODO: Not the best thing.
     }
     return findNodeAnswer;
+  }
+
+  @Override
+  public boolean contains(ID nodeId) {
+    Bucket<ID, C> bucket = this.findBucket(nodeId);
+    return bucket.contains(nodeId);
   }
 
   public Vector<B> getBuckets() {
