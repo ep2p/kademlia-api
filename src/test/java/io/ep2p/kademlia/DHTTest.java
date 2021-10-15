@@ -81,7 +81,8 @@ public class DHTTest {
         Assertions.assertEquals(storeAnswer.getResult(), StoreAnswer.Result.STORED, "StoreAnswer Result was " + storeAnswer.getResult() + ", stored in node" + storeAnswer.getNodeId());
         System.out.println(storeAnswer.getNodeId() + " stored " + storeAnswer.getKey());
 
-        Assertions.assertFalse(node.getKademliaRepository().contains(data.hashCode()));
+        if (!storeAnswer.getNodeId().equals(node.getId()))
+            Assertions.assertFalse(node.getKademliaRepository().contains(data.hashCode()));
 
         Future<LookupAnswer<Integer, Integer, String>> lookupFuture = node.lookup(data.hashCode());
         LookupAnswer<Integer, Integer, String> lookupAnswer = lookupFuture.get();
