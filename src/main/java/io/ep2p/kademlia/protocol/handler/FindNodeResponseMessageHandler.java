@@ -5,7 +5,6 @@ import io.ep2p.kademlia.exception.FullBucketException;
 import io.ep2p.kademlia.exception.HandlerNotFoundException;
 import io.ep2p.kademlia.node.KademliaNodeAPI;
 import io.ep2p.kademlia.protocol.message.*;
-import io.ep2p.kademlia.util.RoutingTableUtil;
 import lombok.extern.slf4j.Slf4j;
 import lombok.var;
 

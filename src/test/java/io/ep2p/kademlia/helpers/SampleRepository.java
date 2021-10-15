@@ -1,6 +1,5 @@
 package io.ep2p.kademlia.helpers;
 
-import io.ep2p.kademlia.node.Node;
 import io.ep2p.kademlia.repository.KademliaRepository;
 
 import java.util.HashMap;

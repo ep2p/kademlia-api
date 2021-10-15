@@ -8,12 +8,9 @@ package io.ep2p.kademlia.node.external;
 
 import io.ep2p.kademlia.connection.ConnectionInfo;
 import io.ep2p.kademlia.node.Node;
-import io.ep2p.kademlia.node.NodeDecorator;
 import io.ep2p.kademlia.node.decorators.DateAwareNodeDecorator;
 import lombok.Getter;
 import lombok.Setter;
-
-import java.util.Date;
 
 /**
  * Kademlia node from outside of the system (other kademlia nodes are implementation of this class when they are seen in this system)
