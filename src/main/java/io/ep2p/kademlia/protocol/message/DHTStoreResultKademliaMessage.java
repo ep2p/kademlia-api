@@ -17,7 +17,7 @@ public class DHTStoreResultKademliaMessage<ID extends Number, C extends Connecti
     }
 
     public DHTStoreResultKademliaMessage() {
-        super(MessageType.DHT_STORE);
+        super(MessageType.DHT_STORE_RESULT);
     }
 
     @Data

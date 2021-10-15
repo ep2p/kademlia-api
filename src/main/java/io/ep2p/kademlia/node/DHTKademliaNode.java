@@ -25,8 +25,8 @@ import java.util.Map;
 import java.util.concurrent.*;
 
 public class DHTKademliaNode<ID extends Number, C extends ConnectionInfo, K extends Serializable, V extends Serializable> extends KademliaNode<ID, C> implements DHTKademliaNodeAPI<ID, C, K, V>, MessageHandler<ID, C> {
-    protected Map<K, Future<StoreAnswer<ID, K>>> storeMap = new ConcurrentHashMap<>();
-    protected Map<K, Future<LookupAnswer<ID, K, V>>> lookupMap = new ConcurrentHashMap<>();
+    protected Map<K, CompletableFuture<StoreAnswer<ID, K>>> storeMap = new ConcurrentHashMap<>();
+    protected Map<K, CompletableFuture<LookupAnswer<ID, K, V>>> lookupMap = new ConcurrentHashMap<>();
     protected final KademliaRepository<ID, C, K, V> kademliaRepository;
     protected final ExecutorService executorService;
     protected final ScheduledExecutorService scheduledExecutor;
@@ -126,8 +126,12 @@ public class DHTKademliaNode<ID extends Number, C extends ConnectionInfo, K exte
         if (message.getType().equals(MessageType.DHT_STORE)){
             assert message instanceof DHTStoreKademliaMessage;
             return (O) handleStoreRequest((DHTStoreKademliaMessage<ID, C, K, V>) message);
+        }else if (message.getType().equals(MessageType.DHT_STORE_RESULT)){
+            assert message instanceof DHTStoreResultKademliaMessage;
+            return (O) handleStoreResult((DHTStoreResultKademliaMessage<ID, C, K>) message);
         }
-        return null;
+
+        throw new IllegalArgumentException("message param is not supported");
     }
 
 
@@ -136,6 +140,16 @@ public class DHTKademliaNode<ID extends Number, C extends ConnectionInfo, K exte
         return null;
     }
 
+
+    protected KademliaMessage<ID, C, ?> handleStoreResult(DHTStoreResultKademliaMessage<ID, C, K> message) {
+        DHTStoreResultKademliaMessage.DHTStoreResult<K> data = message.getData();
+        var future = this.storeMap.get(data.getKey());
+        if (future != null){
+            future.complete(getNewStoreAnswer(data.getKey(), data.getResult(), message.getNode()));
+            this.storeMap.remove(data.getKey());
+        }
+        return new EmptyKademliaMessage<>();
+    }
 
     protected KademliaMessage<ID, C, ?> handleStoreRequest(DHTStoreKademliaMessage<ID,C,K,V> dhtStoreKademliaMessage){
         final KademliaNodeAPI<ID, C> caller = this;
@@ -157,7 +171,6 @@ public class DHTKademliaNode<ID extends Number, C extends ConnectionInfo, K exte
         });
         return new EmptyKademliaMessage<>();
     }
-
 
     protected StoreAnswer<ID, K> handleStore(Node<ID, C> caller, Node<ID, C> requester, K key, V value){
         StoreAnswer<ID, K> storeAnswer = null;
