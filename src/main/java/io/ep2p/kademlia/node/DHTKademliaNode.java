@@ -40,6 +40,28 @@ public class DHTKademliaNode<ID extends Number, C extends ConnectionInfo, K exte
     }
 
     @Override
+    public void stop() {
+        if (this.isRunning()) {
+            this.executorService.shutdown();
+            this.scheduledExecutor.shutdown();
+        }
+        this.storeMap.clear();
+        this.lookupMap.clear();
+        super.stop();
+    }
+
+    @Override
+    public void stopNow() {
+        if (this.isRunning()) {
+            this.executorService.shutdownNow();
+            this.scheduledExecutor.shutdownNow();
+        }
+        this.storeMap.clear();
+        this.lookupMap.clear();
+        super.stopNow();
+    }
+
+    @Override
     public Future<StoreAnswer<ID, K>> store(K key, V value) {
         if(!isRunning())
             throw new IllegalStateException("Node is not running");
