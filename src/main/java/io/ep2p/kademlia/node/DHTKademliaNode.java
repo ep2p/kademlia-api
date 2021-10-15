@@ -5,6 +5,7 @@ import io.ep2p.kademlia.connection.ConnectionInfo;
 import io.ep2p.kademlia.connection.MessageSender;
 import io.ep2p.kademlia.exception.DuplicateStoreRequest;
 import io.ep2p.kademlia.exception.HandlerNotFoundException;
+import io.ep2p.kademlia.model.DHTKey;
 import io.ep2p.kademlia.model.FindNodeAnswer;
 import io.ep2p.kademlia.model.LookupAnswer;
 import io.ep2p.kademlia.model.StoreAnswer;
@@ -25,7 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.*;
 
-public class DHTKademliaNode<ID extends Number, C extends ConnectionInfo, K extends Serializable, V extends Serializable> extends KademliaNode<ID, C> implements DHTKademliaNodeAPI<ID, C, K, V>, MessageHandler<ID, C> {
+public class DHTKademliaNode<ID extends Number, C extends ConnectionInfo, K extends DHTKey<ID>, V extends Serializable> extends KademliaNode<ID, C> implements DHTKademliaNodeAPI<ID, C, K, V>, MessageHandler<ID, C> {
     protected Map<K, CompletableFuture<StoreAnswer<ID, K>>> storeMap = new ConcurrentHashMap<>();
     protected Map<K, CompletableFuture<LookupAnswer<ID, K, V>>> lookupMap = new ConcurrentHashMap<>();
     protected final KademliaRepository<ID, C, K, V> kademliaRepository;
@@ -186,9 +187,8 @@ public class DHTKademliaNode<ID extends Number, C extends ConnectionInfo, K exte
     }
 
 
-    // TODO
     protected ID hash(K key){
-        return null;
+        return key.getHash();
     }
 
     protected LookupAnswer<ID, K, V> getDataFromClosestNodes(Node<ID, C> caller, Node<ID, C> requester, K key, int currentTry){
@@ -339,7 +339,7 @@ public class DHTKademliaNode<ID extends Number, C extends ConnectionInfo, K exte
     }
 
     protected KademliaMessage<ID, C, ?> handleStoreResult(DHTStoreResultKademliaMessage<ID, C, K> message) {
-        DHTStoreResultKademliaMessage.DHTStoreResult<K> data = message.getData();
+        DHTStoreResultKademliaMessage.DHTStoreResult<ID, K> data = message.getData();
         var future = this.storeMap.get(data.getKey());
         if (future != null){
             future.complete(getNewStoreAnswer(data.getKey(), data.getResult(), message.getNode()));

@@ -15,7 +15,7 @@ import java.io.Serializable;
 @NoArgsConstructor
 @Getter
 @Setter
-public class LookupAnswer<ID extends Number, K, V> extends Answer<ID> {
+public class LookupAnswer<ID extends Number, K extends DHTKey<ID>, V extends Serializable> extends Answer<ID> {
     private K key;
     private V value;
     private Result result;
@@ -24,7 +24,7 @@ public class LookupAnswer<ID extends Number, K, V> extends Answer<ID> {
         PASSED, FOUND, FAILED, TIMEOUT
     }
 
-    public static <ID extends Number, K extends Serializable, V extends Serializable> LookupAnswer<ID, K, V> generateWithResult(K key, LookupAnswer.Result finalResult){
+    public static <ID extends Number, K  extends DHTKey<ID>, V extends Serializable> LookupAnswer<ID, K, V> generateWithResult(K key, LookupAnswer.Result finalResult){
         var result = new LookupAnswer<ID, K, V>();
         result.setResult(finalResult);
         result.setKey(key);
