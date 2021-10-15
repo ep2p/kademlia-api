@@ -19,4 +19,11 @@ public class StoreAnswer<ID extends Number, K> extends WatchableAnswer<ID> {
     public enum Result {
         STORED, PASSED, FAILED, TIMEOUT
     }
+
+    public static <ID extends Number, K> StoreAnswer<ID, K> generateWithResult(K key, StoreAnswer.Result finalResult){
+        var result = new StoreAnswer<ID, K>();
+        result.setResult(finalResult);
+        result.setKey(key);
+        return result;
+    }
 }
