@@ -12,4 +12,8 @@ public interface MessageSender<ID extends Number, C extends ConnectionInfo> {
             Node<ID, C> receiver,
             KademliaMessage<ID, C, O> message
     );
+
+    <O extends Serializable> void sendAsyncMessage(KademliaNodeAPI<ID, C> caller,
+                          Node<ID, C> receiver,
+                          KademliaMessage<ID, C, O> message);
 }

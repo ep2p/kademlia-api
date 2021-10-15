@@ -9,9 +9,9 @@ import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 
-public class DHTStoreResultKademliaMessage<ID extends Number, C extends ConnectionInfo> extends KademliaMessage<ID, C, DHTStoreResultKademliaMessage.DHTStoreResult<?, ?>> {
+public class DHTStoreResultKademliaMessage<ID extends Number, C extends ConnectionInfo, K extends Serializable> extends KademliaMessage<ID, C, DHTStoreResultKademliaMessage.DHTStoreResult<K>> {
 
-    public <K extends Serializable, V extends Serializable> DHTStoreResultKademliaMessage(DHTStoreResult<K, V> data) {
+    public DHTStoreResultKademliaMessage(DHTStoreResult<K> data) {
         this();
         setData(data);
     }
@@ -23,7 +23,7 @@ public class DHTStoreResultKademliaMessage<ID extends Number, C extends Connecti
     @Data
     @AllArgsConstructor
     @NoArgsConstructor
-    public static class DHTStoreResult<K extends Serializable, V extends Serializable> implements Serializable{
+    public static class DHTStoreResult<K extends Serializable> implements Serializable{
         private K key;
         private StoreAnswer.Result result;
     }

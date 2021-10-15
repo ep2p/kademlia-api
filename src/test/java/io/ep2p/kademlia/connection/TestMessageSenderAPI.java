@@ -1,5 +1,6 @@
 package io.ep2p.kademlia.connection;
 
+import io.ep2p.kademlia.exception.HandlerNotFoundException;
 import io.ep2p.kademlia.node.KademliaNodeAPI;
 import io.ep2p.kademlia.node.Node;
 import io.ep2p.kademlia.protocol.message.EmptyKademliaMessage;
@@ -10,9 +11,12 @@ import lombok.var;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class TestMessageSenderAPI<ID extends Number, C extends ConnectionInfo> implements MessageSender<ID, C> {
     public final Map<ID, KademliaNodeAPI<ID, C>> map = new HashMap<>();
+    private final ExecutorService executorService = Executors.newFixedThreadPool(1);
 
     public void registerNode(KademliaNodeAPI<ID, C> node){
         map.put(node.getId(), node);
@@ -33,6 +37,19 @@ public class TestMessageSenderAPI<ID extends Number, C extends ConnectionInfo> i
         var response = (KademliaMessage<ID, C, I>) this.map.get(receiver.getId()).onMessage(message);
         response.setNode(receiver);
         return response;
+    }
+
+    @Override
+    public <O extends Serializable> void sendAsyncMessage(KademliaNodeAPI<ID, C> caller, Node<ID, C> receiver, KademliaMessage<ID, C, O> message) {
+        message.setNode(caller);
+        this.executorService.submit(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    map.get(receiver.getId()).onMessage(message);
+                } catch (HandlerNotFoundException ignored) {}
+            }
+        });
     }
 
     public void stopAll(){

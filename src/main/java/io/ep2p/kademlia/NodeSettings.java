@@ -35,6 +35,7 @@ public class NodeSettings implements Serializable {
   public int storeAndGetCleanupPoolSize;
   public int maximumStoreAndLookupTimeoutValue;
   public TimeUnit maximumStoreAndGetTimeoutTimeUnit;
+  public boolean enabledFirstStoreRequestForcePass;
 
 
   @Builder
@@ -67,6 +68,7 @@ public class NodeSettings implements Serializable {
     public static int STORE_AND_GET_CLEANUP_POOL_SIZE = 40;
     public static int MAXIMUM_STORE_AND_LOOKUP_TIMEOUT_VALUE = 1;
     public static TimeUnit MAXIMUM_STORE_AND_LOOKUP_TIMEOUT_TIME_UNIT = TimeUnit.MINUTES;
+    public static boolean ENABLED_FIRST_STORE_REQUEST_FORCE_PASS = true;
 
 
     public static boolean ENABLED_KEY_REPUBLISHING = false;
@@ -89,6 +91,7 @@ public class NodeSettings implements Serializable {
               .storeAndGetCleanupPoolSize(STORE_AND_GET_CLEANUP_POOL_SIZE)
               .maximumStoreAndLookupTimeoutValue(MAXIMUM_STORE_AND_LOOKUP_TIMEOUT_VALUE)
               .maximumStoreAndGetTimeoutTimeUnit(MAXIMUM_STORE_AND_LOOKUP_TIMEOUT_TIME_UNIT)
+              .enabledFirstStoreRequestForcePass(ENABLED_FIRST_STORE_REQUEST_FORCE_PASS)
               .enabledRepublishing(ENABLED_KEY_REPUBLISHING)
               .republishSettings(ENABLED_KEY_REPUBLISHING ? REPUBLISH_SETTINGS : null)
               .build();
