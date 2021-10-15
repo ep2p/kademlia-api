@@ -1,6 +1,7 @@
 package io.ep2p.kademlia.protocol.message;
 
 import io.ep2p.kademlia.connection.ConnectionInfo;
+import io.ep2p.kademlia.node.Node;
 import io.ep2p.kademlia.protocol.MessageType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -8,9 +9,9 @@ import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 
-public class DHTLookupKademliaMessage<ID extends Number, C extends ConnectionInfo> extends KademliaMessage<ID, C, DHTLookupKademliaMessage.DHTLookup<?, ?>> {
+public class DHTLookupKademliaMessage<ID extends Number, C extends ConnectionInfo, K extends Serializable> extends KademliaMessage<ID, C, DHTLookupKademliaMessage.DHTLookup<ID, C, K>> {
 
-    public <K extends Serializable, V extends Serializable> DHTLookupKademliaMessage(DHTLookup<K, V> data) {
+    public DHTLookupKademliaMessage(DHTLookup<ID, C, K> data) {
         this();
         setData(data);
     }
@@ -22,8 +23,10 @@ public class DHTLookupKademliaMessage<ID extends Number, C extends ConnectionInf
     @Data
     @AllArgsConstructor
     @NoArgsConstructor
-    public static class DHTLookup<K extends Serializable, V extends Serializable> implements Serializable{
+    public static class DHTLookup<ID extends Number, C extends ConnectionInfo, K extends Serializable> implements Serializable{
+        protected Node<ID, C> requester;
         private K key;
+        private int currentTry;
     }
 
 }
