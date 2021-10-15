@@ -16,7 +16,6 @@ import io.ep2p.kademlia.repository.KademliaRepository;
 import io.ep2p.kademlia.table.Bucket;
 import io.ep2p.kademlia.table.RoutingTable;
 import io.ep2p.kademlia.util.DateUtil;
-import io.ep2p.kademlia.util.RoutingTableUtil;
 import lombok.var;
 import org.jetbrains.annotations.Nullable;
 
@@ -30,14 +29,16 @@ public class DHTKademliaNode<ID extends Number, C extends ConnectionInfo, K exte
     protected Map<K, CompletableFuture<StoreAnswer<ID, K>>> storeMap = new ConcurrentHashMap<>();
     protected Map<K, CompletableFuture<LookupAnswer<ID, K, V>>> lookupMap = new ConcurrentHashMap<>();
     protected final KademliaRepository<ID, C, K, V> kademliaRepository;
+    protected final KeyHashGenerator<ID, K> keyHashGenerator;
     protected final ExecutorService executorService;
     protected final ScheduledExecutorService scheduledExecutor;
 
-    public DHTKademliaNode(ID id, C connectionInfo, RoutingTable<ID, C, Bucket<ID, C>> routingTable, MessageSender<ID, C> messageSender, NodeSettings nodeSettings, KademliaRepository<ID, C, K, V> kademliaRepository) {
+    public DHTKademliaNode(ID id, C connectionInfo, RoutingTable<ID, C, Bucket<ID, C>> routingTable, MessageSender<ID, C> messageSender, NodeSettings nodeSettings, KademliaRepository<ID, C, K, V> kademliaRepository, KeyHashGenerator<ID, K> keyHashGenerator) {
         super(id, connectionInfo, routingTable, messageSender, nodeSettings);
         this.executorService = Executors.newFixedThreadPool(nodeSettings.getDhtExecutorPoolSize());
         this.scheduledExecutor = Executors.newScheduledThreadPool(nodeSettings.getDhtCleanupExecutorPoolSize());
         this.kademliaRepository = kademliaRepository;
+        this.keyHashGenerator = keyHashGenerator;
         this.initDHTKademliaNode();
     }
 
@@ -187,9 +188,8 @@ public class DHTKademliaNode<ID extends Number, C extends ConnectionInfo, K exte
     }
 
 
-    // TODO
     protected ID hash(K key){
-        return null;
+        return keyHashGenerator.generateHash(key);
     }
 
     protected LookupAnswer<ID, K, V> getDataFromClosestNodes(Node<ID, C> caller, Node<ID, C> requester, K key, int currentTry){
