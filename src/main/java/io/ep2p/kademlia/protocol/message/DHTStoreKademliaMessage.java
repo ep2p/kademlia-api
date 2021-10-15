@@ -1,7 +1,6 @@
 package io.ep2p.kademlia.protocol.message;
 
 import io.ep2p.kademlia.connection.ConnectionInfo;
-import io.ep2p.kademlia.model.DHTKey;
 import io.ep2p.kademlia.node.Node;
 import io.ep2p.kademlia.protocol.MessageType;
 import lombok.AllArgsConstructor;
@@ -10,7 +9,7 @@ import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 
-public class DHTStoreKademliaMessage<ID extends Number, C extends ConnectionInfo, K extends DHTKey<ID>, V extends Serializable> extends KademliaMessage<ID, C, DHTStoreKademliaMessage.DHTData<ID, C, K, V>> {
+public class DHTStoreKademliaMessage<ID extends Number, C extends ConnectionInfo, K extends Serializable, V extends Serializable> extends KademliaMessage<ID, C, DHTStoreKademliaMessage.DHTData<ID, C, K, V>> {
 
     public DHTStoreKademliaMessage(DHTData<ID, C, K, V> data) {
         this();
@@ -24,7 +23,7 @@ public class DHTStoreKademliaMessage<ID extends Number, C extends ConnectionInfo
     @Data
     @AllArgsConstructor
     @NoArgsConstructor
-    public static class DHTData<ID extends Number, C extends ConnectionInfo, K extends DHTKey<ID>, V extends Serializable> implements Serializable{
+    public static class DHTData<ID extends Number, C extends ConnectionInfo, K extends Serializable, V extends Serializable> implements Serializable{
         protected Node<ID, C> requester;
         private K key;
         private V value;
