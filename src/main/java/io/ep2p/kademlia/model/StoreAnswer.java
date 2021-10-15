@@ -12,7 +12,7 @@ import lombok.*;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class StoreAnswer<ID extends Number, K> extends WatchableAnswer<ID> {
+public class StoreAnswer<ID extends Number, K> extends Answer<ID> {
     private K key;
     private Result result;
 
