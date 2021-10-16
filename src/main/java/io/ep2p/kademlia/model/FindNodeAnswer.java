@@ -27,7 +27,7 @@ public class FindNodeAnswer<ID extends Number, C extends ConnectionInfo> impleme
   private List<ExternalNode<ID, C>> nodes;
 
   public FindNodeAnswer() {
-    nodes = new ArrayList<ExternalNode<ID, C>>();
+    nodes = new ArrayList<>();
   }
 
   public FindNodeAnswer(ID destinationId) {

@@ -24,6 +24,6 @@ public class PongMessageHandler<ID extends Number, C extends ConnectionInfo> ext
         } catch (HandlerNotFoundException e) {
             log.error(e.getMessage(), e);
         }
-        return new EmptyKademliaMessage<ID, C>();
+        return new EmptyKademliaMessage<>();
     }
 }

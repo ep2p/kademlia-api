@@ -3,7 +3,6 @@ package io.ep2p.kademlia.node;
 import io.ep2p.kademlia.NodeSettings;
 import io.ep2p.kademlia.connection.ConnectionInfo;
 import io.ep2p.kademlia.connection.MessageSender;
-import io.ep2p.kademlia.exception.FullBucketException;
 import io.ep2p.kademlia.exception.HandlerNotFoundException;
 import io.ep2p.kademlia.protocol.handler.MessageHandler;
 import io.ep2p.kademlia.protocol.message.KademliaMessage;

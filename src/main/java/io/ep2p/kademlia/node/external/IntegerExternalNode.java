@@ -2,6 +2,7 @@ package io.ep2p.kademlia.node.external;
 
 import io.ep2p.kademlia.connection.ConnectionInfo;
 import io.ep2p.kademlia.node.Node;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * External node with ID of type Integer
@@ -15,7 +16,7 @@ public class IntegerExternalNode<C extends ConnectionInfo> extends ExternalNode<
 
     @Override
     @SuppressWarnings("unchecked")
-    public int compareTo(Object o) {
+    public int compareTo(@NotNull Object o) {
         ExternalNode<Integer, C> c = (ExternalNode<Integer, C>) o;
         return Integer.compare(distance, c.distance);
     }

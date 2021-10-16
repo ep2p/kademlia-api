@@ -11,6 +11,7 @@ import io.ep2p.kademlia.node.Node;
 import io.ep2p.kademlia.node.decorators.DateAwareNodeDecorator;
 import lombok.Getter;
 import lombok.Setter;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Kademlia node from outside of the system (other kademlia nodes are implementation of this class when they are seen in this system)
@@ -27,7 +28,7 @@ public abstract class ExternalNode<ID extends Number, C extends ConnectionInfo> 
     this.distance = distance;
   }
 
-  public abstract int compareTo(Object o);
+  public abstract int compareTo(@NotNull Object o);
 
   @Override
   public String toString() {

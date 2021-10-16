@@ -20,7 +20,7 @@ public class LongRoutingTable<C extends ConnectionInfo> extends AbstractRoutingT
 
   @Override
   protected LongBucket<C> createBucketOfId(int i) {
-    return new LongBucket<C>(i);
+    return new LongBucket<>(i);
   }
 
   /**

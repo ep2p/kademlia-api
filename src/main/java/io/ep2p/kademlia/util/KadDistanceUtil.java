@@ -26,28 +26,23 @@ public class KadDistanceUtil {
         return distances;
     }
 
+    @SuppressWarnings("unchecked")
     public static synchronized <ID extends Number> List<ID> getNodesWithDistance(ID nodeId, int identifierSize) {
         if(nodeId instanceof Long){
             ArrayList<Long> validNodes = new ArrayList<>();
-            getDistancesOfIdentifierSize(identifierSize).forEach(distance -> {
-                validNodes.add(((Long) nodeId) ^ distance);
-            });
+            getDistancesOfIdentifierSize(identifierSize).forEach(distance -> validNodes.add(((Long) nodeId) ^ distance));
 
             return (List<ID>) validNodes;
         }
         if (nodeId instanceof BigInteger){
             ArrayList<BigInteger> validNodes = new ArrayList<>();
-            getDistancesOfIdentifierSize(identifierSize).forEach(distance -> {
-                validNodes.add(((BigInteger) nodeId).xor(BigInteger.valueOf(distance)));
-            });
+            getDistancesOfIdentifierSize(identifierSize).forEach(distance -> validNodes.add(((BigInteger) nodeId).xor(BigInteger.valueOf(distance))));
 
             return (List<ID>) validNodes;
         }
         if (nodeId instanceof Integer){
             ArrayList<Integer> validNodes = new ArrayList<>();
-            getDistancesOfIdentifierSize(identifierSize).forEach(distance -> {
-                validNodes.add(((Integer) nodeId) ^ distance);
-            });
+            getDistancesOfIdentifierSize(identifierSize).forEach(distance -> validNodes.add(((Integer) nodeId) ^ distance));
 
             return (List<ID>) validNodes;
         }

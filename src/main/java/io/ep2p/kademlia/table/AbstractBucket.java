@@ -20,16 +20,16 @@ import java.util.concurrent.CopyOnWriteArrayList;
  */
 public class AbstractBucket<ID extends Number, C extends ConnectionInfo> implements Bucket<ID, C> {
   private static final long serialVersionUID = -6049494618368168254L;
-  protected int id;
-  protected List<ID> nodeIds;
-  protected Map<ID, Node<ID, C>> nodeMap = new ConcurrentHashMap<>();
+  protected final int id;
+  protected final List<ID> nodeIds;
+  protected final Map<ID, Node<ID, C>> nodeMap = new ConcurrentHashMap<>();
 
   /**
    * Create a bucket for prefix `id`
    * @param id prefix
    */
   public AbstractBucket(int id) {
-    this.nodeIds = new CopyOnWriteArrayList<ID>();
+    this.nodeIds = new CopyOnWriteArrayList<>();
     this.id = id;
   }
 

@@ -1,6 +1,5 @@
 package io.ep2p.kademlia;
 
-import io.ep2p.kademlia.exception.FullBucketException;
 import io.ep2p.kademlia.helpers.EmptyConnectionInfo;
 import io.ep2p.kademlia.helpers.TestMessageSenderAPI;
 import io.ep2p.kademlia.node.KademliaNode;
@@ -25,7 +24,7 @@ import java.util.concurrent.ExecutionException;
 public class NodesJoiningByPreviousNodeTest {
 
     @Test
-    public void canPeersJoinNetwork() throws InterruptedException, FullBucketException, ExecutionException {
+    public void canPeersJoinNetwork() throws InterruptedException, ExecutionException {
         TestMessageSenderAPI<Integer, EmptyConnectionInfo> messageSenderAPI = new TestMessageSenderAPI<>();
 
         NodeSettings.Default.IDENTIFIER_SIZE = 4;
@@ -37,14 +36,14 @@ public class NodesJoiningByPreviousNodeTest {
 
 
         // Bootstrap Node
-        KademliaNodeAPI<Integer, EmptyConnectionInfo> bootstrapNode = new KademliaNode<Integer, EmptyConnectionInfo>(0, new EmptyConnectionInfo(), routingTableFactory.getRoutingTable(0), messageSenderAPI, nodeSettings);
+        KademliaNodeAPI<Integer, EmptyConnectionInfo> bootstrapNode = new KademliaNode<>(0, new EmptyConnectionInfo(), routingTableFactory.getRoutingTable(0), messageSenderAPI, nodeSettings);
         messageSenderAPI.registerNode(bootstrapNode);
         bootstrapNode.start();
 
         // Other nodes
         KademliaNodeAPI<Integer, EmptyConnectionInfo> previousNode = bootstrapNode;
         for(int i = 1; i < Math.pow(2, NodeSettings.Default.IDENTIFIER_SIZE); i++){
-            KademliaNodeAPI<Integer, EmptyConnectionInfo> newNode = new KademliaNode<Integer, EmptyConnectionInfo>(i, new EmptyConnectionInfo(), routingTableFactory.getRoutingTable(i), messageSenderAPI, nodeSettings);
+            KademliaNodeAPI<Integer, EmptyConnectionInfo> newNode = new KademliaNode<>(i, new EmptyConnectionInfo(), routingTableFactory.getRoutingTable(i), messageSenderAPI, nodeSettings);
             messageSenderAPI.registerNode(newNode);
             Assertions.assertTrue(newNode.start(previousNode).get(), "Failed to bootstrap the node with ID " + i);
             previousNode = newNode;
@@ -53,14 +52,11 @@ public class NodesJoiningByPreviousNodeTest {
 
         // Wait and test if all nodes join
         CountDownLatch countDownLatch = new CountDownLatch(1);
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                while (messageSenderAPI.map.size() < Math.pow(2, NodeSettings.Default.IDENTIFIER_SIZE)){
-                    //wait
-                }
-                countDownLatch.countDown();
+        new Thread(() -> {
+            while (messageSenderAPI.map.size() < Math.pow(2, NodeSettings.Default.IDENTIFIER_SIZE)){
+                //wait
             }
+            countDownLatch.countDown();
         }).start();
         boolean await = countDownLatch.await(NodeSettings.Default.PING_SCHEDULE_TIME_VALUE + 1, NodeSettings.Default.PING_SCHEDULE_TIME_UNIT);
         Assertions.assertTrue(await);
