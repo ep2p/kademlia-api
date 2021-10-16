@@ -63,7 +63,7 @@ public class KademliaNode<ID extends Number, C extends ConnectionInfo> implement
     }
 
     @Override
-    public Future<Boolean> start(Node<ID, C> bootstrapNode) throws FullBucketException {
+    public Future<Boolean> start(Node<ID, C> bootstrapNode) {
         Future<Boolean> booleanFuture = this.bootstrap(bootstrapNode);
         this.start();
         return booleanFuture;
@@ -140,9 +140,9 @@ public class KademliaNode<ID extends Number, C extends ConnectionInfo> implement
     }
 
 
-    protected Future<Boolean> bootstrap(Node<ID, C> bootstrapNode) throws FullBucketException {
+    protected Future<Boolean> bootstrap(Node<ID, C> bootstrapNode) {
         final KademliaNodeAPI<ID, C> caller = this;
-        this.getRoutingTable().update(bootstrapNode);
+        this.getRoutingTable().forceUpdate(bootstrapNode);
 
         CompletableFuture<Boolean> completableFuture = new CompletableFuture<>();
 

@@ -33,7 +33,7 @@ public abstract class KademliaNodeAPIDecorator<ID extends Number, C extends Conn
     }
 
     @Override
-    public Future<Boolean> start(Node<ID, C> bootstrapNode) throws FullBucketException {
+    public Future<Boolean> start(Node<ID, C> bootstrapNode) {
         return this.getKademliaNode().start(bootstrapNode);
     }
 
