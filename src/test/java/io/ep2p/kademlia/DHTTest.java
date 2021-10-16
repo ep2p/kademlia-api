@@ -73,6 +73,8 @@ public class DHTTest {
         Assertions.assertThrows(TimeoutException.class, () -> {
             bootstrapNode.store(data2.hashCode(), data2).get(1, TimeUnit.NANOSECONDS);
         });
+
+        messageSenderAPI.stopAll();
     }
 
     private void testStore(DHTKademliaNodeAPI<Integer, EmptyConnectionInfo, Integer, String> node, String data) throws ExecutionException, InterruptedException {
