@@ -18,28 +18,23 @@ public class FindNodeResponseMessageHandler<ID extends Number, C extends Connect
     @Override
     @SuppressWarnings("unchecked")
     public <I extends KademliaMessage<ID, C, ?>, O extends KademliaMessage<ID, C, ?>> O handle(KademliaNodeAPI<ID, C> kademliaNode, I message) {
-        executorService.submit(new Runnable() {
-            @Override
-            public void run() {
-                ((FindNodeResponseMessage<ID, C>) message).getData().getNodes().forEach(externalNode -> {
-                    // ignore self
-                    if (externalNode.getId().equals(kademliaNode.getId())){
-                        return;
-                    }
-                    try {
-                        var response = kademliaNode.getMessageSender().sendMessage(kademliaNode, externalNode, new PingKademliaMessage<>());
-                        if (response.isAlive() && kademliaNode.getRoutingTable().update(response.getNode())) {
-                            FindNodeRequestMessage<ID, C> findNodeRequestMessage = new FindNodeRequestMessage<>();
-                            findNodeRequestMessage.setData(kademliaNode.getId());
-                            var findNodeResponse = kademliaNode.getMessageSender().sendMessage(kademliaNode, message.getNode(), findNodeRequestMessage);
-                            kademliaNode.onMessage(findNodeResponse);
-                        }
-                    } catch (HandlerNotFoundException | FullBucketException e) {
-                        log.error(e.getMessage(), e);
-                    }
-                });
+        executorService.submit(() -> ((FindNodeResponseMessage<ID, C>) message).getData().getNodes().forEach(externalNode -> {
+            // ignore self
+            if (externalNode.getId().equals(kademliaNode.getId())){
+                return;
             }
-        });
+            try {
+                var response = kademliaNode.getMessageSender().sendMessage(kademliaNode, externalNode, new PingKademliaMessage<>());
+                if (response.isAlive() && kademliaNode.getRoutingTable().update(response.getNode())) {
+                    FindNodeRequestMessage<ID, C> findNodeRequestMessage = new FindNodeRequestMessage<>();
+                    findNodeRequestMessage.setData(kademliaNode.getId());
+                    var findNodeResponse = kademliaNode.getMessageSender().sendMessage(kademliaNode, message.getNode(), findNodeRequestMessage);
+                    kademliaNode.onMessage(findNodeResponse);
+                }
+            } catch (HandlerNotFoundException | FullBucketException e) {
+                log.error(e.getMessage(), e);
+            }
+        }));
         return (O) new EmptyKademliaMessage<ID, C>();
     }
 }

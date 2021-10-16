@@ -45,13 +45,10 @@ public class TestMessageSenderAPI<ID extends Number, C extends ConnectionInfo> i
     @Override
     public <O extends Serializable> void sendAsyncMessage(KademliaNodeAPI<ID, C> caller, Node<ID, C> receiver, KademliaMessage<ID, C, O> message) {
         message.setNode(caller);
-        this.executorService.submit(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    map.get(receiver.getId()).onMessage(message);
-                } catch (HandlerNotFoundException ignored) {}
-            }
+        this.executorService.submit(() -> {
+            try {
+                map.get(receiver.getId()).onMessage(message);
+            } catch (HandlerNotFoundException ignored) {}
         });
     }
 

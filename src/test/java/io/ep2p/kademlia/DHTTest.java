@@ -1,6 +1,5 @@
 package io.ep2p.kademlia;
 
-import io.ep2p.kademlia.exception.FullBucketException;
 import io.ep2p.kademlia.helpers.EmptyConnectionInfo;
 import io.ep2p.kademlia.helpers.SampleRepository;
 import io.ep2p.kademlia.helpers.TestMessageSenderAPI;
@@ -21,7 +20,7 @@ import java.util.concurrent.*;
 public class DHTTest {
 
     @Test
-    public void testStore() throws FullBucketException, ExecutionException, InterruptedException, TimeoutException {
+    public void testStore() throws ExecutionException, InterruptedException {
         TestMessageSenderAPI<Integer, EmptyConnectionInfo> messageSenderAPI = new TestMessageSenderAPI<>();
 
         NodeSettings.Default.IDENTIFIER_SIZE = 4;
@@ -48,14 +47,11 @@ public class DHTTest {
 
         // Wait and test if all nodes join
         CountDownLatch countDownLatch = new CountDownLatch(1);
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                while (messageSenderAPI.map.size() < Math.pow(2, NodeSettings.Default.IDENTIFIER_SIZE)){
-                    //wait
-                }
-                countDownLatch.countDown();
+        new Thread(() -> {
+            while (messageSenderAPI.map.size() < Math.pow(2, NodeSettings.Default.IDENTIFIER_SIZE)){
+                //wait
             }
+            countDownLatch.countDown();
         }).start();
         boolean await = countDownLatch.await(NodeSettings.Default.PING_SCHEDULE_TIME_VALUE + 1, NodeSettings.Default.PING_SCHEDULE_TIME_UNIT);
         Assertions.assertTrue(await);
@@ -70,9 +66,7 @@ public class DHTTest {
         }
 
         String data2 = UUID.randomUUID().toString();
-        Assertions.assertThrows(TimeoutException.class, () -> {
-            bootstrapNode.store(data2.hashCode(), data2).get(1, TimeUnit.NANOSECONDS);
-        });
+        Assertions.assertThrows(TimeoutException.class, () -> bootstrapNode.store(data2.hashCode(), data2).get(1, TimeUnit.NANOSECONDS));
 
         messageSenderAPI.stopAll();
     }

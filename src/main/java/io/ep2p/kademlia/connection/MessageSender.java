@@ -28,7 +28,6 @@ public interface MessageSender<ID extends Number, C extends ConnectionInfo> {
      * @param receiver Node to send the message to
      * @param message Message
      * @param <O> Serializable output type of the message
-     * @return Output message
      */
     <O extends Serializable> void sendAsyncMessage(KademliaNodeAPI<ID, C> caller,
                           Node<ID, C> receiver,

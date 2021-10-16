@@ -38,7 +38,7 @@ public abstract class AbstractRoutingTable<ID extends Number, C extends Connecti
   public AbstractRoutingTable(ID id, NodeSettings nodeSettings) {
     this.id = id;
     this.nodeSettings = nodeSettings;
-    buckets = new Vector<B>();
+    buckets = new Vector<>();
     for (int i = 0; i < nodeSettings.getIdentifierSize() + 1; i++) {
       buckets.add(createBucketOfId(i));
     }
@@ -105,7 +105,7 @@ public abstract class AbstractRoutingTable<ID extends Number, C extends Connecti
    * @return result for closest nodes to destination
    */
   public FindNodeAnswer<ID, C> findClosest(ID destinationId) {
-    FindNodeAnswer<ID, C> findNodeAnswer = new FindNodeAnswer<ID, C>(destinationId);
+    FindNodeAnswer<ID, C> findNodeAnswer = new FindNodeAnswer<>(destinationId);
     Bucket<ID, C> bucket = this.findBucket(destinationId);
     BucketHelper.addToAnswer(bucket, findNodeAnswer, destinationId);
 

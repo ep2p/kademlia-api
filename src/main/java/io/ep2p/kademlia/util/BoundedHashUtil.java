@@ -15,6 +15,7 @@ public class BoundedHashUtil {
         this.maxSize = maxSizeInBits;
     }
 
+    @SuppressWarnings("unchecked")
     public <I extends Number, O extends Number> O hash(I input, Class<O> oClass){
         if(oClass.equals(Long.class)){
             long i = ((Long) input) << -maxSize >>> -maxSize;

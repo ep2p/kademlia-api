@@ -19,9 +19,7 @@ public class KademliaNodesToReference {
 
         // Extracting nodes with specified distance
         ArrayList<Integer> validNodes = new ArrayList<>();
-        distances.forEach(distance -> {
-            validNodes.add(nodeId ^ distance);
-        });
-
+        distances.forEach(distance -> validNodes.add(nodeId ^ distance));
+        System.out.println(validNodes);
     }
 }

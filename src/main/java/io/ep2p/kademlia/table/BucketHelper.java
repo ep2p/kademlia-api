@@ -18,7 +18,7 @@ public class BucketHelper {
             for (long id : ((Bucket<Long, C>) bucket).getNodeIds()) {
                 Node<Long, C> node = ((Bucket<Long, C>) bucket).getNode(id);
                 long destination1 = (Long) destination;
-                answer.add((ExternalNode<ID, C>) new LongExternalNode<C>(node,id ^ destination1));
+                answer.add((ExternalNode<ID, C>) new LongExternalNode<>(node, id ^ destination1));
             }
         }
 
@@ -26,7 +26,7 @@ public class BucketHelper {
             for (int id : ((Bucket<Integer, C>) bucket).getNodeIds()) {
                 Node<Integer, C> node = ((Bucket<Integer, C>) bucket).getNode(id);
                 int destination1 = (Integer) destination;
-                answer.add((ExternalNode<ID, C>) new IntegerExternalNode<C>(node,id ^ destination1));
+                answer.add((ExternalNode<ID, C>) new IntegerExternalNode<>(node, id ^ destination1));
             }
         }
 
@@ -34,7 +34,7 @@ public class BucketHelper {
             for (BigInteger id : ((Bucket<BigInteger, C>) bucket).getNodeIds()) {
                 Node<BigInteger, C> node = ((Bucket<BigInteger, C>) bucket).getNode(id);
                 BigInteger destination1 = (BigInteger) destination;
-                answer.add((ExternalNode<ID, C>) new BigIntegerExternalNode<C>(node,destination1.xor(id)));
+                answer.add((ExternalNode<ID, C>) new BigIntegerExternalNode<>(node, destination1.xor(id)));
             }
         }
 

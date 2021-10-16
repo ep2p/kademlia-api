@@ -2,6 +2,7 @@ package io.ep2p.kademlia.node.external;
 
 import io.ep2p.kademlia.connection.ConnectionInfo;
 import io.ep2p.kademlia.node.Node;
+import org.jetbrains.annotations.NotNull;
 
 import java.math.BigInteger;
 
@@ -16,7 +17,8 @@ public class BigIntegerExternalNode<C extends ConnectionInfo> extends ExternalNo
     }
 
     @Override
-    public int compareTo(Object o) {
+    @SuppressWarnings("unchecked")
+    public int compareTo(@NotNull Object o) {
         ExternalNode<BigInteger, C> c = (ExternalNode<BigInteger, C>) o;
         return distance.compareTo(c.distance);
     }
