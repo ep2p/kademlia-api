@@ -1,7 +1,6 @@
 package example;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 
 //More info: http://tutorials.jenkov.com/p2p/peer-routing-table.html
 public class KademliaNodesToReference {
@@ -16,7 +15,7 @@ public class KademliaNodesToReference {
         }
 
         // Your node id here. Must be in range of 0 -> (2 power identifierSize)
-        int nodeId = 0;
+        int nodeId = 15;
 
         // Extracting nodes with specified distance
         ArrayList<Integer> validNodes = new ArrayList<>();
@@ -24,6 +23,5 @@ public class KademliaNodesToReference {
             validNodes.add(nodeId ^ distance);
         });
 
-        System.out.println("Nodes to reference for "+ nodeId +" are: " + Arrays.toString(validNodes.toArray()));
     }
 }

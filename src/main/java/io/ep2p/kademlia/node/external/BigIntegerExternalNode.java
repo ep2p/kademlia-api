@@ -11,9 +11,6 @@ import java.math.BigInteger;
  */
 public class BigIntegerExternalNode<C extends ConnectionInfo> extends ExternalNode<BigInteger, C> {
 
-    public BigIntegerExternalNode() {
-    }
-
     public BigIntegerExternalNode(Node<BigInteger, C> node, BigInteger distance) {
         super(node, distance);
     }

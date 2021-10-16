@@ -20,9 +20,9 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 
 /**
- *  Basic test to make sure network can initialize by bootstrapping and nodes find each other
+ *  Basic test to make sure network can initialize by bootstrapping using previous node instead of all nodes trying same bootstrap node
  */
-public class NodesJoiningTest {
+public class NodesJoiningByPreviousNodeTest {
 
     @Test
     public void canPeersJoinNetwork() throws InterruptedException, FullBucketException, ExecutionException {
@@ -42,10 +42,12 @@ public class NodesJoiningTest {
         bootstrapNode.start();
 
         // Other nodes
+        KademliaNodeAPI<Integer, EmptyConnectionInfo> previousNode = bootstrapNode;
         for(int i = 1; i < Math.pow(2, NodeSettings.Default.IDENTIFIER_SIZE); i++){
-            KademliaNodeAPI<Integer, EmptyConnectionInfo> nextNode = new KademliaNode<Integer, EmptyConnectionInfo>(i, new EmptyConnectionInfo(), routingTableFactory.getRoutingTable(i), messageSenderAPI, nodeSettings);
-            messageSenderAPI.registerNode(nextNode);
-            Assertions.assertTrue(nextNode.start(bootstrapNode).get(), "Failed to bootstrap the node with ID " + i);
+            KademliaNodeAPI<Integer, EmptyConnectionInfo> newNode = new KademliaNode<Integer, EmptyConnectionInfo>(i, new EmptyConnectionInfo(), routingTableFactory.getRoutingTable(i), messageSenderAPI, nodeSettings);
+            messageSenderAPI.registerNode(newNode);
+            Assertions.assertTrue(newNode.start(previousNode).get(), "Failed to bootstrap the node with ID " + i);
+            previousNode = newNode;
         }
 
 
