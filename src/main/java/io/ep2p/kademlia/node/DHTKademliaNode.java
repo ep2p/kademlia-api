@@ -220,11 +220,11 @@ public class DHTKademliaNode<ID extends Number, C extends ConnectionInfo, K exte
                         this,
                         externalNode,
                         new DHTLookupKademliaMessage<>(
-                                new DHTLookupKademliaMessage.DHTLookup<>(this, key, currentTry + 1)
+                                new DHTLookupKademliaMessage.DHTLookup<>(requester, key, currentTry + 1)
                         )
                 );
                 if (response.isAlive()){
-                    getAnswer = getNewLookupAnswer(key, LookupAnswer.Result.PASSED, requester, null);
+                    getAnswer = getNewLookupAnswer(key, LookupAnswer.Result.PASSED, this, null);
                     break;
                 }
 
