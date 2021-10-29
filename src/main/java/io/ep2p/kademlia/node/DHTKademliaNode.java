@@ -76,17 +76,18 @@ public class DHTKademliaNode<ID extends Number, C extends ConnectionInfo, K exte
 
         CompletableFuture<StoreAnswer<ID, K>> future = new CompletableFuture<>();
 
-        if (storeMap.containsKey(key)) {
-            future.completeExceptionally(new DuplicateStoreRequest());
-            return future;
-        }
+        synchronized (this){
+            if (storeMap.containsKey(key)) {
+                future.completeExceptionally(new DuplicateStoreRequest());
+                return future;
+            }
 
-        storeMap.put(key, future);
-        final Node<ID, C> node = this;
+            storeMap.put(key, future);
+        }
 
         executorService.submit(() -> {
             try {
-                StoreAnswer<ID, K> storeAnswer = handleStore(node, node, key, value);
+                StoreAnswer<ID, K> storeAnswer = handleStore(this, this, key, value);
                 StoreAnswer.Result storeAnswerResult = storeAnswer.getResult();
 
                 // If current node has already stored the data or says storing is failed then complete the future and remove it from map
@@ -113,16 +114,18 @@ public class DHTKademliaNode<ID extends Number, C extends ConnectionInfo, K exte
     public Future<LookupAnswer<ID, K, V>> lookup(K key) {
         CompletableFuture<LookupAnswer<ID, K, V>> future = new CompletableFuture<>();
 
-        if (lookupMap.containsKey(key)) {
-            future.completeExceptionally(new DuplicateStoreRequest());
-            return future;
-        }
+        synchronized (this){
+            if (lookupMap.containsKey(key)) {
+                future.completeExceptionally(new DuplicateStoreRequest());
+                return future;
+            }
 
-        lookupMap.put(key, future);
+            lookupMap.put(key, future);
+        }
 
         executorService.submit(() -> {
             try {
-                LookupAnswer<ID, K, V> lookupAnswer = handleLookup(key, 0);
+                LookupAnswer<ID, K, V> lookupAnswer = handleLookup(this, this, key, 0);
                 LookupAnswer.Result lookupAnswerResult = lookupAnswer.getResult();
 
                 // If current node already knows the value the data or says lookup has failed then complete the future and remove it from map
@@ -143,7 +146,7 @@ public class DHTKademliaNode<ID extends Number, C extends ConnectionInfo, K exte
         return future;
     }
 
-    protected LookupAnswer<ID, K, V> handleLookup(K key, int currentTry){
+    protected LookupAnswer<ID, K, V> handleLookup(Node<ID, C> caller, Node<ID, C> requester, K key, int currentTry){
         // Check if current node contains data
         if(kademliaRepository.contains(key)){
             V value = kademliaRepository.get(key);
@@ -158,7 +161,7 @@ public class DHTKademliaNode<ID extends Number, C extends ConnectionInfo, K exte
         LookupAnswer<ID, K, V> lookupAnswer;
 
         //Otherwise, ask closest node we know to key
-        lookupAnswer = getDataFromClosestNodes(this, this, key, currentTry);
+        lookupAnswer = getDataFromClosestNodes(caller, requester, key, currentTry);
 
         if(lookupAnswer == null){
             lookupAnswer = getNewLookupAnswer(key, LookupAnswer.Result.FAILED, this, null);
@@ -333,7 +336,7 @@ public class DHTKademliaNode<ID extends Number, C extends ConnectionInfo, K exte
         final KademliaNodeAPI<ID, C> caller = this;
         executorService.submit(() -> {
             var data = message.getData();
-            var lookupAnswer = handleLookup(data.getKey(), data.getCurrentTry());
+            var lookupAnswer = handleLookup(caller, data.getRequester(), data.getKey(), data.getCurrentTry());
             if (lookupAnswer.getResult().equals(LookupAnswer.Result.FAILED) || lookupAnswer.getResult().equals(LookupAnswer.Result.FOUND)){
                 getMessageSender().sendMessage(caller, data.getRequester(), new DHTLookupResultKademliaMessage<>(
                         new DHTLookupResultKademliaMessage.DHTLookupResult<>(
