@@ -175,20 +175,20 @@ public class DHTKademliaNode<ID extends Number, C extends ConnectionInfo, K exte
         // If some other node is calling the store, and that other node is not this node,
         // but the origin request is by this node, then persist it
         if (caller != null && !caller.getId().equals(getId()) && requester.getId().equals(getId())){
-            return doStore(this, key, value);
+            return doStore(key, value);
         }
 
         // If current node should persist data, do it immediately
         // For smaller networks this helps avoiding the process of finding alive close nodes to pass data to
         if(getId().equals(hash)) {
-            storeAnswer = doStore(this, key, value);
+            storeAnswer = doStore(key, value);
         } else {
             FindNodeAnswer<ID, C> findNodeAnswer = getRoutingTable().findClosest(hash);
             storeAnswer = storeDataToClosestNode(caller, requester, findNodeAnswer.getNodes(), key, value);
         }
 
         if(storeAnswer.getResult().equals(StoreAnswer.Result.FAILED)){
-            storeAnswer = doStore(this, key, value);
+            storeAnswer = doStore(key, value);
         }
         return storeAnswer;
     }
@@ -407,15 +407,15 @@ public class DHTKademliaNode<ID extends Number, C extends ConnectionInfo, K exte
     }
 
 
-    protected StoreAnswer<ID, K> doStore(Node<ID, C> node, K key, V value){
+    protected StoreAnswer<ID, K> doStore(K key, V value){
         kademliaRepository.store(key, value);
         return getNewStoreAnswer(key, StoreAnswer.Result.STORED, this);
     }
 
 
-    // **** PRIVATE HELPER METHODS HERE **** //
+    // **** HELPER METHODS HERE **** //
 
-    private StoreAnswer<ID, K> getNewStoreAnswer(K k, StoreAnswer.Result result, Node<ID, C> node){
+    protected StoreAnswer<ID, K> getNewStoreAnswer(K k, StoreAnswer.Result result, Node<ID, C> node){
         StoreAnswer<ID, K> storeAnswer = new StoreAnswer<>();
         storeAnswer.setAlive(true);
         storeAnswer.setNodeId(node.getId());
@@ -424,7 +424,7 @@ public class DHTKademliaNode<ID extends Number, C extends ConnectionInfo, K exte
         return storeAnswer;
     }
 
-    private LookupAnswer<ID, K, V> getNewLookupAnswer(K k, LookupAnswer.Result result, Node<ID, C> node, @Nullable V value){
+    protected LookupAnswer<ID, K, V> getNewLookupAnswer(K k, LookupAnswer.Result result, Node<ID, C> node, @Nullable V value){
         LookupAnswer<ID, K, V> lookupAnswer = new LookupAnswer<>();
         lookupAnswer.setAlive(true);
         lookupAnswer.setNodeId(node.getId());
