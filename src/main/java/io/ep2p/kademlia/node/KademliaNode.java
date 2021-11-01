@@ -37,20 +37,28 @@ public class KademliaNode<ID extends Number, C extends ConnectionInfo> implement
     @Getter
     private final NodeSettings nodeSettings;
 
+    @Getter
+    private final ExecutorService executorService;
+    @Getter
+    private final ScheduledExecutorService scheduledExecutorService;
 
     //** None Accessible Fields **//
     protected final Map<String, MessageHandler<ID, C>> messageHandlerRegistry = new ConcurrentHashMap<>();
-    protected final ExecutorService executorService = Executors.newFixedThreadPool(1);
-    protected final ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
     private volatile boolean isRunning;
 
 
     public KademliaNode(ID id, C connectionInfo, RoutingTable<ID, C, Bucket<ID, C>> routingTable, MessageSender<ID, C> messageSender, NodeSettings nodeSettings) {
+        this(id, connectionInfo, routingTable, messageSender, nodeSettings, Executors.newFixedThreadPool(1), Executors.newSingleThreadScheduledExecutor());
+    }
+
+    public KademliaNode(ID id, C connectionInfo, RoutingTable<ID, C, Bucket<ID, C>> routingTable, MessageSender<ID, C> messageSender, NodeSettings nodeSettings, ExecutorService executorService, ScheduledExecutorService scheduledExecutorService) {
         this.id = id;
         this.connectionInfo = connectionInfo;
         this.routingTable = routingTable;
         this.messageSender = messageSender;
         this.nodeSettings = nodeSettings;
+        this.executorService = executorService;
+        this.scheduledExecutorService = scheduledExecutorService;
         this.init();
     }
 

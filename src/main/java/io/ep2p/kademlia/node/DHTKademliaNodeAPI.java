@@ -1,6 +1,7 @@
 package io.ep2p.kademlia.node;
 
 import io.ep2p.kademlia.connection.ConnectionInfo;
+import io.ep2p.kademlia.exception.DuplicateStoreRequest;
 import io.ep2p.kademlia.model.LookupAnswer;
 import io.ep2p.kademlia.model.StoreAnswer;
 import io.ep2p.kademlia.repository.KademliaRepository;
@@ -21,7 +22,7 @@ public interface DHTKademliaNodeAPI<ID extends Number, C extends ConnectionInfo,
      * @param value Serializable value of the data to store
      * @return Future object of StoreAnswer, contains result status and node that stored the data
      */
-    Future<StoreAnswer<ID, K>> store(K key, V value);
+    Future<StoreAnswer<ID, K>> store(K key, V value) throws DuplicateStoreRequest;
     /**
      * @param key Serializable key of the data to look up
      * @return Future object of LookupAnswer, contains value, result status and node that stored the data

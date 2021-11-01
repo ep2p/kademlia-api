@@ -1,6 +1,7 @@
 package io.ep2p.kademlia.node;
 
 import io.ep2p.kademlia.connection.ConnectionInfo;
+import io.ep2p.kademlia.exception.DuplicateStoreRequest;
 import io.ep2p.kademlia.model.LookupAnswer;
 import io.ep2p.kademlia.model.StoreAnswer;
 import io.ep2p.kademlia.repository.KademliaRepository;
@@ -15,7 +16,7 @@ public abstract class DHTKademliaNodeAPIDecorator<ID extends Number, C extends C
     }
 
     @Override
-    public Future<StoreAnswer<ID, K>> store(K key, V value) {
+    public Future<StoreAnswer<ID, K>> store(K key, V value) throws DuplicateStoreRequest {
         return ((DHTKademliaNodeAPI<ID, C, K, V>) getKademliaNode()).store(key, value);
     }
 

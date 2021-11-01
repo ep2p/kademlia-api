@@ -1,5 +1,6 @@
 package io.ep2p.kademlia.node;
 
+import com.google.common.util.concurrent.*;
 import io.ep2p.kademlia.NodeSettings;
 import io.ep2p.kademlia.connection.ConnectionInfo;
 import io.ep2p.kademlia.connection.MessageSender;
@@ -29,19 +30,21 @@ import java.util.concurrent.*;
 
 @Slf4j
 public class DHTKademliaNode<ID extends Number, C extends ConnectionInfo, K extends Serializable, V extends Serializable> extends KademliaNode<ID, C> implements DHTKademliaNodeAPI<ID, C, K, V>, MessageHandler<ID, C> {
-    protected final Map<K, CompletableFuture<StoreAnswer<ID, K>>> storeMap = new ConcurrentHashMap<>();
+    protected final Map<K, StoreAnswer<ID, K>> storeMap = new ConcurrentHashMap<>();
     protected final Map<K, CompletableFuture<LookupAnswer<ID, K, V>>> lookupMap = new ConcurrentHashMap<>();
     @Getter
     private final KademliaRepository<K, V> kademliaRepository;
     @Getter
     private final KeyHashGenerator<ID, K> keyHashGenerator;
-    protected final ExecutorService executorService;
-    protected final ScheduledExecutorService scheduledExecutor;
 
     public DHTKademliaNode(ID id, C connectionInfo, RoutingTable<ID, C, Bucket<ID, C>> routingTable, MessageSender<ID, C> messageSender, NodeSettings nodeSettings, KademliaRepository<K, V> kademliaRepository, KeyHashGenerator<ID, K> keyHashGenerator) {
-        super(id, connectionInfo, routingTable, messageSender, nodeSettings);
-        this.executorService = Executors.newFixedThreadPool(nodeSettings.getDhtExecutorPoolSize());
-        this.scheduledExecutor = Executors.newScheduledThreadPool(nodeSettings.getDhtCleanupExecutorPoolSize());
+        this(id, connectionInfo, routingTable, messageSender, nodeSettings, kademliaRepository, keyHashGenerator, Executors.newFixedThreadPool(nodeSettings.getDhtExecutorPoolSize() + 1), Executors.newScheduledThreadPool(nodeSettings.getDhtCleanupExecutorPoolSize()));
+    }
+
+    public DHTKademliaNode(ID id, C connectionInfo, RoutingTable<ID, C, Bucket<ID, C>> routingTable, MessageSender<ID, C> messageSender, NodeSettings nodeSettings, KademliaRepository<K, V> kademliaRepository, KeyHashGenerator<ID, K> keyHashGenerator, ExecutorService executorService, ScheduledExecutorService scheduledExecutorService) {
+        super(id, connectionInfo, routingTable, messageSender, nodeSettings,
+                executorService instanceof ListeningExecutorService ? executorService : MoreExecutors.listeningDecorator(executorService),
+                scheduledExecutorService);
         this.kademliaRepository = kademliaRepository;
         this.keyHashGenerator = keyHashGenerator;
         this.initDHTKademliaNode();
@@ -49,10 +52,6 @@ public class DHTKademliaNode<ID extends Number, C extends ConnectionInfo, K exte
 
     @Override
     public void stop() {
-        if (this.isRunning()) {
-            this.executorService.shutdown();
-            this.scheduledExecutor.shutdown();
-        }
         this.storeMap.clear();
         this.lookupMap.clear();
         super.stop();
@@ -60,55 +59,53 @@ public class DHTKademliaNode<ID extends Number, C extends ConnectionInfo, K exte
 
     @Override
     public void stopNow() {
-        if (this.isRunning()) {
-            this.executorService.shutdownNow();
-            this.scheduledExecutor.shutdownNow();
-        }
         this.storeMap.clear();
         this.lookupMap.clear();
         super.stopNow();
     }
 
     @Override
-    public Future<StoreAnswer<ID, K>> store(K key, V value) {
+    public Future<StoreAnswer<ID, K>> store(K key, V value) throws DuplicateStoreRequest {
         if(!isRunning())
             throw new IllegalStateException("Node is not running");
 
-        CompletableFuture<StoreAnswer<ID, K>> future = new CompletableFuture<>();
-
         synchronized (this){
             if (storeMap.containsKey(key)) {
-                future.completeExceptionally(new DuplicateStoreRequest());
-                return future;
+                throw new DuplicateStoreRequest();
             }
-
-            storeMap.put(key, future);
         }
 
-        executorService.submit(() -> {
-            try {
-                StoreAnswer<ID, K> storeAnswer = handleStore(this, this, key, value);
-                StoreAnswer.Result storeAnswerResult = storeAnswer.getResult();
+        final var self = this;
 
-                // If current node has already stored the data or says storing is failed then complete the future and remove it from map
-                if (storeAnswerResult.equals(StoreAnswer.Result.STORED) || storeAnswerResult.equals(StoreAnswer.Result.FAILED)){
-                    future.complete(storeAnswer);
-                    storeMap.remove(key);
-                }else {
-                    // Schedule to clean this future no matter how long the caller wants to wait
-                    scheduleStoreCleanup(key, future);
-                }
+        ListenableFuture<StoreAnswer<ID, K>> futureAnswer = this.getListeningExecutorService().submit(
+                new Callable<StoreAnswer<ID, K>>() {
+                    public StoreAnswer<ID, K> call() {
+                        StoreAnswer<ID, K> storeAnswer = handleStore(self, self, key, value);
+                        if (storeAnswer.getResult().equals(StoreAnswer.Result.STORED) || storeAnswer.getResult().equals(StoreAnswer.Result.FAILED)){
+                            return storeAnswer;
+                        }
+                        storeMap.put(key, storeAnswer);
+                        storeAnswer.watch();
+                        return storeAnswer;
+                    }
+                });
 
-            }catch (Throwable ex){
-                ex.printStackTrace();
-                future.completeExceptionally(ex);
-                storeMap.remove(key);
-            }
-        });
 
-        return future;
+        Futures.addCallback(
+                futureAnswer,
+                new FutureCallback<StoreAnswer<ID, K>>() {
+                    public void onSuccess(StoreAnswer<ID, K> explosion) {
+                        storeMap.remove(key);
+                    }
+                    public void onFailure(Throwable thrown) {
+                        log.error(thrown.getMessage(), thrown);
+                        storeMap.remove(key);
+                    }
+                },
+                this.getListeningExecutorService());
+
+        return futureAnswer;
     }
-
 
     @Override
     public Future<LookupAnswer<ID, K, V>> lookup(K key) {
@@ -123,7 +120,7 @@ public class DHTKademliaNode<ID extends Number, C extends ConnectionInfo, K exte
             lookupMap.put(key, future);
         }
 
-        executorService.submit(() -> {
+        this.getExecutorService().submit(() -> {
             try {
                 LookupAnswer<ID, K, V> lookupAnswer = handleLookup(this, this, key, 0);
                 LookupAnswer.Result lookupAnswerResult = lookupAnswer.getResult();
@@ -334,7 +331,7 @@ public class DHTKademliaNode<ID extends Number, C extends ConnectionInfo, K exte
 
     protected KademliaMessage<ID, C, ?> handleLookupRequest(DHTLookupKademliaMessage<ID, C, K> message) {
         final KademliaNodeAPI<ID, C> caller = this;
-        executorService.submit(() -> {
+        this.getExecutorService().submit(() -> {
             var data = message.getData();
             var lookupAnswer = handleLookup(caller, data.getRequester(), data.getKey(), data.getCurrentTry());
             if (lookupAnswer.getResult().equals(LookupAnswer.Result.FAILED) || lookupAnswer.getResult().equals(LookupAnswer.Result.FOUND)){
@@ -353,17 +350,19 @@ public class DHTKademliaNode<ID extends Number, C extends ConnectionInfo, K exte
 
     protected KademliaMessage<ID, C, ?> handleStoreResult(DHTStoreResultKademliaMessage<ID, C, K> message) {
         DHTStoreResultKademliaMessage.DHTStoreResult<K> data = message.getData();
-        var future = this.storeMap.get(data.getKey());
-        if (future != null){
-            future.complete(getNewStoreAnswer(data.getKey(), data.getResult(), message.getNode()));
-            this.storeMap.remove(data.getKey());
+        var storeAnswer = this.storeMap.get(data.getKey());
+        if (storeAnswer != null){
+            storeAnswer.setNodeId(message.getNode().getId());
+            storeAnswer.setResult(data.getResult());
+            storeAnswer.setAlive(true);
+            storeAnswer.finishWatch();
         }
         return new EmptyKademliaMessage<>();
     }
 
     protected KademliaMessage<ID, C, ?> handleStoreRequest(DHTStoreKademliaMessage<ID,C,K,V> dhtStoreKademliaMessage){
         final KademliaNodeAPI<ID, C> caller = this;
-        executorService.submit(() -> {
+        this.getExecutorService().submit(() -> {
             var data = dhtStoreKademliaMessage.getData();
             var storeAnswer = handleStore(dhtStoreKademliaMessage.getNode(), data.getRequester(), data.getKey(), data.getValue());
             if (storeAnswer.getResult().equals(StoreAnswer.Result.STORED)) {
@@ -383,21 +382,11 @@ public class DHTKademliaNode<ID extends Number, C extends ConnectionInfo, K exte
     // **** PROTECTED HELPER METHODS HERE **** //
 
     protected void scheduleLookupCleanup(K key, CompletableFuture<LookupAnswer<ID,K,V>> future) {
-        this.scheduledExecutor.schedule(() -> {
+        this.getScheduledExecutorService().schedule(() -> {
             if (!future.isDone()) {
                 future.complete(LookupAnswer.generateWithResult(key, LookupAnswer.Result.TIMEOUT));
                 future.cancel(true);
                 lookupMap.remove(key);
-            }
-        }, getNodeSettings().getMaximumStoreAndLookupTimeoutValue(), getNodeSettings().getMaximumStoreAndGetTimeoutTimeUnit());
-    }
-
-    protected void scheduleStoreCleanup(K key, CompletableFuture<StoreAnswer<ID, K>> future) {
-        this.scheduledExecutor.schedule(() -> {
-            if (!future.isDone()) {
-                future.complete(StoreAnswer.generateWithResult(key, StoreAnswer.Result.TIMEOUT));
-                future.cancel(true);
-                storeMap.remove(key);
             }
         }, getNodeSettings().getMaximumStoreAndLookupTimeoutValue(), getNodeSettings().getMaximumStoreAndGetTimeoutTimeUnit());
     }
@@ -435,6 +424,11 @@ public class DHTKademliaNode<ID extends Number, C extends ConnectionInfo, K exte
         lookupAnswer.setResult(result);
         lookupAnswer.setValue(value);
         return lookupAnswer;
+    }
+
+    protected ListeningExecutorService getListeningExecutorService(){
+        assert this.getExecutorService() instanceof ListeningExecutorService;
+        return (ListeningExecutorService) this.getExecutorService();
     }
 
 }

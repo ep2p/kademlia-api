@@ -1,10 +1,8 @@
 package io.ep2p.kademlia;
 
-import io.ep2p.kademlia.exception.DuplicateStoreRequest;
 import io.ep2p.kademlia.helpers.EmptyConnectionInfo;
 import io.ep2p.kademlia.helpers.SampleRepository;
 import io.ep2p.kademlia.helpers.TestMessageSenderAPI;
-import io.ep2p.kademlia.model.LookupAnswer;
 import io.ep2p.kademlia.model.StoreAnswer;
 import io.ep2p.kademlia.node.DHTKademliaNode;
 import io.ep2p.kademlia.node.DHTKademliaNodeAPI;
@@ -12,16 +10,23 @@ import io.ep2p.kademlia.node.KeyHashGenerator;
 import io.ep2p.kademlia.table.Bucket;
 import io.ep2p.kademlia.table.DefaultRoutingTableFactory;
 import io.ep2p.kademlia.table.RoutingTableFactory;
+import lombok.SneakyThrows;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import java.lang.reflect.Field;
+import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.*;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
-public class DHTTest {
+public class DHTKademliaNodeStoreMapCleanupTest {
 
+    // Testing if store map is getting cleaned after we store the data
+
+    @SneakyThrows
     @Test
-    public void testStore() throws ExecutionException, InterruptedException, DuplicateStoreRequest {
+    public void TestCleanStoreMap() {
         TestMessageSenderAPI<Integer, EmptyConnectionInfo> messageSenderAPI = new TestMessageSenderAPI<>();
 
         NodeSettings.Default.IDENTIFIER_SIZE = 4;
@@ -61,33 +66,26 @@ public class DHTTest {
 
         Thread.sleep(2000);
 
-        testStore(bootstrapNode, "Eleuth");
-        for (int i = 0; i < 10; i++){
-            testStore(bootstrapNode, UUID.randomUUID().toString());
-        }
+        String data = "Eleuth";
+        StoreAnswer<Integer, Integer> storeAnswer = bootstrapNode.store(data.hashCode(), data).get();
 
-        String data2 = UUID.randomUUID().toString();
-        Assertions.assertThrows(TimeoutException.class, () -> bootstrapNode.store(data2.hashCode(), data2).get(1, TimeUnit.NANOSECONDS));
+        Thread.sleep(100); // giving time for cleanup
 
-        messageSenderAPI.stopAll();
-    }
+        Field field = bootstrapNode.getClass().getDeclaredField("storeMap");
+        field.setAccessible(true);
+        Object storeMap = field.get(bootstrapNode);
+        Assertions.assertFalse(((Map<Integer, StoreAnswer<Integer, Integer>>) storeMap).containsKey(data.hashCode()));
+        Assertions.assertEquals(((Map<Integer, StoreAnswer<Integer, Integer>>) storeMap).size(), 0);
 
-    private void testStore(DHTKademliaNodeAPI<Integer, EmptyConnectionInfo, Integer, String> node, String data) throws ExecutionException, InterruptedException, DuplicateStoreRequest {
-        Future<StoreAnswer<Integer, Integer>> storeFuture = node.store(data.hashCode(), data);
-        StoreAnswer<Integer, Integer> storeAnswer = storeFuture.get();
-        Assertions.assertEquals(storeAnswer.getResult(), StoreAnswer.Result.STORED, "StoreAnswer Result was " + storeAnswer.getResult() + ", stored in node" + storeAnswer.getNodeId());
-        System.out.println(storeAnswer.getNodeId() + " stored " + storeAnswer.getKey());
+        data = UUID.randomUUID().toString();
+        storeAnswer = bootstrapNode.store(data.hashCode(), data).get(1, TimeUnit.MICROSECONDS);
 
-        if (!storeAnswer.getNodeId().equals(node.getId()))
-            Assertions.assertFalse(node.getKademliaRepository().contains(data.hashCode()));
+        Thread.sleep(100); // giving time for cleanup
 
-        Future<LookupAnswer<Integer, Integer, String>> lookupFuture = node.lookup(data.hashCode());
-        LookupAnswer<Integer, Integer, String> lookupAnswer = lookupFuture.get();
+        Assertions.assertFalse(((Map<Integer, StoreAnswer<Integer, Integer>>) storeMap).containsKey(data.hashCode()));
+        Assertions.assertEquals(((Map<Integer, StoreAnswer<Integer, Integer>>) storeMap).size(), 0);
 
-        Assertions.assertEquals(lookupAnswer.getResult(), LookupAnswer.Result.FOUND);
-        Assertions.assertEquals(lookupAnswer.getValue(), data);
-        Assertions.assertEquals(lookupAnswer.getNodeId(), storeAnswer.getNodeId());
-        System.out.println(lookupAnswer.getNodeId() + " returned the data");
+
     }
 
 }
