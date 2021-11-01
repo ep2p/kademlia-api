@@ -42,6 +42,7 @@ public class TestMessageSenderAPI<ID extends Number, C extends ConnectionInfo> i
         return response;
     }
 
+    @SneakyThrows
     @Override
     public <O extends Serializable> void sendAsyncMessage(KademliaNodeAPI<ID, C> caller, Node<ID, C> receiver, KademliaMessage<ID, C, O> message) {
         message.setNode(caller);

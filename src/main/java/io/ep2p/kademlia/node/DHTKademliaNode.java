@@ -90,19 +90,12 @@ public class DHTKademliaNode<ID extends Number, C extends ConnectionInfo, K exte
                     }
                 });
 
-
-        Futures.addCallback(
-                futureAnswer,
-                new FutureCallback<StoreAnswer<ID, K>>() {
-                    public void onSuccess(StoreAnswer<ID, K> explosion) {
-                        storeMap.remove(key);
-                    }
-                    public void onFailure(Throwable thrown) {
-                        log.error(thrown.getMessage(), thrown);
-                        storeMap.remove(key);
-                    }
-                },
-                this.getListeningExecutorService());
+        futureAnswer.addListener(() -> {
+            StoreAnswer<ID, K> storeAnswer = storeMap.remove(key);
+            if (storeAnswer != null){
+                storeAnswer.finishWatch();
+            }
+        }, this.getExecutorService());
 
         return futureAnswer;
     }

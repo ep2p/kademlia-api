@@ -17,7 +17,7 @@ public class WatchableAnswer<ID extends Number> extends Answer<ID> {
         this.countDownLatch.await();
     }
 
-    public void finishWatch(){
+    public synchronized void finishWatch(){
         if (this.countDownLatch != null){
             this.countDownLatch.countDown();
             this.countDownLatch = null;

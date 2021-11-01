@@ -12,6 +12,7 @@ import lombok.*;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@ToString
 public class StoreAnswer<ID extends Number, K> extends WatchableAnswer<ID> {
     private K key;
     private Result result;
