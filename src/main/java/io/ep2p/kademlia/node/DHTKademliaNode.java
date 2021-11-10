@@ -37,9 +37,10 @@ public class DHTKademliaNode<ID extends Number, C extends ConnectionInfo, K exte
     private final KademliaRepository<K, V> kademliaRepository;
     @Getter
     private final KeyHashGenerator<ID, K> keyHashGenerator;
+    private final ExecutorService cleanupExecutor = Executors.newSingleThreadExecutor();
 
     public DHTKademliaNode(ID id, C connectionInfo, RoutingTable<ID, C, Bucket<ID, C>> routingTable, MessageSender<ID, C> messageSender, NodeSettings nodeSettings, KademliaRepository<K, V> kademliaRepository, KeyHashGenerator<ID, K> keyHashGenerator) {
-        this(id, connectionInfo, routingTable, messageSender, nodeSettings, kademliaRepository, keyHashGenerator, Executors.newFixedThreadPool(nodeSettings.getDhtExecutorPoolSize() + 1), Executors.newScheduledThreadPool(nodeSettings.getDhtCleanupExecutorPoolSize()));
+        this(id, connectionInfo, routingTable, messageSender, nodeSettings, kademliaRepository, keyHashGenerator, Executors.newFixedThreadPool(nodeSettings.getDhtExecutorPoolSize() + 1), Executors.newScheduledThreadPool(nodeSettings.getDhtScheduledExecutorPoolSize()));
     }
 
     public DHTKademliaNode(ID id, C connectionInfo, RoutingTable<ID, C, Bucket<ID, C>> routingTable, MessageSender<ID, C> messageSender, NodeSettings nodeSettings, KademliaRepository<K, V> kademliaRepository, KeyHashGenerator<ID, K> keyHashGenerator, ExecutorService executorService, ScheduledExecutorService scheduledExecutorService) {
@@ -53,16 +54,20 @@ public class DHTKademliaNode<ID extends Number, C extends ConnectionInfo, K exte
 
     @Override
     public void stop() {
-        this.storeMap.clear();
-        this.lookupFutureMap.clear();
+        this.cleanup();
         super.stop();
     }
 
     @Override
     public void stopNow() {
+        this.cleanup();
+        super.stopNow();
+    }
+
+    protected void cleanup(){
         this.storeMap.clear();
         this.lookupFutureMap.clear();
-        super.stopNow();
+        this.lookupAnswerMap.clear();
     }
 
     @Override
@@ -96,7 +101,7 @@ public class DHTKademliaNode<ID extends Number, C extends ConnectionInfo, K exte
             if (storeAnswer != null){
                 storeAnswer.finishWatch();
             }
-        }, this.getExecutorService());
+        }, this.cleanupExecutor);
 
         return futureAnswer;
     }
@@ -132,7 +137,7 @@ public class DHTKademliaNode<ID extends Number, C extends ConnectionInfo, K exte
         futureAnswer.addListener(() -> {
             this.lookupFutureMap.remove(key);
             this.lookupAnswerMap.remove(key);
-        }, this.getExecutorService());
+        }, this.cleanupExecutor);
 
         return futureAnswer;
     }
@@ -375,16 +380,6 @@ public class DHTKademliaNode<ID extends Number, C extends ConnectionInfo, K exte
 
 
     // **** PROTECTED HELPER METHODS HERE **** //
-
-    protected void scheduleLookupCleanup(K key, CompletableFuture<LookupAnswer<ID,K,V>> future) {
-        this.getScheduledExecutorService().schedule(() -> {
-            if (!future.isDone()) {
-                future.complete(LookupAnswer.generateWithResult(key, LookupAnswer.Result.TIMEOUT));
-                future.cancel(true);
-                lookupFutureMap.remove(key);
-            }
-        }, getNodeSettings().getMaximumStoreAndLookupTimeoutValue(), getNodeSettings().getMaximumStoreAndGetTimeoutTimeUnit());
-    }
 
     protected void initDHTKademliaNode(){
         this.registerMessageHandler(MessageType.DHT_LOOKUP, this);

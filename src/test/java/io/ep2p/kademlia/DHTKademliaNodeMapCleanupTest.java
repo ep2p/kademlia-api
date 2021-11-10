@@ -79,15 +79,20 @@ public class DHTKademliaNodeMapCleanupTest {
         Assertions.assertFalse(((Map<Integer, StoreAnswer<Integer, Integer>>) storeMap).containsKey(data.hashCode()));
         Assertions.assertEquals(((Map<Integer, StoreAnswer<Integer, Integer>>) storeMap).size(), 0);
 
+        boolean exceptionThrown = false;
         try {
             data = UUID.randomUUID().toString();
             storeAnswer = bootstrapNode.store(data.hashCode(), data).get(1, TimeUnit.NANOSECONDS);
             System.out.println("stored second one! :O ");
         } catch (Exception e){
+            exceptionThrown = true;
+            System.out.println("This exception has to happen");
             e.printStackTrace();
         } finally {
             System.out.println(storeAnswer);
         }
+
+        Assertions.assertTrue(exceptionThrown);
 
         Thread.sleep(100); // giving time for cleanup
         Assertions.assertFalse(((Map<Integer, StoreAnswer<Integer, Integer>>) storeMap).containsKey(data.hashCode()));
