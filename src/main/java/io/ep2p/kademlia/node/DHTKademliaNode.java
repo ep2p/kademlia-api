@@ -31,7 +31,8 @@ import java.util.concurrent.*;
 @Slf4j
 public class DHTKademliaNode<ID extends Number, C extends ConnectionInfo, K extends Serializable, V extends Serializable> extends KademliaNode<ID, C> implements DHTKademliaNodeAPI<ID, C, K, V>, MessageHandler<ID, C> {
     protected final Map<K, StoreAnswer<ID, K>> storeMap = new ConcurrentHashMap<>();
-    protected final Map<K, CompletableFuture<LookupAnswer<ID, K, V>>> lookupMap = new ConcurrentHashMap<>();
+    protected final Map<K, Future<LookupAnswer<ID, K, V>>> lookupFutureMap = new ConcurrentHashMap<>();
+    protected final Map<K, LookupAnswer<ID, K, V>> lookupAnswerMap = new ConcurrentHashMap<>();
     @Getter
     private final KademliaRepository<K, V> kademliaRepository;
     @Getter
@@ -53,14 +54,14 @@ public class DHTKademliaNode<ID extends Number, C extends ConnectionInfo, K exte
     @Override
     public void stop() {
         this.storeMap.clear();
-        this.lookupMap.clear();
+        this.lookupFutureMap.clear();
         super.stop();
     }
 
     @Override
     public void stopNow() {
         this.storeMap.clear();
-        this.lookupMap.clear();
+        this.lookupFutureMap.clear();
         super.stopNow();
     }
 
@@ -102,38 +103,38 @@ public class DHTKademliaNode<ID extends Number, C extends ConnectionInfo, K exte
 
     @Override
     public Future<LookupAnswer<ID, K, V>> lookup(K key) {
-        CompletableFuture<LookupAnswer<ID, K, V>> future = new CompletableFuture<>();
+        if(!isRunning())
+            throw new IllegalStateException("Node is not running");
 
-        synchronized (this){
-            if (lookupMap.containsKey(key)) {
-                future.completeExceptionally(new DuplicateStoreRequest());
-                return future;
+        synchronized (this) {
+            Future<LookupAnswer<ID, K, V>> f = null;
+            if ((f = lookupFutureMap.get(key)) != null) {
+                return f;
             }
-
-            lookupMap.put(key, future);
         }
 
-        this.getExecutorService().submit(() -> {
-            try {
-                LookupAnswer<ID, K, V> lookupAnswer = handleLookup(this, this, key, 0);
-                LookupAnswer.Result lookupAnswerResult = lookupAnswer.getResult();
+        final var self = this;
 
-                // If current node already knows the value the data or says lookup has failed then complete the future and remove it from map
-                if (lookupAnswerResult.equals(LookupAnswer.Result.FOUND) || lookupAnswerResult.equals(LookupAnswer.Result.FAILED)){
-                    future.complete(lookupAnswer);
-                    lookupMap.remove(key);
-                }else {
-                    // Schedule to clean this future no matter how long the caller wants to wait
-                    scheduleLookupCleanup(key, future);
-                }
+        ListenableFuture<LookupAnswer<ID, K, V>> futureAnswer = this.getListeningExecutorService().submit(
+                new Callable<LookupAnswer<ID, K, V>>() {
+                    public LookupAnswer<ID, K, V> call() {
+                        LookupAnswer<ID, K, V> lookupAnswer = handleLookup(self, self, key, 0);
+                        if (lookupAnswer.getResult().equals(LookupAnswer.Result.FOUND) || lookupAnswer.getResult().equals(LookupAnswer.Result.FAILED)){
+                            return lookupAnswer;
+                        }
+                        lookupAnswerMap.put(key, lookupAnswer);
+                        lookupAnswer.watch();
+                        return lookupAnswer;
+                    }
+                });
+        this.lookupFutureMap.put(key, futureAnswer);
 
-            }catch (Throwable ex){
-                future.completeExceptionally(ex);
-                lookupMap.remove(key);
-            }
-        });
+        futureAnswer.addListener(() -> {
+            this.lookupFutureMap.remove(key);
+            this.lookupAnswerMap.remove(key);
+        }, this.getExecutorService());
 
-        return future;
+        return futureAnswer;
     }
 
     protected LookupAnswer<ID, K, V> handleLookup(Node<ID, C> caller, Node<ID, C> requester, K key, int currentTry){
@@ -151,13 +152,7 @@ public class DHTKademliaNode<ID extends Number, C extends ConnectionInfo, K exte
         LookupAnswer<ID, K, V> lookupAnswer;
 
         //Otherwise, ask closest node we know to key
-        lookupAnswer = getDataFromClosestNodes(caller, requester, key, currentTry);
-
-        if(lookupAnswer == null){
-            lookupAnswer = getNewLookupAnswer(key, LookupAnswer.Result.FAILED, this, null);
-        }
-
-        return lookupAnswer;
+        return getDataFromClosestNodes(caller, requester, key, currentTry);
     }
 
 
@@ -192,7 +187,7 @@ public class DHTKademliaNode<ID extends Number, C extends ConnectionInfo, K exte
     }
 
     protected LookupAnswer<ID, K, V> getDataFromClosestNodes(Node<ID, C> caller, Node<ID, C> requester, K key, int currentTry){
-        LookupAnswer<ID, K, V> getAnswer = null;
+        LookupAnswer<ID, K, V> lookupAnswer = null;
         ID hash = hash(key);
         FindNodeAnswer<ID, C> findNodeAnswer = getRoutingTable().findClosest(hash);
         Date date = DateUtil.getDateOfSecondsAgo(this.getNodeSettings().getMaximumLastSeenAgeToConsiderAlive());
@@ -214,7 +209,7 @@ public class DHTKademliaNode<ID extends Number, C extends ConnectionInfo, K exte
                         )
                 );
                 if (response.isAlive()){
-                    getAnswer = getNewLookupAnswer(key, LookupAnswer.Result.PASSED, this, null);
+                    lookupAnswer = getNewLookupAnswer(key, LookupAnswer.Result.PASSED, this, null);
                     break;
                 }
 
@@ -224,7 +219,11 @@ public class DHTKademliaNode<ID extends Number, C extends ConnectionInfo, K exte
             }
         }
 
-        return getAnswer;
+        if (lookupAnswer == null){
+            lookupAnswer = getNewLookupAnswer(key, LookupAnswer.Result.FAILED, this, null);
+        }
+
+        return lookupAnswer;
     }
 
     protected StoreAnswer<ID, K> storeDataToClosestNode(Node<ID, C> caller, Node<ID, C> requester, List<ExternalNode<ID, C>> externalNodeList, K key, V value){
@@ -314,10 +313,13 @@ public class DHTKademliaNode<ID extends Number, C extends ConnectionInfo, K exte
 
     protected KademliaMessage<ID, C, ?> handleLookupResult(DHTLookupResultKademliaMessage<ID, C, K, V> message) {
         var data = message.getData();
-        var future = this.lookupMap.get(data.getKey());
-        if (future != null){
-            future.complete(getNewLookupAnswer(data.getKey(), data.getResult(), message.getNode(), data.getValue()));
-            this.lookupMap.remove(data.getKey());
+        var answer = this.lookupAnswerMap.get(data.getKey());
+        if (answer != null){
+            answer.setResult(data.getResult());
+            answer.setKey(data.getKey());
+            answer.setValue(data.getValue());
+            answer.setNodeId(message.getNode().getId());
+            answer.finishWatch();
         }
         return new EmptyKademliaMessage<>();
     }
@@ -379,7 +381,7 @@ public class DHTKademliaNode<ID extends Number, C extends ConnectionInfo, K exte
             if (!future.isDone()) {
                 future.complete(LookupAnswer.generateWithResult(key, LookupAnswer.Result.TIMEOUT));
                 future.cancel(true);
-                lookupMap.remove(key);
+                lookupFutureMap.remove(key);
             }
         }, getNodeSettings().getMaximumStoreAndLookupTimeoutValue(), getNodeSettings().getMaximumStoreAndGetTimeoutTimeUnit());
     }

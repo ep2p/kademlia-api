@@ -3,6 +3,7 @@ package io.ep2p.kademlia;
 import io.ep2p.kademlia.helpers.EmptyConnectionInfo;
 import io.ep2p.kademlia.helpers.SampleRepository;
 import io.ep2p.kademlia.helpers.TestMessageSenderAPI;
+import io.ep2p.kademlia.model.LookupAnswer;
 import io.ep2p.kademlia.model.StoreAnswer;
 import io.ep2p.kademlia.node.DHTKademliaNode;
 import io.ep2p.kademlia.node.DHTKademliaNodeAPI;
@@ -18,15 +19,16 @@ import java.lang.reflect.Field;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
-public class DHTKademliaNodeStoreMapCleanupTest {
+public class DHTKademliaNodeMapCleanupTest {
 
-    // Testing if store map is getting cleaned after we store the data
+    // Testing if store and lookup maps is getting cleaned after we store the data
 
     @SneakyThrows
     @Test
-    public void TestCleanStoreMap() {
+    public void TestCleanStoreAndLookupMaps() {
         TestMessageSenderAPI<Integer, EmptyConnectionInfo> messageSenderAPI = new TestMessageSenderAPI<>();
 
         NodeSettings.Default.IDENTIFIER_SIZE = 4;
@@ -90,6 +92,16 @@ public class DHTKademliaNodeStoreMapCleanupTest {
         Thread.sleep(100); // giving time for cleanup
         Assertions.assertFalse(((Map<Integer, StoreAnswer<Integer, Integer>>) storeMap).containsKey(data.hashCode()));
         Assertions.assertEquals(((Map<Integer, StoreAnswer<Integer, Integer>>) storeMap).size(), 0);
+
+
+        bootstrapNode.lookup(data.hashCode()).get();
+        Thread.sleep(1000);
+
+        field = bootstrapNode.getClass().getDeclaredField("lookupFutureMap");
+        field.setAccessible(true);
+        Object lm = field.get(bootstrapNode);
+        Assertions.assertFalse(((Map<Integer, Future<LookupAnswer<Integer, Integer, String>>>) lm).containsKey(data.hashCode()));
+        Assertions.assertEquals(((Map<Integer, Future<LookupAnswer<Integer, Integer, String>>>) lm).size(), 0);
 
         messageSenderAPI.stopAll();
 
