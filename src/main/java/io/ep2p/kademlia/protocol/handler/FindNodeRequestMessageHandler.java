@@ -9,7 +9,6 @@ import io.ep2p.kademlia.protocol.message.FindNodeResponseMessage;
 import io.ep2p.kademlia.protocol.message.KademliaMessage;
 import io.ep2p.kademlia.util.RoutingTableUtil;
 import lombok.SneakyThrows;
-import lombok.var;
 
 import java.io.Serializable;
 
@@ -31,7 +30,7 @@ public class FindNodeRequestMessageHandler<ID extends Number, C extends Connecti
             RoutingTableUtil.softUpdate(kademliaNode, message.getNode());
         }
 
-        var response = new FindNodeResponseMessage<ID, C>();
+        FindNodeResponseMessage<ID, C> response = new FindNodeResponseMessage<ID, C>();
         response.setData(findNodeAnswer);
         return response;
     }

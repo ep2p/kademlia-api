@@ -19,7 +19,6 @@ import io.ep2p.kademlia.table.RoutingTable;
 import io.ep2p.kademlia.util.DateUtil;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import lombok.var;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.Serializable;
@@ -81,7 +80,7 @@ public class DHTKademliaNode<ID extends Number, C extends ConnectionInfo, K exte
             }
         }
 
-        final var self = this;
+        final DHTKademliaNode<ID, C, K, V> self = this;
 
         ListenableFuture<StoreAnswer<ID, K>> futureAnswer = this.getListeningExecutorService().submit(
                 new Callable<StoreAnswer<ID, K>>() {
@@ -118,7 +117,7 @@ public class DHTKademliaNode<ID extends Number, C extends ConnectionInfo, K exte
             }
         }
 
-        final var self = this;
+        DHTKademliaNode<ID, C, K, V> self = this;
 
         ListenableFuture<LookupAnswer<ID, K, V>> futureAnswer = this.getListeningExecutorService().submit(
                 new Callable<LookupAnswer<ID, K, V>>() {
@@ -206,7 +205,7 @@ public class DHTKademliaNode<ID extends Number, C extends ConnectionInfo, K exte
             KademliaMessage<ID, C, ?> pingAnswer;
             //if node is alive, ask for data
             if(externalNode.getLastSeen().before(date) || (pingAnswer = getMessageSender().sendMessage(this, externalNode, new PingKademliaMessage<>())).isAlive()){
-                var response = getMessageSender().sendMessage(
+                KademliaMessage<ID, C, Serializable> response = getMessageSender().sendMessage(
                         this,
                         externalNode,
                         new DHTLookupKademliaMessage<>(
@@ -259,7 +258,7 @@ public class DHTKademliaNode<ID extends Number, C extends ConnectionInfo, K exte
                 //if external node is alive, tell it to store the data
                 // To know if its alive the last seen should either be close or we ping and check the result
                 if(externalNode.getLastSeen().after(date) || (pingAnswer = getMessageSender().sendMessage(this, externalNode, new PingKademliaMessage<>())).isAlive()){
-                    var response = getMessageSender().sendMessage(
+                    KademliaMessage<ID, C, Serializable> response = getMessageSender().sendMessage(
                             this,
                             externalNode,
                             new DHTStoreKademliaMessage<>(
@@ -317,8 +316,8 @@ public class DHTKademliaNode<ID extends Number, C extends ConnectionInfo, K exte
     }
 
     protected KademliaMessage<ID, C, ?> handleLookupResult(DHTLookupResultKademliaMessage<ID, C, K, V> message) {
-        var data = message.getData();
-        var answer = this.lookupAnswerMap.get(data.getKey());
+        DHTLookupResultKademliaMessage.DHTLookupResult<K, V> data = message.getData();
+        LookupAnswer<ID, K, V> answer = this.lookupAnswerMap.get(data.getKey());
         if (answer != null){
             answer.setResult(data.getResult());
             answer.setKey(data.getKey());
@@ -332,8 +331,8 @@ public class DHTKademliaNode<ID extends Number, C extends ConnectionInfo, K exte
     protected KademliaMessage<ID, C, ?> handleLookupRequest(DHTLookupKademliaMessage<ID, C, K> message) {
         final KademliaNodeAPI<ID, C> caller = this;
         this.getExecutorService().submit(() -> {
-            var data = message.getData();
-            var lookupAnswer = handleLookup(caller, data.getRequester(), data.getKey(), data.getCurrentTry());
+            DHTLookupKademliaMessage.DHTLookup<ID, C, K> data = message.getData();
+            LookupAnswer<ID, K, V> lookupAnswer = handleLookup(caller, data.getRequester(), data.getKey(), data.getCurrentTry());
             if (lookupAnswer.getResult().equals(LookupAnswer.Result.FAILED) || lookupAnswer.getResult().equals(LookupAnswer.Result.FOUND)){
                 getMessageSender().sendMessage(caller, data.getRequester(), new DHTLookupResultKademliaMessage<>(
                         new DHTLookupResultKademliaMessage.DHTLookupResult<>(
@@ -350,7 +349,7 @@ public class DHTKademliaNode<ID extends Number, C extends ConnectionInfo, K exte
 
     protected KademliaMessage<ID, C, ?> handleStoreResult(DHTStoreResultKademliaMessage<ID, C, K> message) {
         DHTStoreResultKademliaMessage.DHTStoreResult<K> data = message.getData();
-        var storeAnswer = this.storeMap.get(data.getKey());
+        StoreAnswer<ID, K> storeAnswer = this.storeMap.get(data.getKey());
         if (storeAnswer != null){
             storeAnswer.setNodeId(message.getNode().getId());
             storeAnswer.setResult(data.getResult());
@@ -363,8 +362,8 @@ public class DHTKademliaNode<ID extends Number, C extends ConnectionInfo, K exte
     protected KademliaMessage<ID, C, ?> handleStoreRequest(DHTStoreKademliaMessage<ID,C,K,V> dhtStoreKademliaMessage){
         final KademliaNodeAPI<ID, C> caller = this;
         this.getExecutorService().submit(() -> {
-            var data = dhtStoreKademliaMessage.getData();
-            var storeAnswer = handleStore(dhtStoreKademliaMessage.getNode(), data.getRequester(), data.getKey(), data.getValue());
+            DHTStoreKademliaMessage.DHTData<ID, C, K, V> data = dhtStoreKademliaMessage.getData();
+            StoreAnswer<ID, K> storeAnswer = handleStore(dhtStoreKademliaMessage.getNode(), data.getRequester(), data.getKey(), data.getValue());
             if (storeAnswer.getResult().equals(StoreAnswer.Result.STORED)) {
                 getMessageSender().sendMessage(
                         caller,

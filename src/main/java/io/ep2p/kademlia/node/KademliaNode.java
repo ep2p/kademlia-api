@@ -14,7 +14,6 @@ import io.ep2p.kademlia.table.Bucket;
 import io.ep2p.kademlia.table.RoutingTable;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import lombok.var;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -103,7 +102,7 @@ public class KademliaNode<ID extends Number, C extends ConnectionInfo> implement
     @Override
     public KademliaMessage<ID, C, ? extends Serializable> onMessage(KademliaMessage<ID, C, ? extends Serializable> message) throws HandlerNotFoundException {
         assert message != null;
-        var messageHandler = messageHandlerRegistry.get(message.getType());
+        MessageHandler<ID, C> messageHandler = messageHandlerRegistry.get(message.getType());
         if (messageHandler == null)
             throw new HandlerNotFoundException(message.getType());
         return messageHandler.handle(this, message);
@@ -116,7 +115,7 @@ public class KademliaNode<ID extends Number, C extends ConnectionInfo> implement
 
     @Override
     public MessageHandler<ID, C> getHandler(String type) throws HandlerNotFoundException {
-        var handler = this.messageHandlerRegistry.get(type);
+        MessageHandler<ID, C> handler = this.messageHandlerRegistry.get(type);
         if (handler == null){
             throw new HandlerNotFoundException(type);
         }
@@ -157,7 +156,7 @@ public class KademliaNode<ID extends Number, C extends ConnectionInfo> implement
             FindNodeRequestMessage<ID, C> message = new FindNodeRequestMessage<>();
             message.setData(caller.getId());
             try {
-                var response = getMessageSender().sendMessage(caller, bootstrapNode, message);
+                KademliaMessage<ID, C, ?> response = getMessageSender().sendMessage(caller, bootstrapNode, message);
                 onMessage(response);
                 completableFuture.complete(true);
             } catch (Exception e) {
@@ -179,7 +178,7 @@ public class KademliaNode<ID extends Number, C extends ConnectionInfo> implement
                     PingKademliaMessage<ID, C> message = new PingKademliaMessage<>();
                     referencedNodes.forEach(node -> {
                         try {
-                            var response = getMessageSender().sendMessage(caller, node, message);
+                            KademliaMessage<ID, C, ?> response = getMessageSender().sendMessage(caller, node, message);
                             onMessage(response);
                         } catch (HandlerNotFoundException e) {
                             log.error(e.getMessage(), e);
