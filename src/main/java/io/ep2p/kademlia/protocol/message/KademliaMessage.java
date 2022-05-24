@@ -12,9 +12,12 @@ import java.io.Serializable;
 @Setter
 public abstract class KademliaMessage<ID extends Number, C extends ConnectionInfo, D extends Serializable> {
     private D data;
-    private final String type;
+    private String type;
     private Node<ID, C> node;
     private boolean isAlive = true;
+
+    public KademliaMessage() {
+    }
 
     protected KademliaMessage(String type) {
         this.type = type;
