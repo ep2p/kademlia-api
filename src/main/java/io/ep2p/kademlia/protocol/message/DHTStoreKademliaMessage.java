@@ -24,7 +24,7 @@ public class DHTStoreKademliaMessage<ID extends Number, C extends ConnectionInfo
     @AllArgsConstructor
     @NoArgsConstructor
     public static class DHTData<ID extends Number, C extends ConnectionInfo, K extends Serializable, V extends Serializable> implements Serializable{
-        protected Node<ID, C> requester;
+        private Node<ID, C> requester;
         private K key;
         private V value;
     }
