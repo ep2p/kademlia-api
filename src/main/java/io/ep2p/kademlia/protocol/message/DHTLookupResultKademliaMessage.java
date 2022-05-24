@@ -1,5 +1,6 @@
 package io.ep2p.kademlia.protocol.message;
 
+import com.google.common.base.Objects;
 import io.ep2p.kademlia.connection.ConnectionInfo;
 import io.ep2p.kademlia.model.LookupAnswer;
 import io.ep2p.kademlia.protocol.MessageType;
@@ -27,6 +28,19 @@ public class DHTLookupResultKademliaMessage<ID extends Number, C extends Connect
         private LookupAnswer.Result result;
         private K key;
         private V value;
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            DHTLookupResult<?, ?> that = (DHTLookupResult<?, ?>) o;
+            return getResult() == that.getResult() && Objects.equal(getKey(), that.getKey()) && Objects.equal(getValue(), that.getValue());
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hashCode(getResult(), getKey(), getValue());
+        }
     }
 
 }

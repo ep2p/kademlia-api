@@ -1,5 +1,6 @@
 package io.ep2p.kademlia.node;
 
+import com.google.common.base.Objects;
 import io.ep2p.kademlia.NodeSettings;
 import io.ep2p.kademlia.connection.ConnectionInfo;
 import io.ep2p.kademlia.connection.MessageSender;
@@ -189,5 +190,18 @@ public class KademliaNode<ID extends Number, C extends ConnectionInfo> implement
                 this.getNodeSettings().getPingScheduleTimeValue(),
                 this.getNodeSettings().getPingScheduleTimeUnit()
         );
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        KademliaNode<?, ?> that = (KademliaNode<?, ?>) o;
+        return Objects.equal(getId(), that.getId()) && Objects.equal(getConnectionInfo(), that.getConnectionInfo());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(getId(), getConnectionInfo());
     }
 }
