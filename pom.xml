@@ -6,7 +6,7 @@
 
     <groupId>io.ep2p</groupId>
     <artifactId>kademlia-api</artifactId>
-    <version>4.1.6-RELEASE</version>
+    <version>4.1.7-RELEASE</version>
     <url>https://github.com/ep2p/kademlia-api</url>
     <name>Abstract Kademlia API</name>
     <description>Java library for kademlia algorithm API with abstract networking layer.</description>
@@ -144,7 +144,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-gpg-plugin</artifactId>
-                <version>3.0.1</version>
+                <version>1.5</version>
                 <executions>
                     <execution>
                         <id>sign-artifacts</id>

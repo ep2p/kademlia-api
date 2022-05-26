@@ -25,7 +25,7 @@ public class LookupAnswer<ID extends Number, K, V> extends WatchableAnswer<ID> {
     }
 
     public static <ID extends Number, K extends Serializable, V extends Serializable> LookupAnswer<ID, K, V> generateWithResult(K key, LookupAnswer.Result finalResult){
-        var result = new LookupAnswer<ID, K, V>();
+        LookupAnswer<ID, K, V> result = new LookupAnswer<ID, K, V>();
         result.setResult(finalResult);
         result.setKey(key);
         return result;
