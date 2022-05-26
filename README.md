@@ -1,5 +1,7 @@
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.ep2p/kademlia-api/badge.png?gav=true)](https://maven-badges.herokuapp.com/maven-central/io.ep2p/kademlia-api)
-
+[![Github Releases](https://badgen.net/github/release/ep2p/kademlia-api)](https://github.com/ep2p/kademlia-api/releases)
+[![Open Issues](https://badgen.net/github/open-issues/ep2p/kademlia-api)](https://github.com/ep2p/kademlia-api/issues)
+[![Liscence](https://badgen.net/github/license/ep2p/kademlia-api)](https://github.com/ep2p/kademlia-api/blob/main/LICENSE)
 
 # Kademlia Api
 Abstract Java Kademlia API
