@@ -55,12 +55,14 @@ public class DHTKademliaNode<ID extends Number, C extends ConnectionInfo, K exte
     public void stop() {
         this.cleanup();
         super.stop();
+        this.cleanupExecutor.shutdown();
     }
 
     @Override
     public void stopNow() {
         this.cleanup();
         super.stopNow();
+        this.cleanupExecutor.shutdownNow();
     }
 
     protected void cleanup(){
