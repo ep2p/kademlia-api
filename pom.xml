@@ -6,7 +6,7 @@
 
     <groupId>io.ep2p</groupId>
     <artifactId>kademlia-api</artifactId>
-    <version>4.1.7-RELEASE</version>
+    <version>4.1.8-RELEASE</version>
     <url>https://github.com/ep2p/kademlia-api</url>
     <name>Abstract Kademlia API</name>
     <description>Java library for kademlia algorithm API with abstract networking layer.</description>
