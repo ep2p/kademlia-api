@@ -335,7 +335,7 @@ public class DHTKademliaNode<ID extends Number, C extends ConnectionInfo, K exte
             var data = message.getData();
             var lookupAnswer = handleLookup(caller, data.getRequester(), data.getKey(), data.getCurrentTry());
             if (lookupAnswer.getResult().equals(LookupAnswer.Result.FAILED) || lookupAnswer.getResult().equals(LookupAnswer.Result.FOUND)){
-                getMessageSender().sendMessage(caller, data.getRequester(), new DHTLookupResultKademliaMessage<>(
+                getMessageSender().sendAsyncMessage(caller, data.getRequester(), new DHTLookupResultKademliaMessage<>(
                         new DHTLookupResultKademliaMessage.DHTLookupResult<>(
                                 lookupAnswer.getResult(),
                                 data.getKey(),
@@ -366,7 +366,7 @@ public class DHTKademliaNode<ID extends Number, C extends ConnectionInfo, K exte
             var data = dhtStoreKademliaMessage.getData();
             var storeAnswer = handleStore(dhtStoreKademliaMessage.getNode(), data.getRequester(), data.getKey(), data.getValue());
             if (storeAnswer.getResult().equals(StoreAnswer.Result.STORED)) {
-                getMessageSender().sendMessage(
+                getMessageSender().sendAsyncMessage(
                         caller,
                         data.getRequester(),
                         new DHTStoreResultKademliaMessage<>(

@@ -134,7 +134,7 @@ public class KademliaNode<ID extends Number, C extends ConnectionInfo> implement
     //***************************//
 
     protected void gracefulShutdown(){
-        getReferencedNodes(this).forEach(node -> getMessageSender().sendMessage(this, node, new ShutdownKademliaMessage<>()));
+        getReferencedNodes(this).forEach(node -> getMessageSender().sendAsyncMessage(this, node, new ShutdownKademliaMessage<>()));
     }
 
     protected void init(){
