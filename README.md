@@ -176,4 +176,4 @@ In first video of EP2P lecture about Kademlia Algorithm, we are going to gain br
 
 [![](https://img.shields.io/badge/youtube-Kademlia%20Overview%202-FFF?style=for-the-badge&logo=youtube&logoColor=red)](https://www.youtube.com/watch?v=86tsT0g43iQ)
 
-In this video we see some code example in Java for Kademlia API using an abstract library written by EP2P.
+In this video we see some code example in Java for Kademlia API using an abstract library written by EP2P. **(The code used in this video is out dated)**
