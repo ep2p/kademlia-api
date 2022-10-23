@@ -19,10 +19,10 @@ import java.util.concurrent.ExecutionException;
 /**
  *  Testing graceful shutdown and shutdown protocol
  */
-public class ShutdownTest {
+class ShutdownTest {
 
     @Test
-    public void testGracefulShutdown() throws InterruptedException, ExecutionException {
+    void testGracefulShutdown() throws InterruptedException, ExecutionException {
         TestMessageSenderAPI<Integer, EmptyConnectionInfo> messageSenderAPI = new TestMessageSenderAPI<>();
 
         NodeSettings.Default.IDENTIFIER_SIZE = 4;
@@ -79,7 +79,7 @@ public class ShutdownTest {
     }
 
     @Test
-    public void testShutdown() throws InterruptedException, ExecutionException {
+    void testShutdown() throws InterruptedException, ExecutionException {
         TestMessageSenderAPI<Integer, EmptyConnectionInfo> messageSenderAPI = new TestMessageSenderAPI<>();
 
         NodeSettings.Default.IDENTIFIER_SIZE = 4;

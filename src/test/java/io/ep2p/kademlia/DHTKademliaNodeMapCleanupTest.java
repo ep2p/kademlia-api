@@ -22,13 +22,13 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
-public class DHTKademliaNodeMapCleanupTest {
+class DHTKademliaNodeMapCleanupTest {
 
     // Testing if store and lookup maps is getting cleaned after we store the data
 
     @SneakyThrows
     @Test
-    public void TestCleanStoreAndLookupMaps() {
+    void testCleanStoreAndLookupMaps() {
         TestMessageSenderAPI<Integer, EmptyConnectionInfo> messageSenderAPI = new TestMessageSenderAPI<>();
 
         NodeSettings.Default.IDENTIFIER_SIZE = 4;

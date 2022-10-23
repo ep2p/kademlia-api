@@ -17,7 +17,7 @@ public abstract class KademliaNodeAPIDecorator<ID extends Number, C extends Conn
     @Getter
     private final KademliaNodeAPI<ID, C> kademliaNode;
 
-    public KademliaNodeAPIDecorator(KademliaNodeAPI<ID, C> kademliaNode) {
+    protected KademliaNodeAPIDecorator(KademliaNodeAPI<ID, C> kademliaNode) {
         this.kademliaNode = kademliaNode;
     }
 

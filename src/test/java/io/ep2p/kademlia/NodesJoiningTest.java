@@ -21,10 +21,10 @@ import java.util.concurrent.ExecutionException;
 /**
  *  Basic test to make sure network can initialize by bootstrapping and nodes find each other
  */
-public class NodesJoiningTest {
+class NodesJoiningTest {
 
     @Test
-    public void canPeersJoinNetwork() throws InterruptedException, ExecutionException {
+    void canPeersJoinNetwork() throws InterruptedException, ExecutionException {
         TestMessageSenderAPI<Integer, EmptyConnectionInfo> messageSenderAPI = new TestMessageSenderAPI<>();
 
         NodeSettings.Default.IDENTIFIER_SIZE = 4;

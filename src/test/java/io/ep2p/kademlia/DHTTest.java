@@ -18,10 +18,10 @@ import org.junit.jupiter.api.Test;
 import java.util.UUID;
 import java.util.concurrent.*;
 
-public class DHTTest {
+class DHTTest {
 
     @Test
-    public void testStore() throws ExecutionException, InterruptedException, DuplicateStoreRequest {
+    void testStore() throws ExecutionException, InterruptedException, DuplicateStoreRequest {
         TestMessageSenderAPI<Integer, EmptyConnectionInfo> messageSenderAPI = new TestMessageSenderAPI<>();
 
         NodeSettings.Default.IDENTIFIER_SIZE = 4;

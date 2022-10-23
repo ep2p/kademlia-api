@@ -21,10 +21,10 @@ import java.util.concurrent.ExecutionException;
 /**
  *  Basic test to make sure network can initialize by bootstrapping using previous node instead of all nodes trying same bootstrap node
  */
-public class NodesJoiningByPreviousNodeTest {
+class NodesJoiningByPreviousNodeTest {
 
     @Test
-    public void canPeersJoinNetwork() throws InterruptedException, ExecutionException {
+    void canPeersJoinNetwork() throws InterruptedException, ExecutionException {
         TestMessageSenderAPI<Integer, EmptyConnectionInfo> messageSenderAPI = new TestMessageSenderAPI<>();
 
         NodeSettings.Default.IDENTIFIER_SIZE = 4;

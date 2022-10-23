@@ -102,7 +102,9 @@ public class KademliaNode<ID extends Number, C extends ConnectionInfo> implement
 
     @Override
     public KademliaMessage<ID, C, ? extends Serializable> onMessage(KademliaMessage<ID, C, ? extends Serializable> message) throws HandlerNotFoundException {
-        assert message != null;
+        if (message == null) {
+            throw new IllegalArgumentException("Message can not be null");
+        }
         MessageHandler<ID, C> messageHandler = messageHandlerRegistry.get(message.getType());
         if (messageHandler == null)
             throw new HandlerNotFoundException(message.getType());

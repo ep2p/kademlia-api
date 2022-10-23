@@ -29,14 +29,14 @@ import java.util.concurrent.*;
 
 @Slf4j
 public class DHTKademliaNode<ID extends Number, C extends ConnectionInfo, K extends Serializable, V extends Serializable> extends KademliaNode<ID, C> implements DHTKademliaNodeAPI<ID, C, K, V>, MessageHandler<ID, C> {
-    protected final Map<K, StoreAnswer<ID, K>> storeMap = new ConcurrentHashMap<>();
-    protected final Map<K, Future<LookupAnswer<ID, K, V>>> lookupFutureMap = new ConcurrentHashMap<>();
-    protected final Map<K, LookupAnswer<ID, K, V>> lookupAnswerMap = new ConcurrentHashMap<>();
+    private final Map<K, StoreAnswer<ID, K>> storeMap = new ConcurrentHashMap<>();
+    private final Map<K, Future<LookupAnswer<ID, K, V>>> lookupFutureMap = new ConcurrentHashMap<>();
+    private final Map<K, LookupAnswer<ID, K, V>> lookupAnswerMap = new ConcurrentHashMap<>();
     @Getter
-    private final KademliaRepository<K, V> kademliaRepository;
+    private final transient KademliaRepository<K, V> kademliaRepository;
     @Getter
-    private final KeyHashGenerator<ID, K> keyHashGenerator;
-    private final ExecutorService cleanupExecutor = Executors.newSingleThreadExecutor();
+    private final transient KeyHashGenerator<ID, K> keyHashGenerator;
+    private final transient ExecutorService cleanupExecutor = Executors.newSingleThreadExecutor();
 
     public DHTKademliaNode(ID id, C connectionInfo, RoutingTable<ID, C, Bucket<ID, C>> routingTable, MessageSender<ID, C> messageSender, NodeSettings nodeSettings, KademliaRepository<K, V> kademliaRepository, KeyHashGenerator<ID, K> keyHashGenerator) {
         this(id, connectionInfo, routingTable, messageSender, nodeSettings, kademliaRepository, keyHashGenerator, Executors.newFixedThreadPool(nodeSettings.getDhtExecutorPoolSize() + 1), Executors.newScheduledThreadPool(nodeSettings.getDhtScheduledExecutorPoolSize()));
@@ -85,16 +85,14 @@ public class DHTKademliaNode<ID extends Number, C extends ConnectionInfo, K exte
         final DHTKademliaNode<ID, C, K, V> self = this;
 
         ListenableFuture<StoreAnswer<ID, K>> futureAnswer = this.getListeningExecutorService().submit(
-                new Callable<StoreAnswer<ID, K>>() {
-                    public StoreAnswer<ID, K> call() {
-                        StoreAnswer<ID, K> storeAnswer = handleStore(self, self, key, value);
-                        if (storeAnswer.getResult().equals(StoreAnswer.Result.STORED) || storeAnswer.getResult().equals(StoreAnswer.Result.FAILED)){
-                            return storeAnswer;
-                        }
-                        storeMap.put(key, storeAnswer);
-                        storeAnswer.watch();
+                () -> {
+                    StoreAnswer<ID, K> storeAnswer = handleStore(self, self, key, value);
+                    if (storeAnswer.getResult().equals(StoreAnswer.Result.STORED) || storeAnswer.getResult().equals(StoreAnswer.Result.FAILED)){
                         return storeAnswer;
                     }
+                    storeMap.put(key, storeAnswer);
+                    storeAnswer.watch();
+                    return storeAnswer;
                 });
 
         futureAnswer.addListener(() -> {
@@ -122,16 +120,14 @@ public class DHTKademliaNode<ID extends Number, C extends ConnectionInfo, K exte
         DHTKademliaNode<ID, C, K, V> self = this;
 
         ListenableFuture<LookupAnswer<ID, K, V>> futureAnswer = this.getListeningExecutorService().submit(
-                new Callable<LookupAnswer<ID, K, V>>() {
-                    public LookupAnswer<ID, K, V> call() {
-                        LookupAnswer<ID, K, V> lookupAnswer = handleLookup(self, self, key, 0);
-                        if (lookupAnswer.getResult().equals(LookupAnswer.Result.FOUND) || lookupAnswer.getResult().equals(LookupAnswer.Result.FAILED)){
-                            return lookupAnswer;
-                        }
-                        lookupAnswerMap.put(key, lookupAnswer);
-                        lookupAnswer.watch();
+                () -> {
+                    LookupAnswer<ID, K, V> lookupAnswer = handleLookup(self, self, key, 0);
+                    if (lookupAnswer.getResult().equals(LookupAnswer.Result.FOUND) || lookupAnswer.getResult().equals(LookupAnswer.Result.FAILED)){
                         return lookupAnswer;
                     }
+                    lookupAnswerMap.put(key, lookupAnswer);
+                    lookupAnswer.watch();
+                    return lookupAnswer;
                 });
         this.lookupFutureMap.put(key, futureAnswer);
 
@@ -154,8 +150,6 @@ public class DHTKademliaNode<ID extends Number, C extends ConnectionInfo, K exte
         if (currentTry == getNodeSettings().getIdentifierSize()){
             return getNewLookupAnswer(key, LookupAnswer.Result.FAILED, this, null);
         }
-
-        LookupAnswer<ID, K, V> lookupAnswer;
 
         //Otherwise, ask closest node we know to key
         return getDataFromClosestNodes(caller, requester, key, currentTry);
@@ -203,10 +197,8 @@ public class DHTKademliaNode<ID extends Number, C extends ConnectionInfo, K exte
             if(externalNode.getId().equals(getId()) || (caller != null && externalNode.getId().equals(caller.getId())))
                 continue;
 
-
-            KademliaMessage<ID, C, ?> pingAnswer;
             //if node is alive, ask for data
-            if(externalNode.getLastSeen().before(date) || (pingAnswer = getMessageSender().sendMessage(this, externalNode, new PingKademliaMessage<>())).isAlive()){
+            if(recentlySeenOrAlive(externalNode, date)){
                 KademliaMessage<ID, C, Serializable> response = getMessageSender().sendMessage(
                         this,
                         externalNode,
@@ -215,77 +207,74 @@ public class DHTKademliaNode<ID extends Number, C extends ConnectionInfo, K exte
                         )
                 );
                 if (response.isAlive()){
-                    lookupAnswer = getNewLookupAnswer(key, LookupAnswer.Result.PASSED, this, null);
-                    break;
+                    return getNewLookupAnswer(key, LookupAnswer.Result.PASSED, this, null);
                 }
-
-            //otherwise remove the node from routing table, since its offline
-            }else if(!pingAnswer.isAlive()){
-                getRoutingTable().delete(externalNode);
             }
         }
 
-        if (lookupAnswer == null){
-            lookupAnswer = getNewLookupAnswer(key, LookupAnswer.Result.FAILED, this, null);
-        }
+        return getNewLookupAnswer(key, LookupAnswer.Result.FAILED, this, null);
 
-        return lookupAnswer;
     }
 
     protected StoreAnswer<ID, K> storeDataToClosestNode(Node<ID, C> caller, Node<ID, C> requester, List<ExternalNode<ID, C>> externalNodeList, K key, V value){
         Date date = DateUtil.getDateOfSecondsAgo(this.getNodeSettings().getMaximumLastSeenAgeToConsiderAlive());
-        StoreAnswer<ID, K> storeAnswer = null;
         for (ExternalNode<ID, C> externalNode : externalNodeList) {
             //if current node is closest node, store the value (Scenario A)
             if(externalNode.getId().equals(getId())){
                 kademliaRepository.store(key, value);
-                storeAnswer = getNewStoreAnswer(key, StoreAnswer.Result.STORED, this);
-                break;
-            } else {
+                return getNewStoreAnswer(key, StoreAnswer.Result.STORED, this);
+            }
 
-                // Continue if requester is known to be the closest but its also same as caller
-                // This means that this is the first time that PASS is happening, or in other words:
-                // This is the first time the request has passed the store request to some other node. So we try more.
-                // This approach can be disabled through nodeSettings "Enabled First Store Request Force Pass"
-                // This has no conflicts with 'Scenario A' because:
-                // If we were the closest node we'd have already stored the data
-                if (requester.getId().equals(externalNode.getId()) && requester.getId().equals(caller.getId())
-                    && getNodeSettings().isEnabledFirstStoreRequestForcePass()
-                ){
-                    continue;
-                }
+            // Continue if requester is known to be the closest but its also same as caller
+            // This means that this is the first time that PASS is happening, or in other words:
+            // This is the first time the request has passed the store request to some other node. So we try more.
+            // This approach can be disabled through nodeSettings "Enabled First Store Request Force Pass"
+            // This has no conflicts with 'Scenario A' because:
+            // If we were the closest node we'd have already stored the data
+            if (requester.getId().equals(externalNode.getId()) && requester.getId().equals(caller.getId())
+                && getNodeSettings().isEnabledFirstStoreRequestForcePass()
+            ){
+                continue;
+            }
 
-                //otherwise try next close requester in routing table
-                KademliaMessage<ID, C, ?> pingAnswer;
-                //if external node is alive, tell it to store the data
-                // To know if its alive the last seen should either be close or we ping and check the result
-                if(externalNode.getLastSeen().after(date) || (pingAnswer = getMessageSender().sendMessage(this, externalNode, new PingKademliaMessage<>())).isAlive()){
-                    KademliaMessage<ID, C, Serializable> response = getMessageSender().sendMessage(
-                            this,
-                            externalNode,
-                            new DHTStoreKademliaMessage<>(
-                                    new DHTStoreKademliaMessage.DHTData<>(requester, key, value)
-                            )
-                    );
-                    if (response.isAlive()){
-                        storeAnswer = getNewStoreAnswer(key, StoreAnswer.Result.PASSED, requester);
-                        break;
-                    }
-                }else {
-                    // We have definitely pinged the node, lets handle the pong specially now that node is offline
-                    try {
-                        onMessage(pingAnswer);
-                    } catch (HandlerNotFoundException e) {
-                        // Should not get stuck here. Main objective is to store the message
-                        log.error(e.getMessage(), e);
-                    }
+            // otherwise, try next closest requester in routing table
+            // if external node is alive, tell it to store the data
+            // to know if its alive the last seen should either be close or we ping and check the result
+            if(recentlySeenOrAlive(externalNode, date)){
+                KademliaMessage<ID, C, Serializable> response = getMessageSender().sendMessage(
+                        this,
+                        externalNode,
+                        new DHTStoreKademliaMessage<>(
+                                new DHTStoreKademliaMessage.DHTData<>(requester, key, value)
+                        )
+                );
+                if (response.isAlive()){
+                    return getNewStoreAnswer(key, StoreAnswer.Result.PASSED, requester);
                 }
             }
 
         }
-        if (storeAnswer == null)
-            storeAnswer = getNewStoreAnswer(key, StoreAnswer.Result.FAILED, requester);
-        return storeAnswer;
+        return getNewStoreAnswer(key, StoreAnswer.Result.FAILED, requester);
+    }
+
+    /**
+     * Check if a node is seen recently or is alive
+     * @param externalNode Node to check
+     * @param date Date to use for comparing
+     * @return boolean True if node is alive
+     */
+    private boolean recentlySeenOrAlive(ExternalNode<ID, C> externalNode, Date date) {
+        if (externalNode.getLastSeen().after(date))
+            return true;
+        KademliaMessage<ID, C, ?> pingAnswer = getMessageSender().sendMessage(this, externalNode, new PingKademliaMessage<>());
+        if (!pingAnswer.isAlive()){
+            try {
+                onMessage(pingAnswer);
+            } catch (HandlerNotFoundException e) {
+                log.error(e.getMessage(), e);
+            }
+        }
+        return pingAnswer.isAlive();
     }
 
 
@@ -301,20 +290,25 @@ public class DHTKademliaNode<ID extends Number, C extends ConnectionInfo, K exte
         }
         switch (message.getType()) {
             case MessageType.DHT_STORE:
-                assert message instanceof DHTStoreKademliaMessage;
+                if (!(message instanceof DHTStoreKademliaMessage))
+                    throw new IllegalArgumentException("Cant handle message. Required: DHTStoreKademliaMessage");
                 return (O) handleStoreRequest((DHTStoreKademliaMessage<ID, C, K, V>) message);
             case MessageType.DHT_STORE_RESULT:
-                assert message instanceof DHTStoreResultKademliaMessage;
+                if (!(message instanceof DHTStoreResultKademliaMessage))
+                    throw new IllegalArgumentException("Cant handle message. Required: DHTStoreResultKademliaMessage");
                 return (O) handleStoreResult((DHTStoreResultKademliaMessage<ID, C, K>) message);
             case MessageType.DHT_LOOKUP:
-                assert message instanceof DHTLookupKademliaMessage;
+                if (!(message instanceof DHTLookupKademliaMessage))
+                    throw new IllegalArgumentException("Cant handle message. Required: DHTLookupKademliaMessage");
                 return (O) handleLookupRequest((DHTLookupKademliaMessage<ID, C, K>) message);
             case MessageType.DHT_LOOKUP_RESULT:
-                assert message instanceof DHTLookupResultKademliaMessage;
+                if (!(message instanceof DHTLookupResultKademliaMessage))
+                    throw new IllegalArgumentException("Cant handle message. Required: DHTLookupResultKademliaMessage");
                 return (O) handleLookupResult((DHTLookupResultKademliaMessage<ID, C, K, V>) message);
+            default:
+                throw new IllegalArgumentException("message param is not supported");
         }
 
-        throw new IllegalArgumentException("message param is not supported");
     }
 
     protected KademliaMessage<ID, C, ?> handleLookupResult(DHTLookupResultKademliaMessage<ID, C, K, V> message) {
