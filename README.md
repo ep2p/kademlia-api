@@ -1,5 +1,7 @@
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.ep2p/kademlia-api/badge.png?gav=true)](https://maven-badges.herokuapp.com/maven-central/io.ep2p/kademlia-api)
-
+[![Github Releases](https://badgen.net/github/release/ep2p/kademlia-api)](https://github.com/ep2p/kademlia-api/releases)
+[![Open Issues](https://badgen.net/github/open-issues/ep2p/kademlia-api)](https://github.com/ep2p/kademlia-api/issues)
+[![Liscence](https://badgen.net/github/license/ep2p/kademlia-api)](https://github.com/ep2p/kademlia-api/blob/main/LICENSE)
 
 # Kademlia Api
 Abstract Java Kademlia API
@@ -31,7 +33,7 @@ Using **maven central**
 <dependency>
     <groupId>io.ep2p</groupId>
     <artifactId>kademlia-api</artifactId>
-    <version>4.0.4-RELEASE</version>
+    <version>4.1.8-RELEASE</version>
 </dependency>
 ```
 
@@ -153,6 +155,17 @@ For example, when a single key can hold large amount of data we'd probably want 
 
 ---
 
+## Donations
+
+Coffee has a cost :smile:
+
+Any  sort of small or large donations can be a motivation in maintaining this repository and related repositories.
+
+- **ETH**: `0x5F120228C12e2C6923AfDeb0e811d74160166d90`
+- **TRC20**: `TJjw5n26KFBqkJQbs7eKdxkVuk4pvJdFzE`
+- **BTC**: `bc1qmtewrl7srjrkl8t4z5vantuqkz086srj4clzh3`
+
+
 ## Acknowledgments
 
 Since this project is completely experimental (at least for now), I'd like to thank to some people around the internet that helped me gain some knowledge about Kademlia and its implementations beyond the paper.
@@ -174,4 +187,4 @@ In first video of EP2P lecture about Kademlia Algorithm, we are going to gain br
 
 [![](https://img.shields.io/badge/youtube-Kademlia%20Overview%202-FFF?style=for-the-badge&logo=youtube&logoColor=red)](https://www.youtube.com/watch?v=86tsT0g43iQ)
 
-In this video we see some code example in Java for Kademlia API using an abstract library written by EP2P.
+In this video we see some code example in Java for Kademlia API using an abstract library written by EP2P. **(The code used in this video is out dated)**

@@ -6,8 +6,8 @@ import io.ep2p.kademlia.exception.HandlerNotFoundException;
 import io.ep2p.kademlia.node.KademliaNodeAPI;
 import io.ep2p.kademlia.protocol.message.*;
 import lombok.extern.slf4j.Slf4j;
-import lombok.var;
 
+import java.io.Serializable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -24,11 +24,11 @@ public class FindNodeResponseMessageHandler<ID extends Number, C extends Connect
                 return;
             }
             try {
-                var response = kademliaNode.getMessageSender().sendMessage(kademliaNode, externalNode, new PingKademliaMessage<>());
+                KademliaMessage<ID, C, Serializable> response = kademliaNode.getMessageSender().sendMessage(kademliaNode, externalNode, new PingKademliaMessage<>());
                 if (response.isAlive() && kademliaNode.getRoutingTable().update(response.getNode())) {
                     FindNodeRequestMessage<ID, C> findNodeRequestMessage = new FindNodeRequestMessage<>();
                     findNodeRequestMessage.setData(kademliaNode.getId());
-                    var findNodeResponse = kademliaNode.getMessageSender().sendMessage(kademliaNode, message.getNode(), findNodeRequestMessage);
+                    KademliaMessage<ID, C, Serializable> findNodeResponse = kademliaNode.getMessageSender().sendMessage(kademliaNode, message.getNode(), findNodeRequestMessage);
                     kademliaNode.onMessage(findNodeResponse);
                 }
             } catch (HandlerNotFoundException | FullBucketException e) {

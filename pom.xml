@@ -6,7 +6,7 @@
 
     <groupId>io.ep2p</groupId>
     <artifactId>kademlia-api</artifactId>
-    <version>4.1.0-RELEASE</version>
+    <version>4.1.8-RELEASE</version>
     <url>https://github.com/ep2p/kademlia-api</url>
     <name>Abstract Kademlia API</name>
     <description>Java library for kademlia algorithm API with abstract networking layer.</description>
@@ -37,7 +37,7 @@
     <scm>
         <connection>scm:git:git://github.com/ep2p/kademlia-api.git</connection>
         <developerConnection>scm:git:ssh://github.com:ep2p/kademlia-api.git</developerConnection>
-        <url>http://github.com/ep2p/kademlia-api/tree/main</url>
+        <url>https://github.com/ep2p/kademlia-api/tree/main</url>
     </scm>
 
     <properties>
@@ -50,33 +50,33 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>1.18.14</version>
+            <version>1.18.24</version>
             <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-engine</artifactId>
-            <version>5.2.0</version>
+            <version>5.8.2</version>
             <scope>test</scope>
         </dependency>
 
         <dependency>
             <groupId>org.junit.platform</groupId>
             <artifactId>junit-platform-launcher</artifactId>
-            <version>1.2.0</version>
+            <version>1.8.2</version>
             <scope>test</scope>
         </dependency>
 
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
-            <version>1.7.31</version>
+            <version>1.7.36</version>
         </dependency>
         <dependency>
             <groupId>org.jetbrains</groupId>
             <artifactId>annotations</artifactId>
-            <version>RELEASE</version>
+            <version>23.0.0</version>
             <scope>compile</scope>
         </dependency>
 
@@ -84,7 +84,7 @@
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-            <version>31.0.1-jre</version>
+            <version>31.1-jre</version>
         </dependency>
 
     </dependencies>
@@ -107,7 +107,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
-                <version>2.2.1</version>
+                <version>3.2.1</version>
                 <executions>
                     <execution>
                         <id>attach-sources</id>
@@ -120,7 +120,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
-                <version>2.9.1</version>
+                <version>3.4.0</version>
                 <executions>
                     <execution>
                         <id>attach-javadocs</id>
@@ -133,7 +133,7 @@
             <plugin>
                 <groupId>org.sonatype.plugins</groupId>
                 <artifactId>nexus-staging-maven-plugin</artifactId>
-                <version>1.6.7</version>
+                <version>1.6.13</version>
                 <extensions>true</extensions>
                 <configuration>
                     <serverId>ossrh</serverId>

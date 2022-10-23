@@ -1,5 +1,6 @@
 package io.ep2p.kademlia.protocol.message;
 
+import com.google.common.base.Objects;
 import io.ep2p.kademlia.connection.ConnectionInfo;
 import io.ep2p.kademlia.node.Node;
 import io.ep2p.kademlia.protocol.MessageType;
@@ -24,9 +25,22 @@ public class DHTLookupKademliaMessage<ID extends Number, C extends ConnectionInf
     @AllArgsConstructor
     @NoArgsConstructor
     public static class DHTLookup<ID extends Number, C extends ConnectionInfo, K extends Serializable> implements Serializable{
-        protected Node<ID, C> requester;
+        private Node<ID, C> requester;
         private K key;
         private int currentTry;
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            DHTLookup<?, ?, ?> dhtLookup = (DHTLookup<?, ?, ?>) o;
+            return getCurrentTry() == dhtLookup.getCurrentTry() && Objects.equal(getRequester(), dhtLookup.getRequester()) && Objects.equal(getKey(), dhtLookup.getKey());
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hashCode(getRequester(), getKey(), getCurrentTry());
+        }
     }
 
 }

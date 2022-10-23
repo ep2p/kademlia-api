@@ -5,9 +5,11 @@ import io.ep2p.kademlia.exception.FullBucketException;
 import io.ep2p.kademlia.exception.HandlerNotFoundException;
 import io.ep2p.kademlia.node.KademliaNodeAPI;
 import io.ep2p.kademlia.node.Node;
+import io.ep2p.kademlia.protocol.message.KademliaMessage;
 import io.ep2p.kademlia.protocol.message.PingKademliaMessage;
 import io.ep2p.kademlia.table.Bucket;
-import lombok.var;
+
+import java.io.Serializable;
 
 public class RoutingTableUtil {
 
@@ -17,7 +19,7 @@ public class RoutingTableUtil {
         } catch (FullBucketException e) {
             Bucket<ID, C> bucket = node.getRoutingTable().findBucket(node.getId());
             for (ID nodeId : bucket.getNodeIds()) {
-                var response = node.getMessageSender().sendMessage(node, bucket.getNode(nodeId), new PingKademliaMessage<>());
+                KademliaMessage<ID, C, Serializable> response = node.getMessageSender().sendMessage(node, bucket.getNode(nodeId), new PingKademliaMessage<>());
                 node.onMessage(response);
                 if (!response.isAlive()){
                     bucket.remove(nodeId);

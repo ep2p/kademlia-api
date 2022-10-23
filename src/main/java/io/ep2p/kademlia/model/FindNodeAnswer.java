@@ -9,6 +9,7 @@ package io.ep2p.kademlia.model;
 import io.ep2p.kademlia.connection.ConnectionInfo;
 import io.ep2p.kademlia.node.external.ExternalNode;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -21,6 +22,7 @@ import java.util.List;
  * @param <C> Your implementation of connection info
  */
 @Getter
+@Setter
 public class FindNodeAnswer<ID extends Number, C extends ConnectionInfo> implements Serializable {
   private ID destinationId;
   /* Closest nodes in the answer. */
