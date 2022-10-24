@@ -16,7 +16,10 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.UUID;
-import java.util.concurrent.*;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 class DHTTest {
 
@@ -45,19 +48,7 @@ class DHTTest {
             Assertions.assertTrue(nextNode.start(bootstrapNode).get(), "Failed to bootstrap the node with ID " + i);
         }
 
-
-        // Wait and test if all nodes join
-        CountDownLatch countDownLatch = new CountDownLatch(1);
-        new Thread(() -> {
-            while (messageSenderAPI.map.size() < Math.pow(2, NodeSettings.Default.IDENTIFIER_SIZE)){
-                //wait
-            }
-            countDownLatch.countDown();
-        }).start();
-        boolean await = countDownLatch.await(NodeSettings.Default.PING_SCHEDULE_TIME_VALUE + 1, NodeSettings.Default.PING_SCHEDULE_TIME_UNIT);
-        Assertions.assertTrue(await);
-
-        System.out.println("All nodes tried registry in the right time");
+        
 
         Thread.sleep(2000);
 

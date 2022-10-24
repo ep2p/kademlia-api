@@ -25,9 +25,6 @@ import java.util.Objects;
 @Setter
 public abstract class ExternalNode<ID extends Number, C extends ConnectionInfo> extends DateAwareNodeDecorator<ID, C> implements Comparable<Object> {
   protected ID distance;
-  @Getter
-  @Setter
-  private Date lastSeen;
 
   protected ExternalNode(Node<ID, C> node, ID distance) {
     super(node);
@@ -46,7 +43,7 @@ public abstract class ExternalNode<ID extends Number, C extends ConnectionInfo> 
 
   @Override
   public int hashCode() {
-    return Objects.hash(distance, lastSeen);
+    return Objects.hash(distance, getLastSeen());
   }
 
   @Override

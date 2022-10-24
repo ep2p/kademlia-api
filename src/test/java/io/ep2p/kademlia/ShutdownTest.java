@@ -13,7 +13,6 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 
 /**
@@ -49,26 +48,13 @@ class ShutdownTest {
             }
         }
 
-
-        // Wait and test if all nodes join
-        CountDownLatch countDownLatch = new CountDownLatch(1);
-        new Thread(() -> {
-            while (messageSenderAPI.map.size() < Math.pow(2, NodeSettings.Default.IDENTIFIER_SIZE)){
-                //wait
-            }
-            countDownLatch.countDown();
-        }).start();
-        boolean await = countDownLatch.await(NodeSettings.Default.PING_SCHEDULE_TIME_VALUE + 1, NodeSettings.Default.PING_SCHEDULE_TIME_UNIT);
-        Assertions.assertTrue(await);
-
-        System.out.println("All nodes tried registry in the right time");
-
-        Thread.sleep(2000);
-
+        
         // Test if nodes know about each other
         assert node7 != null;
         node7.stop();
         messageSenderAPI.map.remove(7);
+
+        Thread.sleep((NodeSettings.Default.PING_SCHEDULE_TIME_VALUE + 1) * 1000L);
 
         boolean contains7 = containsNode(KadDistanceUtil.getReferencedNodes(messageSenderAPI.map.get(15)),7);
 
@@ -105,20 +91,6 @@ class ShutdownTest {
                 node7 = nextNode;
             }
         }
-
-
-        // Wait and test if all nodes join
-        CountDownLatch countDownLatch = new CountDownLatch(1);
-        new Thread(() -> {
-            while (messageSenderAPI.map.size() < Math.pow(2, NodeSettings.Default.IDENTIFIER_SIZE)){
-                //wait
-            }
-            countDownLatch.countDown();
-        }).start();
-        boolean await = countDownLatch.await(NodeSettings.Default.PING_SCHEDULE_TIME_VALUE + 1, NodeSettings.Default.PING_SCHEDULE_TIME_UNIT);
-        Assertions.assertTrue(await);
-
-        System.out.println("All nodes tried registry in the right time");
 
         Thread.sleep(2000);
 

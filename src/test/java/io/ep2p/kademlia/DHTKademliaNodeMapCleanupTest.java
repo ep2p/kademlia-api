@@ -18,7 +18,6 @@ import org.junit.jupiter.api.Test;
 import java.lang.reflect.Field;
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
@@ -51,22 +50,6 @@ class DHTKademliaNodeMapCleanupTest {
             messageSenderAPI.registerNode(nextNode);
             Assertions.assertTrue(nextNode.start(bootstrapNode).get(), "Failed to bootstrap the node with ID " + i);
         }
-
-
-        // Wait and test if all nodes join
-        CountDownLatch countDownLatch = new CountDownLatch(1);
-        new Thread(() -> {
-            while (messageSenderAPI.map.size() < Math.pow(2, NodeSettings.Default.IDENTIFIER_SIZE)){
-                //wait
-            }
-            countDownLatch.countDown();
-        }).start();
-        boolean await = countDownLatch.await(NodeSettings.Default.PING_SCHEDULE_TIME_VALUE + 1, NodeSettings.Default.PING_SCHEDULE_TIME_UNIT);
-        Assertions.assertTrue(await);
-
-        System.out.println("All nodes tried registry in the right time");
-
-        Thread.sleep(2000);
 
         String data = "Eleuth";
         StoreAnswer<Integer, Integer> storeAnswer = bootstrapNode.store(data.hashCode(), data).get();

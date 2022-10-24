@@ -11,7 +11,7 @@ import java.util.concurrent.Future;
 
 public abstract class DHTKademliaNodeAPIDecorator<ID extends Number, C extends ConnectionInfo, K extends Serializable, V extends Serializable> extends KademliaNodeAPIDecorator<ID, C> implements DHTKademliaNodeAPI<ID, C, K, V> {
 
-    public DHTKademliaNodeAPIDecorator(DHTKademliaNodeAPI<ID, C, K, V> kademliaNode) {
+    protected DHTKademliaNodeAPIDecorator(DHTKademliaNodeAPI<ID, C, K, V> kademliaNode) {
         super(kademliaNode);
     }
 
