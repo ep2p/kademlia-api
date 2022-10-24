@@ -7,7 +7,7 @@ import io.ep2p.kademlia.node.Node;
 import io.ep2p.kademlia.node.external.ExternalNode;
 
 import java.io.Serializable;
-import java.util.Vector;
+import java.util.List;
 
 public interface RoutingTable<ID extends Number, C extends ConnectionInfo, B extends Bucket<ID, C>> extends Serializable {
     /**
@@ -60,7 +60,7 @@ public interface RoutingTable<ID extends Number, C extends ConnectionInfo, B ext
 
     boolean contains(ID nodeId);
 
-    Vector<B> getBuckets();
+    List<B> getBuckets();
 
     ID getDistance(ID id);
 

@@ -32,17 +32,17 @@ public class KademliaNode<ID extends Number, C extends ConnectionInfo> implement
     @Getter
     private final RoutingTable<ID, C, Bucket<ID, C>> routingTable;
     @Getter
-    private final MessageSender<ID, C> messageSender;
+    private final transient MessageSender<ID, C> messageSender;
     @Getter
-    private final NodeSettings nodeSettings;
+    private final transient NodeSettings nodeSettings;
 
     @Getter
-    private final ExecutorService executorService;
+    private final transient ExecutorService executorService;
     @Getter
-    private final ScheduledExecutorService scheduledExecutorService;
+    private final transient ScheduledExecutorService scheduledExecutorService;
 
     //** None Accessible Fields **//
-    protected final Map<String, MessageHandler<ID, C>> messageHandlerRegistry = new ConcurrentHashMap<>();
+    protected final transient Map<String, MessageHandler<ID, C>> messageHandlerRegistry = new ConcurrentHashMap<>();
     private volatile boolean isRunning;
 
 

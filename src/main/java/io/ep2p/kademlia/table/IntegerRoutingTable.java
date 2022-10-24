@@ -65,6 +65,6 @@ public class IntegerRoutingTable<C extends ConnectionInfo> extends AbstractRouti
 
   @Override
   public Integer getDistance(Integer id) {
-    return (int) id ^ this.id;
+    return id ^ this.id;
   }
 }

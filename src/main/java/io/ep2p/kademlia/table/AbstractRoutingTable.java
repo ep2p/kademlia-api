@@ -16,9 +16,7 @@ import io.ep2p.kademlia.node.external.ExternalNode;
 import io.ep2p.kademlia.util.FindNodeAnswerReducer;
 import lombok.NoArgsConstructor;
 
-import java.util.Collections;
-import java.util.Date;
-import java.util.Vector;
+import java.util.*;
 
 /**
  * @param <ID> Number type of node ID between supported types
@@ -28,18 +26,18 @@ import java.util.Vector;
 @NoArgsConstructor
 public abstract class AbstractRoutingTable<ID extends Number, C extends ConnectionInfo, B extends Bucket<ID, C>> implements RoutingTable<ID, C, B> {
   /* Bucket list */
-  protected Vector<B> buckets;
+  protected ArrayList<B> buckets;
   /* Id of the routing table owner (node id) */
   protected ID id;
-  protected NodeSettings nodeSettings;
+  protected transient NodeSettings nodeSettings;
 
   /**
    * @param id Node id of the table owner
    */
-  public AbstractRoutingTable(ID id, NodeSettings nodeSettings) {
+  protected AbstractRoutingTable(ID id, NodeSettings nodeSettings) {
     this.id = id;
     this.nodeSettings = nodeSettings;
-    buckets = new Vector<>();
+    buckets = new ArrayList<>();
     for (int i = 0; i < nodeSettings.getIdentifierSize() + 1; i++) {
       buckets.add(createBucketOfId(i));
     }
@@ -148,7 +146,7 @@ public abstract class AbstractRoutingTable<ID extends Number, C extends Connecti
     return bucket.contains(nodeId);
   }
 
-  public Vector<B> getBuckets() {
+  public List<B> getBuckets() {
     return buckets;
   }
 

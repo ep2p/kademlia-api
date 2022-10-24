@@ -1,5 +1,6 @@
 package io.ep2p.kademlia.util;
 
+import io.ep2p.kademlia.exception.UnsupportedBoundingException;
 import lombok.Getter;
 
 import java.math.BigInteger;
@@ -16,7 +17,7 @@ public class BoundedHashUtil {
     }
 
     @SuppressWarnings("unchecked")
-    public <I extends Number, O extends Number> O hash(I input, Class<O> oClass){
+    public <I extends Number, O extends Number> O hash(I input, Class<O> oClass) throws UnsupportedBoundingException {
         if(oClass.equals(Long.class)){
             long i = ((Long) input) << -maxSize >>> -maxSize;
             return (O) Long.valueOf(i);
@@ -38,6 +39,6 @@ public class BoundedHashUtil {
             return (O) input;
         }
 
-        throw new RuntimeException("Output type not supported");
+        throw new UnsupportedBoundingException(oClass);
     }
 }

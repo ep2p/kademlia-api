@@ -189,7 +189,6 @@ public class DHTKademliaNode<ID extends Number, C extends ConnectionInfo, K exte
     }
 
     protected LookupAnswer<ID, K, V> getDataFromClosestNodes(Node<ID, C> caller, Node<ID, C> requester, K key, int currentTry){
-        LookupAnswer<ID, K, V> lookupAnswer = null;
         ID hash = hash(key);
         FindNodeAnswer<ID, C> findNodeAnswer = getRoutingTable().findClosest(hash);
         Date date = DateUtil.getDateOfSecondsAgo(this.getNodeSettings().getMaximumLastSeenAgeToConsiderAlive());
@@ -313,7 +312,7 @@ public class DHTKademliaNode<ID extends Number, C extends ConnectionInfo, K exte
 
     }
 
-    protected KademliaMessage<ID, C, ?> handleLookupResult(DHTLookupResultKademliaMessage<ID, C, K, V> message) {
+    protected KademliaMessage<ID, C, Serializable> handleLookupResult(DHTLookupResultKademliaMessage<ID, C, K, V> message) {
         DHTLookupResultKademliaMessage.DHTLookupResult<K, V> data = message.getData();
         LookupAnswer<ID, K, V> answer = this.lookupAnswerMap.get(data.getKey());
         if (answer != null){
@@ -326,7 +325,7 @@ public class DHTKademliaNode<ID extends Number, C extends ConnectionInfo, K exte
         return new EmptyKademliaMessage<>();
     }
 
-    protected KademliaMessage<ID, C, ?> handleLookupRequest(DHTLookupKademliaMessage<ID, C, K> message) {
+    protected KademliaMessage<ID, C, Serializable> handleLookupRequest(DHTLookupKademliaMessage<ID, C, K> message) {
         final KademliaNodeAPI<ID, C> caller = this;
         this.getExecutorService().submit(() -> {
             DHTLookupKademliaMessage.DHTLookup<ID, C, K> data = message.getData();
@@ -345,7 +344,7 @@ public class DHTKademliaNode<ID extends Number, C extends ConnectionInfo, K exte
         return new EmptyKademliaMessage<>();
     }
 
-    protected KademliaMessage<ID, C, ?> handleStoreResult(DHTStoreResultKademliaMessage<ID, C, K> message) {
+    protected KademliaMessage<ID, C, Serializable> handleStoreResult(DHTStoreResultKademliaMessage<ID, C, K> message) {
         DHTStoreResultKademliaMessage.DHTStoreResult<K> data = message.getData();
         StoreAnswer<ID, K> storeAnswer = this.storeMap.get(data.getKey());
         if (storeAnswer != null){
@@ -357,7 +356,7 @@ public class DHTKademliaNode<ID extends Number, C extends ConnectionInfo, K exte
         return new EmptyKademliaMessage<>();
     }
 
-    protected KademliaMessage<ID, C, ?> handleStoreRequest(DHTStoreKademliaMessage<ID,C,K,V> dhtStoreKademliaMessage){
+    protected KademliaMessage<ID, C, Serializable> handleStoreRequest(DHTStoreKademliaMessage<ID,C,K,V> dhtStoreKademliaMessage){
         final KademliaNodeAPI<ID, C> caller = this;
         this.getExecutorService().submit(() -> {
             DHTStoreKademliaMessage.DHTData<ID, C, K, V> data = dhtStoreKademliaMessage.getData();

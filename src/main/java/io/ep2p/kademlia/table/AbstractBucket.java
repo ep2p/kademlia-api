@@ -11,7 +11,6 @@ import io.ep2p.kademlia.node.Node;
 import io.ep2p.kademlia.node.external.ExternalNode;
 
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -22,8 +21,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public class AbstractBucket<ID extends Number, C extends ConnectionInfo> implements Bucket<ID, C> {
   private static final long serialVersionUID = -6049494618368168254L;
   protected final int id;
-  protected final List<ID> nodeIds;
-  protected final Map<ID, ExternalNode<ID, C>> nodeMap = new ConcurrentHashMap<>();
+  protected final CopyOnWriteArrayList<ID> nodeIds;
+  protected final ConcurrentHashMap<ID, ExternalNode<ID, C>> nodeMap = new ConcurrentHashMap<>();
 
   /**
    * Create a bucket for prefix `id`

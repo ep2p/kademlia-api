@@ -12,6 +12,8 @@ import java.math.BigInteger;
 @SuppressWarnings("unchecked")
 public class BucketHelper {
 
+    private BucketHelper(){}
+
     public static <ID extends Number, C extends ConnectionInfo> void addToAnswer(Bucket<ID, C> bucket, FindNodeAnswer<ID, C> answer, ID destination) {
         if(bucket instanceof LongBucket){
             for (long id : ((Bucket<Long, C>) bucket).getNodeIds()) {
