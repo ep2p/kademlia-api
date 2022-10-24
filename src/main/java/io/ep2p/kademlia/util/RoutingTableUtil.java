@@ -23,7 +23,7 @@ public class RoutingTableUtil {
                 node.onMessage(response);
                 if (!response.isAlive()){
                     bucket.remove(nodeId);
-                    bucket.add(nodeToAdd);
+                    bucket.add(node.getRoutingTable().getExternalNode(node));
                     break;
                 }
             }

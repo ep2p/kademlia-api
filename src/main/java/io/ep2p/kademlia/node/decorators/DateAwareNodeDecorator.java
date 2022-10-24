@@ -18,12 +18,10 @@ public class DateAwareNodeDecorator<ID extends Number, C extends ConnectionInfo>
         super(node);
     }
 
-    @Override
     public void setLastSeen(Date date) {
         this.lastSeen = date;
     }
 
-    @Override
     public Date getLastSeen() {
         return this.lastSeen;
     }

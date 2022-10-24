@@ -2,6 +2,7 @@ package io.ep2p.kademlia.table;
 
 import io.ep2p.kademlia.connection.ConnectionInfo;
 import io.ep2p.kademlia.node.Node;
+import io.ep2p.kademlia.node.external.ExternalNode;
 
 import java.io.Serializable;
 import java.util.List;
@@ -15,7 +16,7 @@ public interface Bucket<ID extends Number, C extends ConnectionInfo> extends Ser
      * Add a node to the front of the bucket
      * @param node to add to this bucket
      */
-    void add(Node<ID, C> node);
+    void add(ExternalNode<ID, C> node);
     void remove(Node<ID, C> node);
     void remove(ID nodeId);
     /**
@@ -23,6 +24,6 @@ public interface Bucket<ID extends Number, C extends ConnectionInfo> extends Ser
      * @param id of the node to push
      */
     void pushToFront(ID id);
-    Node<ID, C> getNode(ID id);
+    ExternalNode<ID, C> getNode(ID id);
     List<ID> getNodeIds();
 }

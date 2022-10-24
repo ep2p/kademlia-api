@@ -20,14 +20,4 @@ public class NodeDecorator<ID extends Number, C extends ConnectionInfo> implemen
     public ID getId() {
         return this.node.getId();
     }
-
-    @Override
-    public void setLastSeen(Date date) {
-        this.node.setLastSeen(date);
-    }
-
-    @Override
-    public Date getLastSeen() {
-        return this.node.getLastSeen();
-    }
 }

@@ -125,11 +125,6 @@ public class KademliaNode<ID extends Number, C extends ConnectionInfo> implement
         return handler;
     }
 
-    @Override
-    public void setLastSeen(Date date) {
-        // Nothing to do here
-    }
-
 
     //***************************//
     //** None-API methods here **//

@@ -9,6 +9,9 @@ package io.ep2p.kademlia.table;
 
 import io.ep2p.kademlia.NodeSettings;
 import io.ep2p.kademlia.connection.ConnectionInfo;
+import io.ep2p.kademlia.node.Node;
+import io.ep2p.kademlia.node.external.ExternalNode;
+import io.ep2p.kademlia.node.external.LongExternalNode;
 
 public class LongRoutingTable<C extends ConnectionInfo> extends AbstractRoutingTable<Long, C, LongBucket<C>> {
 
@@ -21,6 +24,11 @@ public class LongRoutingTable<C extends ConnectionInfo> extends AbstractRoutingT
   @Override
   protected LongBucket<C> createBucketOfId(int i) {
     return new LongBucket<>(i);
+  }
+
+  @Override
+  public ExternalNode<Long, C> getExternalNode(Node<Long, C> node) {
+    return new LongExternalNode<>(node, this.getDistance(node.getId()));
   }
 
   /**
@@ -50,8 +58,13 @@ public class LongRoutingTable<C extends ConnectionInfo> extends AbstractRoutingT
 
   /* Finds the corresponding bucket in a routing table for a given identifier */
   public LongBucket<C> findBucket(Long id) {
-    long xorNumber = id ^ this.id;
+    long xorNumber = this.getDistance(id);
     int prefix = this.getNodePrefix(xorNumber);
     return buckets.get(prefix);
+  }
+
+  @Override
+  public Long getDistance(Long id) {
+    return id ^ this.id;
   }
 }

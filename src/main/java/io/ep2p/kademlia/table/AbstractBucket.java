@@ -8,6 +8,7 @@ package io.ep2p.kademlia.table;
 
 import io.ep2p.kademlia.connection.ConnectionInfo;
 import io.ep2p.kademlia.node.Node;
+import io.ep2p.kademlia.node.external.ExternalNode;
 
 import java.util.List;
 import java.util.Map;
@@ -22,7 +23,7 @@ public class AbstractBucket<ID extends Number, C extends ConnectionInfo> impleme
   private static final long serialVersionUID = -6049494618368168254L;
   protected final int id;
   protected final List<ID> nodeIds;
-  protected final Map<ID, Node<ID, C>> nodeMap = new ConcurrentHashMap<>();
+  protected final Map<ID, ExternalNode<ID, C>> nodeMap = new ConcurrentHashMap<>();
 
   /**
    * Create a bucket for prefix `id`
@@ -53,7 +54,7 @@ public class AbstractBucket<ID extends Number, C extends ConnectionInfo> impleme
    * @param node to add to this bucket
    */
   @Override
-  public void add(Node<ID, C> node) {
+  public void add(ExternalNode<ID, C> node) {
     nodeIds.add(0,node.getId());
     nodeMap.put(node.getId(), node);
   }
@@ -79,7 +80,7 @@ public class AbstractBucket<ID extends Number, C extends ConnectionInfo> impleme
   }
 
   @Override
-  public Node<ID, C> getNode(ID id) {
+  public ExternalNode<ID, C> getNode(ID id) {
     return nodeMap.get(id);
   }
 

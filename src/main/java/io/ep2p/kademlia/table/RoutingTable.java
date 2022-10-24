@@ -4,6 +4,7 @@ import io.ep2p.kademlia.connection.ConnectionInfo;
 import io.ep2p.kademlia.exception.FullBucketException;
 import io.ep2p.kademlia.model.FindNodeAnswer;
 import io.ep2p.kademlia.node.Node;
+import io.ep2p.kademlia.node.external.ExternalNode;
 
 import java.io.Serializable;
 import java.util.Vector;
@@ -61,4 +62,7 @@ public interface RoutingTable<ID extends Number, C extends ConnectionInfo, B ext
 
     Vector<B> getBuckets();
 
+    ID getDistance(ID id);
+
+    ExternalNode<ID,C> getExternalNode(Node<ID,C> node);
 }

@@ -9,6 +9,10 @@ package io.ep2p.kademlia.table;
 
 import io.ep2p.kademlia.NodeSettings;
 import io.ep2p.kademlia.connection.ConnectionInfo;
+import io.ep2p.kademlia.node.Node;
+import io.ep2p.kademlia.node.external.BigIntegerExternalNode;
+import io.ep2p.kademlia.node.external.ExternalNode;
+import io.ep2p.kademlia.node.external.IntegerExternalNode;
 
 import java.math.BigInteger;
 
@@ -23,6 +27,11 @@ public class BigIntegerRoutingTable<C extends ConnectionInfo> extends AbstractRo
   @Override
   protected BigIntegerBucket<C> createBucketOfId(int i) {
     return new BigIntegerBucket<>(i);
+  }
+
+  @Override
+  public ExternalNode<BigInteger, C> getExternalNode(Node<BigInteger, C> node) {
+    return new BigIntegerExternalNode<>(node, this.getDistance(node.getId()));
   }
 
   /**
@@ -52,8 +61,13 @@ public class BigIntegerRoutingTable<C extends ConnectionInfo> extends AbstractRo
 
   /* Finds the corresponding bucket in a routing table for a given identifier */
   public Bucket<BigInteger, C> findBucket(BigInteger id) {
-    BigInteger xorNumber = id.xor(this.id);
+    BigInteger xorNumber = this.getDistance(id);
     int prefix = this.getNodePrefix(xorNumber);
     return buckets.get(prefix);
+  }
+
+  @Override
+  public BigInteger getDistance(BigInteger id) {
+    return id.xor(this.id);
   }
 }
