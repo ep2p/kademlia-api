@@ -2,8 +2,6 @@ package io.ep2p.kademlia.node;
 
 import io.ep2p.kademlia.connection.ConnectionInfo;
 
-import java.util.Date;
-
 public class NodeDecorator<ID extends Number, C extends ConnectionInfo> implements Node<ID, C> {
     protected final Node<ID, C> node;
 

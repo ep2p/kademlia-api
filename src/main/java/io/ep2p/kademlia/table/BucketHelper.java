@@ -2,7 +2,6 @@ package io.ep2p.kademlia.table;
 
 import io.ep2p.kademlia.connection.ConnectionInfo;
 import io.ep2p.kademlia.model.FindNodeAnswer;
-import io.ep2p.kademlia.node.Node;
 import io.ep2p.kademlia.node.external.BigIntegerExternalNode;
 import io.ep2p.kademlia.node.external.ExternalNode;
 import io.ep2p.kademlia.node.external.IntegerExternalNode;

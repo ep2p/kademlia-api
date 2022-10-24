@@ -13,8 +13,6 @@ import io.ep2p.kademlia.node.Node;
 import io.ep2p.kademlia.node.external.ExternalNode;
 import io.ep2p.kademlia.node.external.IntegerExternalNode;
 
-import java.math.BigInteger;
-
 public class IntegerRoutingTable<C extends ConnectionInfo> extends AbstractRoutingTable<Integer, C, Bucket<Integer, C>> {
 
   private static final long serialVersionUID = 4367972615687933078L;
