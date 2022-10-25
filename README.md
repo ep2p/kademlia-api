@@ -33,7 +33,7 @@ Using **maven central**
 <dependency>
     <groupId>io.ep2p</groupId>
     <artifactId>kademlia-api</artifactId>
-    <version>4.1.9-RELEASE</version>
+    <version>4.1.11-RELEASE</version>
 </dependency>
 ```
 
@@ -143,6 +143,23 @@ However, in this kademlia implementation your hash types should be the same numb
 That's where you'd need a mutual mechanism in all of your peers to generate hash of the key (which it can still be the key itself). You should pass your implementation of `KeyHashGenerator` to `DHTKademliaNode`
 
 ---
+
+## Node Settings
+
+Node Settings explanation table:
+
+| Name                                    | Info                                                                                                                       |
+|-----------------------------------------|----------------------------------------------------------------------------------------------------------------------------|
+| IDENTIFIER_SIZE                         | GUID Space AKA Routing table buckets count                                                                                 |
+| BUCKET_SIZE                             | Max size of each bucket in routing table                                                                                   |
+| FIND_NODE_SIZE                          | Size of results list when finding close nodes                                                                              |
+| MAXIMUM_LAST_SEEN_AGE_TO_CONSIDER_ALIVE | Value in seconds. If a node is older than this age, we will ping it before sending messages                                |
+| PING_SCHEDULE_TIME_VALUE                | Value in `PING_SCHEDULE_TIME_UNIT` to send pings in scheduler                                                              |
+| PING_SCHEDULE_TIME_UNIT                 | TimeUnit for ping scheduler                                                                                                |
+| DHT_EXECUTOR_POOL_SIZE                  | Size of ExecutorService in DHT for default constructor                                                                     |
+| SCHEDULED_EXECUTOR_POOL_SIZE            | Pool size of ScheduledExecutorService (mostly used for ping scheduler)                                                     |
+| ENABLED_FIRST_STORE_REQUEST_FORCE_PASS  | Enables force pass on first store loop. Has negative impact on performance but makes sure another node also tries to store |
+|                                         | Useful in situations where a node doesn't know much about other nodes in the network                                       |
 
 ## Republishing Keys
 
