@@ -67,18 +67,25 @@ class DHTTest {
     private void testStore(DHTKademliaNodeAPI<Integer, EmptyConnectionInfo, Integer, String> node, String data) throws ExecutionException, InterruptedException, DuplicateStoreRequest {
         Future<StoreAnswer<Integer, Integer>> storeFuture = node.store(data.hashCode(), data);
         StoreAnswer<Integer, Integer> storeAnswer = storeFuture.get();
-        Assertions.assertEquals(storeAnswer.getResult(), StoreAnswer.Result.STORED, "StoreAnswer Result was " + storeAnswer.getResult() + ", stored in node" + storeAnswer.getNodeId());
+        Assertions.assertEquals( StoreAnswer.Result.STORED, storeAnswer.getResult(), "StoreAnswer Result was " + storeAnswer.getResult() + ", stored in node" + storeAnswer.getNodeId());
         System.out.println(storeAnswer.getNodeId() + " stored " + storeAnswer.getKey());
 
         if (!storeAnswer.getNodeId().equals(node.getId()))
             Assertions.assertFalse(node.getKademliaRepository().contains(data.hashCode()));
 
         Future<LookupAnswer<Integer, Integer, String>> lookupFuture = node.lookup(data.hashCode());
+        Future<LookupAnswer<Integer, Integer, String>> lookupFuture2 = node.lookup(data.hashCode());
+        Assertions.assertEquals(lookupFuture2, lookupFuture);
         LookupAnswer<Integer, Integer, String> lookupAnswer = lookupFuture.get();
+        LookupAnswer<Integer, Integer, String> lookupAnswer2 = lookupFuture2.get();
 
-        Assertions.assertEquals(lookupAnswer.getResult(), LookupAnswer.Result.FOUND);
+        Assertions.assertEquals(LookupAnswer.Result.FOUND, lookupAnswer.getResult());
         Assertions.assertEquals(lookupAnswer.getValue(), data);
         Assertions.assertEquals(lookupAnswer.getNodeId(), storeAnswer.getNodeId());
+
+        Assertions.assertEquals(LookupAnswer.Result.FOUND, lookupAnswer2.getResult());
+        Assertions.assertEquals(lookupAnswer2.getValue(), data);
+        Assertions.assertEquals(lookupAnswer2.getNodeId(), storeAnswer.getNodeId());
         System.out.println(lookupAnswer.getNodeId() + " returned the data");
     }
 
