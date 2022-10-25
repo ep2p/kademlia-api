@@ -14,8 +14,8 @@
 
     <licenses>
         <license>
-            <name>GPL-2.0 License</name>
-            <url>https://www.gnu.org/licenses/gpl-2.0.en.html</url>
+            <name>MIT</name>
+            <url>https://opensource.org/licenses/MIT</url>
         </license>
     </licenses>
 
