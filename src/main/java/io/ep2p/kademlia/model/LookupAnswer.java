@@ -15,19 +15,13 @@ import java.io.Serializable;
 @NoArgsConstructor
 @Getter
 @Setter
-public class LookupAnswer<ID extends Number, K, V> extends WatchableAnswer<ID> {
+public class LookupAnswer<ID extends Number, K extends Serializable, V extends Serializable> extends WatchableAnswer<ID> {
     private K key;
     private V value;
     private Result result = Result.FAILED;
 
     public enum Result {
-        PASSED, FOUND, FAILED, TIMEOUT
+        PASSED, FOUND, FAILED
     }
 
-    public static <ID extends Number, K extends Serializable, V extends Serializable> LookupAnswer<ID, K, V> generateWithResult(K key, LookupAnswer.Result finalResult){
-        LookupAnswer<ID, K, V> result = new LookupAnswer<ID, K, V>();
-        result.setResult(finalResult);
-        result.setKey(key);
-        return result;
-    }
 }
