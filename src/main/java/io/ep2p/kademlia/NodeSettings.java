@@ -43,7 +43,7 @@ public class NodeSettings implements Serializable {
     public static int DHT_SCHEDULED_EXECUTOR_POOL_SIZE = 5;
     public static int MAXIMUM_STORE_AND_LOOKUP_TIMEOUT_VALUE = 1;
     public static TimeUnit MAXIMUM_STORE_AND_LOOKUP_TIMEOUT_TIME_UNIT = TimeUnit.MINUTES;
-    public static boolean ENABLED_FIRST_STORE_REQUEST_FORCE_PASS = true;
+    public static boolean ENABLED_FIRST_STORE_REQUEST_FORCE_PASS = false;
 
     public static NodeSettings build(){
       return NodeSettings.builder()

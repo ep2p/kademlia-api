@@ -23,7 +23,7 @@ public interface Bucket<ID extends Number, C extends ConnectionInfo> extends Ser
      * Push a node to the front of a bucket. Called when a node is already in bucket and brings them to front of the bucket as they are a living node
      * @param id of the node to push
      */
-    void pushToFront(ID id);
+    void pushToFront(ExternalNode<ID, C> node);
     ExternalNode<ID, C> getNode(ID id);
     List<ID> getNodeIds();
 }

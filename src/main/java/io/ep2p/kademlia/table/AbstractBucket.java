@@ -73,9 +73,10 @@ public class AbstractBucket<ID extends Number, C extends ConnectionInfo> impleme
    * @param id of the node to push
    */
   @Override
-  public synchronized void pushToFront(ID id) {
-    nodeIds.remove(id);
-    nodeIds.add(0, id);
+  public synchronized void pushToFront(ExternalNode<ID, C> node) {
+    nodeIds.remove(node.getId());
+    nodeIds.add(0, node.getId());
+    nodeMap.get(node.getId()).setLastSeen(node.getLastSeen());
   }
 
   @Override

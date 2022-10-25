@@ -56,9 +56,13 @@ class DHTKademliaNodeMapCleanupTest {
 
         Thread.sleep(100); // giving time for cleanup
 
-        Field field = bootstrapNode.getClass().getDeclaredField("storeMap");
+        Field field = bootstrapNode.getClass().getDeclaredField("storeService");
         field.setAccessible(true);
-        Object storeMap = field.get(bootstrapNode);
+        Object storeService = field.get(bootstrapNode);
+
+        field = storeService.getClass().getDeclaredField("storeMap");
+        field.setAccessible(true);
+        Object storeMap = field.get(storeService);
         Assertions.assertFalse(((Map<Integer, StoreAnswer<Integer, Integer>>) storeMap).containsKey(data.hashCode()));
         Assertions.assertEquals(((Map<Integer, StoreAnswer<Integer, Integer>>) storeMap).size(), 0);
 
@@ -85,11 +89,15 @@ class DHTKademliaNodeMapCleanupTest {
         bootstrapNode.lookup(data.hashCode()).get();
         Thread.sleep(1000);
 
-        field = bootstrapNode.getClass().getDeclaredField("lookupFutureMap");
+        field = bootstrapNode.getClass().getDeclaredField("lookupService");
         field.setAccessible(true);
-        Object lm = field.get(bootstrapNode);
+        Object lookupService = field.get(bootstrapNode);
+
+        field = lookupService.getClass().getDeclaredField("lookupFutureMap");
+        field.setAccessible(true);
+        Object lm = field.get(lookupService);
         Assertions.assertFalse(((Map<Integer, Future<LookupAnswer<Integer, Integer, String>>>) lm).containsKey(data.hashCode()));
-        Assertions.assertEquals(((Map<Integer, Future<LookupAnswer<Integer, Integer, String>>>) lm).size(), 0);
+        Assertions.assertEquals(0, ((Map<Integer, Future<LookupAnswer<Integer, Integer, String>>>) lm).size());
 
         messageSenderAPI.stopAll();
 

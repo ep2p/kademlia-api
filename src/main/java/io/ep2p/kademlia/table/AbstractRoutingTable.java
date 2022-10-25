@@ -16,7 +16,10 @@ import io.ep2p.kademlia.node.external.ExternalNode;
 import io.ep2p.kademlia.util.FindNodeAnswerReducer;
 import lombok.NoArgsConstructor;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
 
 /**
  * @param <ID> Number type of node ID between supported types
@@ -54,7 +57,7 @@ public abstract class AbstractRoutingTable<ID extends Number, C extends Connecti
   public boolean update(Node<ID, C> node) throws FullBucketException {
     //Setting last seen date on node
 
-    ExternalNode<ID, C> externalNode = null;
+    ExternalNode<ID, C> externalNode;
 
     if (!(node instanceof ExternalNode))
       externalNode = this.getExternalNode(node);
@@ -64,8 +67,8 @@ public abstract class AbstractRoutingTable<ID extends Number, C extends Connecti
     externalNode.setLastSeen(new Date());
     Bucket<ID, C> bucket = this.findBucket(node.getId());
     if (bucket.contains(node)) {
-      //If the element is already in the bucket, we update it and push it to the front of the bucket.
-      bucket.pushToFront(node.getId());
+      // If the element is already in the bucket, we update it and push it to the front of the bucket.
+      bucket.pushToFront(externalNode);
       return false;
     } else if (bucket.size() < this.nodeSettings.getBucketSize()) {
       bucket.add(externalNode);
@@ -83,6 +86,9 @@ public abstract class AbstractRoutingTable<ID extends Number, C extends Connecti
       Date date = null;
       ID oldestNode = null;
       for (ID nodeId : bucket.getNodeIds()) {
+        if (nodeId.equals(this.id)){
+          continue;
+        }
         if (date == null || bucket.getNode(nodeId).getLastSeen().before(date)){
           date = bucket.getNode(nodeId).getLastSeen();
           oldestNode = nodeId;
