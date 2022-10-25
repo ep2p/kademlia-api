@@ -48,14 +48,12 @@ public class DHTStoreService<ID extends Number, C extends ConnectionInfo, K exte
     }
 
     public Future<StoreAnswer<ID, K>> store(K key, V value) throws DuplicateStoreRequest {
-
         // Todo: compute if absent
 
-        synchronized (this){
-            if (storeMap.containsKey(key)) {
-                throw new DuplicateStoreRequest();
-            }
+        if (storeMap.containsKey(key)) {
+            throw new DuplicateStoreRequest();
         }
+
 
         ListenableFuture<StoreAnswer<ID, K>> futureAnswer = this.listeningExecutorService.submit(
             () -> {
