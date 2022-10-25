@@ -1,4 +1,4 @@
-package io.ep2p.kademlia;
+package io.ep2p.kademlia.helpers;
 
 import io.ep2p.kademlia.node.KeyHashGenerator;
 import io.ep2p.kademlia.util.BoundedHashUtil;

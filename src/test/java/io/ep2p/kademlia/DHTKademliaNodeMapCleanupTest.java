@@ -1,6 +1,7 @@
 package io.ep2p.kademlia;
 
 import io.ep2p.kademlia.helpers.EmptyConnectionInfo;
+import io.ep2p.kademlia.helpers.SampleKeyHashGenerator;
 import io.ep2p.kademlia.helpers.SampleRepository;
 import io.ep2p.kademlia.helpers.TestMessageSenderAPI;
 import io.ep2p.kademlia.model.LookupAnswer;
