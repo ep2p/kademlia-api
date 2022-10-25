@@ -81,6 +81,7 @@ public class DHTStoreService<ID extends Number, C extends ConnectionInfo, K exte
     }
 
     public void cleanUp(){
+        this.storeMap.forEach((k, idkStoreAnswer) -> idkStoreAnswer.finishWatch());
         this.storeMap.clear();
     }
 
@@ -91,7 +92,7 @@ public class DHTStoreService<ID extends Number, C extends ConnectionInfo, K exte
         // If some other node is calling the store, and that other node is not this node,
         // But the origin request is by this node, then persist it
         // The closest node we know to the key knows us as the closest know to the key and not themselves (?!?)
-        // Todo: does this makes sense? (maybe only in case of nodeSettings.isEnabledFirstStoreRequestForcePass())
+        // Useful only in case of nodeSettings.isEnabledFirstStoreRequestForcePass()
         if (!caller.getId().equals(this.dhtKademliaNode.getId()) && requester.getId().equals(this.dhtKademliaNode.getId())){
             return doStore(key, value);
         }
@@ -130,13 +131,6 @@ public class DHTStoreService<ID extends Number, C extends ConnectionInfo, K exte
             // This approach can be disabled through nodeSettings "Enabled First Store Request Force Pass"
             // This has no conflicts with 'Scenario A' because:
             // If we were the closest node we'd have already stored the data
-
-            // Todo: check assumption:
-            //       If EnabledFirstStoreRequestForcePass is FALSE
-            //       and RoutingTable is decorated with KeepNodeOnFrontRoutingTableDecorator
-            //       then everything works perfectly
-            //       However, if it's false and RoutingTable is not decorated then it may break things
-            //       TestCase required: Random BigInteger nodeIDs
 
             if (requester.getId().equals(externalNode.getId()) && requester.getId().equals(caller.getId())
                     && this.dhtKademliaNode.getNodeSettings().isEnabledFirstStoreRequestForcePass()

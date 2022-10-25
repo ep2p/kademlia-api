@@ -15,7 +15,7 @@ import lombok.*;
 @ToString
 public class StoreAnswer<ID extends Number, K> extends WatchableAnswer<ID> {
     private K key;
-    private Result result;
+    private Result result = Result.FAILED;
 
     public enum Result {
         STORED, PASSED, FAILED, TIMEOUT

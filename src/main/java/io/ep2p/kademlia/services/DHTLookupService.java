@@ -69,6 +69,7 @@ public class DHTLookupService<ID extends Number, C extends ConnectionInfo, K ext
     }
 
     public void cleanUp(){
+        this.lookupAnswerMap.forEach((k, idkvLookupAnswer) -> idkvLookupAnswer.finishWatch());
         this.lookupFutureMap.clear();
         this.lookupAnswerMap.clear();
     }

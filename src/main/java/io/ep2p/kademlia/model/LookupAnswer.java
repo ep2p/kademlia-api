@@ -18,7 +18,7 @@ import java.io.Serializable;
 public class LookupAnswer<ID extends Number, K, V> extends WatchableAnswer<ID> {
     private K key;
     private V value;
-    private Result result;
+    private Result result = Result.FAILED;
 
     public enum Result {
         PASSED, FOUND, FAILED, TIMEOUT
