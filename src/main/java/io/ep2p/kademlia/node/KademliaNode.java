@@ -12,7 +12,6 @@ import io.ep2p.kademlia.protocol.message.KademliaMessage;
 import io.ep2p.kademlia.protocol.message.PingKademliaMessage;
 import io.ep2p.kademlia.protocol.message.ShutdownKademliaMessage;
 import io.ep2p.kademlia.table.Bucket;
-import io.ep2p.kademlia.table.KeepNodeOnFrontRoutingTableDecorator;
 import io.ep2p.kademlia.table.RoutingTable;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -54,7 +53,7 @@ public class KademliaNode<ID extends Number, C extends ConnectionInfo> implement
     public KademliaNode(ID id, C connectionInfo, RoutingTable<ID, C, Bucket<ID, C>> routingTable, MessageSender<ID, C> messageSender, NodeSettings nodeSettings, ExecutorService executorService, ScheduledExecutorService scheduledExecutorService) {
         this.id = id;
         this.connectionInfo = connectionInfo;
-        this.routingTable = new KeepNodeOnFrontRoutingTableDecorator<>(routingTable, this);
+        this.routingTable = routingTable;
         this.messageSender = messageSender;
         this.nodeSettings = nodeSettings;
         this.executorService = executorService;
