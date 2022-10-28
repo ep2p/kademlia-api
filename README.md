@@ -13,7 +13,7 @@ Networking layer which covers the subjects of how packets move through the netwo
 
 ## Key Features
 
-- Allows peer GUID to be an `Integer`, `Long` or even `BigInteger`
+- Allows peer GUID to be an `Integer` or `Long`
 - Automatically handles most of the operations related to GUID type
 - Highly configurable
   - There is an abstraction for most important things such as DHT repository or networking layer (where messages are sent and received)
@@ -33,7 +33,7 @@ Using **maven central**
 <dependency>
     <groupId>io.ep2p</groupId>
     <artifactId>kademlia-api</artifactId>
-    <version>4.1.11-RELEASE</version>
+    <version>4.1.12-RELEASE</version>
 </dependency>
 ```
 

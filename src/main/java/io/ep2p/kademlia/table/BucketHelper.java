@@ -2,12 +2,9 @@ package io.ep2p.kademlia.table;
 
 import io.ep2p.kademlia.connection.ConnectionInfo;
 import io.ep2p.kademlia.model.FindNodeAnswer;
-import io.ep2p.kademlia.node.external.BigIntegerExternalNode;
 import io.ep2p.kademlia.node.external.ExternalNode;
 import io.ep2p.kademlia.node.external.IntegerExternalNode;
 import io.ep2p.kademlia.node.external.LongExternalNode;
-
-import java.math.BigInteger;
 
 @SuppressWarnings("unchecked")
 public class BucketHelper {
@@ -28,14 +25,6 @@ public class BucketHelper {
                 ExternalNode<Integer, C> node = ((Bucket<Integer, C>) bucket).getNode(id);
                 int destination1 = (Integer) destination;
                 answer.add((ExternalNode<ID, C>) new IntegerExternalNode<>(node, id ^ destination1));
-            }
-        }
-
-        if(bucket instanceof BigIntegerBucket){
-            for (BigInteger id : ((Bucket<BigInteger, C>) bucket).getNodeIds()) {
-                ExternalNode<BigInteger, C> node = ((Bucket<BigInteger, C>) bucket).getNode(id);
-                BigInteger destination1 = (BigInteger) destination;
-                answer.add((ExternalNode<ID, C>) new BigIntegerExternalNode<>(node, destination1.xor(id)));
             }
         }
 

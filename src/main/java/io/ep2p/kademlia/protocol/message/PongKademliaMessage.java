@@ -6,10 +6,6 @@ import lombok.Getter;
 import lombok.Setter;
 
 public class PongKademliaMessage<ID extends Number, C extends ConnectionInfo> extends KademliaMessage<ID, C, String> {
-    @Getter
-    @Setter
-    private boolean fromFindHandler = false;
-
     public PongKademliaMessage() {
         super(MessageType.PONG);
         setData("PONG");
