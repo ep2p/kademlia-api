@@ -70,7 +70,7 @@ public class AbstractBucket<ID extends Number, C extends ConnectionInfo> impleme
   }
 
   /**
-   * @param id of the node to push
+   * @param node the node to push
    */
   @Override
   public synchronized void pushToFront(ExternalNode<ID, C> node) {
