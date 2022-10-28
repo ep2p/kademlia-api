@@ -34,12 +34,6 @@ public class KadDistanceUtil {
 
             return (List<ID>) validNodes;
         }
-        if (nodeId instanceof BigInteger){
-            ArrayList<BigInteger> validNodes = new ArrayList<>();
-            getDistancesOfIdentifierSize(identifierSize).forEach(distance -> validNodes.add(((BigInteger) nodeId).xor(BigInteger.valueOf(distance))));
-
-            return (List<ID>) validNodes;
-        }
         if (nodeId instanceof Integer){
             ArrayList<Integer> validNodes = new ArrayList<>();
             getDistancesOfIdentifierSize(identifierSize).forEach(distance -> validNodes.add(((Integer) nodeId) ^ distance));

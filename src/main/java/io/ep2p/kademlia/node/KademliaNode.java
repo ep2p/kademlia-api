@@ -47,7 +47,7 @@ public class KademliaNode<ID extends Number, C extends ConnectionInfo> implement
 
 
     public KademliaNode(ID id, C connectionInfo, RoutingTable<ID, C, Bucket<ID, C>> routingTable, MessageSender<ID, C> messageSender, NodeSettings nodeSettings) {
-        this(id, connectionInfo, routingTable, messageSender, nodeSettings, Executors.newFixedThreadPool(1), Executors.newSingleThreadScheduledExecutor());
+        this(id, connectionInfo, routingTable, messageSender, nodeSettings, Executors.newFixedThreadPool(nodeSettings.getDhtExecutorPoolSize()), Executors.newSingleThreadScheduledExecutor());
     }
 
     public KademliaNode(ID id, C connectionInfo, RoutingTable<ID, C, Bucket<ID, C>> routingTable, MessageSender<ID, C> messageSender, NodeSettings nodeSettings, ExecutorService executorService, ScheduledExecutorService scheduledExecutorService) {
