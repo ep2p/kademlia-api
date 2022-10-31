@@ -51,7 +51,8 @@ public class BigIntegerRoutingTable<C extends ConnectionInfo> extends AbstractRo
   /* Returns the corresponding node prefix for a given id */
   public int getNodePrefix(BigInteger id) {
     for (int j = 0; j < this.nodeSettings.getIdentifierSize(); j++) {
-      if (!id.shiftRight((this.nodeSettings.getIdentifierSize() - 1 - j) & 0x1).equals(BigInteger.valueOf(0))) {
+      BigInteger xor = id.xor(BigInteger.valueOf(j));
+      if (!xor.shiftRight(this.nodeSettings.getIdentifierSize() - 1 - j).and(BigInteger.valueOf(0x1L)).equals(BigInteger.valueOf(0))) {
         return this.nodeSettings.getIdentifierSize() - j;
       }
     }

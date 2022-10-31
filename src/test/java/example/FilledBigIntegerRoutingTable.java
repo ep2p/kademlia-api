@@ -6,26 +6,25 @@ import io.ep2p.kademlia.helpers.EmptyConnectionInfo;
 import io.ep2p.kademlia.helpers.TestMessageSenderAPI;
 import io.ep2p.kademlia.node.KademliaNode;
 import io.ep2p.kademlia.node.KademliaNodeAPI;
-import io.ep2p.kademlia.table.DefaultRoutingTableFactory;
-import io.ep2p.kademlia.table.IntegerBucket;
-import io.ep2p.kademlia.table.RoutingTable;
-import io.ep2p.kademlia.table.RoutingTableFactory;
+import io.ep2p.kademlia.table.*;
+
+import java.math.BigInteger;
 
 
-public class FilledRoutingTable {
+public class FilledBigIntegerRoutingTable {
     public static void main(String[] args) throws FullBucketException {
         NodeSettings.Default.IDENTIFIER_SIZE = 3;
-        RoutingTableFactory<Integer, EmptyConnectionInfo, IntegerBucket<EmptyConnectionInfo>> routingTableFactory = new DefaultRoutingTableFactory<>();
+        RoutingTableFactory<BigInteger, EmptyConnectionInfo, BigIntegerBucket<EmptyConnectionInfo>> routingTableFactory = new DefaultRoutingTableFactory<>();
         TestMessageSenderAPI<Integer, EmptyConnectionInfo> messageSenderAPI = new TestMessageSenderAPI<>();
-        int nodeId = 4;
+        BigInteger nodeId = BigInteger.valueOf(4);
 
-        RoutingTable<Integer, EmptyConnectionInfo, IntegerBucket<EmptyConnectionInfo>> routingTable = routingTableFactory.getRoutingTable(nodeId);
+        RoutingTable<BigInteger, EmptyConnectionInfo, BigIntegerBucket<EmptyConnectionInfo>> routingTable = routingTableFactory.getRoutingTable(nodeId);
 
         for (int i = 0; i < Math.pow(NodeSettings.Default.IDENTIFIER_SIZE, 2) - 1; i++){
-            if (i == nodeId)
+            if (BigInteger.valueOf(i).equals(nodeId))
                 continue;
-            KademliaNodeAPI<Integer, EmptyConnectionInfo> node = new KademliaNode(
-                    i, new EmptyConnectionInfo(), routingTableFactory.getRoutingTable(i), messageSenderAPI, NodeSettings.Default.build()
+            KademliaNodeAPI<BigInteger, EmptyConnectionInfo> node = new KademliaNode(
+                    BigInteger.valueOf(i), new EmptyConnectionInfo(), routingTableFactory.getRoutingTable(BigInteger.valueOf(i)), messageSenderAPI, NodeSettings.Default.build()
             );
             routingTable.update(node);
         }
