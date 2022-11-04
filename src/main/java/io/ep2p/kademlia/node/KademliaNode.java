@@ -5,6 +5,7 @@ import io.ep2p.kademlia.NodeSettings;
 import io.ep2p.kademlia.connection.ConnectionInfo;
 import io.ep2p.kademlia.connection.MessageSender;
 import io.ep2p.kademlia.exception.HandlerNotFoundException;
+import io.ep2p.kademlia.node.strategies.ReferencedNodesStrategy;
 import io.ep2p.kademlia.protocol.MessageType;
 import io.ep2p.kademlia.protocol.handler.*;
 import io.ep2p.kademlia.protocol.message.FindNodeRequestMessage;
@@ -14,6 +15,7 @@ import io.ep2p.kademlia.protocol.message.ShutdownKademliaMessage;
 import io.ep2p.kademlia.table.Bucket;
 import io.ep2p.kademlia.table.RoutingTable;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.Serializable;
@@ -21,7 +23,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.*;
 
-import static io.ep2p.kademlia.util.KadDistanceUtil.getReferencedNodes;
 
 @Slf4j
 public class KademliaNode<ID extends Number, C extends ConnectionInfo> implements KademliaNodeAPI<ID, C> {
@@ -40,6 +41,9 @@ public class KademliaNode<ID extends Number, C extends ConnectionInfo> implement
     private final transient ExecutorService executorService;
     @Getter
     private final transient ScheduledExecutorService scheduledExecutorService;
+    @Getter
+    @Setter
+    private transient ReferencedNodesStrategy referencedNodesStrategy = ReferencedNodesStrategy.Strategies.CLOSEST_PER_BUCKET.getReferencedNodesStrategy();
 
     //** None Accessible Fields **//
     protected final transient Map<String, MessageHandler<ID, C>> messageHandlerRegistry = new ConcurrentHashMap<>();
@@ -130,7 +134,7 @@ public class KademliaNode<ID extends Number, C extends ConnectionInfo> implement
     //***************************//
 
     protected void gracefulShutdown(){
-        getReferencedNodes(this).forEach(node -> getMessageSender().sendAsyncMessage(this, node, new ShutdownKademliaMessage<>()));
+        this.referencedNodesStrategy.getReferencedNodes(this).forEach(node -> getMessageSender().sendAsyncMessage(this, node, new ShutdownKademliaMessage<>()));
     }
 
     protected void init(){
@@ -144,16 +148,15 @@ public class KademliaNode<ID extends Number, C extends ConnectionInfo> implement
 
 
     protected Future<Boolean> bootstrap(Node<ID, C> bootstrapNode) {
-        final KademliaNodeAPI<ID, C> caller = this;
         this.getRoutingTable().forceUpdate(bootstrapNode);
 
         CompletableFuture<Boolean> completableFuture = new CompletableFuture<>();
 
         this.executorService.submit(() -> {
             FindNodeRequestMessage<ID, C> message = new FindNodeRequestMessage<>();
-            message.setData(caller.getId());
+            message.setData(this.getId());
             try {
-                KademliaMessage<ID, C, ?> response = getMessageSender().sendMessage(caller, bootstrapNode, message);
+                KademliaMessage<ID, C, ?> response = getMessageSender().sendMessage(this, bootstrapNode, message);
                 onMessage(response);
                 completableFuture.complete(true);
             } catch (Exception e) {
@@ -166,16 +169,14 @@ public class KademliaNode<ID extends Number, C extends ConnectionInfo> implement
     }
 
     protected void pingSchedule(){
-        final KademliaNodeAPI<ID, C> caller = this;
-
         this.scheduledExecutorService.scheduleAtFixedRate(
                 () -> {
-                    List<Node<ID, C>> referencedNodes = getReferencedNodes(caller);
+                    List<Node<ID, C>> referencedNodes = this.referencedNodesStrategy.getReferencedNodes(this);
 
                     PingKademliaMessage<ID, C> message = new PingKademliaMessage<>();
                     referencedNodes.forEach(node -> {
                         try {
-                            KademliaMessage<ID, C, ?> response = getMessageSender().sendMessage(caller, node, message);
+                            KademliaMessage<ID, C, ?> response = getMessageSender().sendMessage(this, node, message);
                             onMessage(response);
                         } catch (HandlerNotFoundException e) {
                             log.error(e.getMessage(), e);

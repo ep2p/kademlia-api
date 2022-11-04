@@ -5,6 +5,7 @@ import io.ep2p.kademlia.helpers.TestMessageSenderAPI;
 import io.ep2p.kademlia.node.KademliaNode;
 import io.ep2p.kademlia.node.KademliaNodeAPI;
 import io.ep2p.kademlia.node.Node;
+import io.ep2p.kademlia.node.strategies.ClosestPerBucketReferencedNodeStrategy;
 import io.ep2p.kademlia.table.Bucket;
 import io.ep2p.kademlia.table.DefaultRoutingTableFactory;
 import io.ep2p.kademlia.table.RoutingTableFactory;
@@ -28,6 +29,7 @@ class ShutdownTest {
         NodeSettings.Default.BUCKET_SIZE = 100;
         NodeSettings.Default.PING_SCHEDULE_TIME_VALUE = 5;
         NodeSettings nodeSettings = NodeSettings.Default.build();
+        ClosestPerBucketReferencedNodeStrategy closestPerBucketReferencedNodeStrategy = new ClosestPerBucketReferencedNodeStrategy();
 
         RoutingTableFactory<Integer, EmptyConnectionInfo, Bucket<Integer, EmptyConnectionInfo>> routingTableFactory = new DefaultRoutingTableFactory<>(nodeSettings);
 
@@ -56,7 +58,7 @@ class ShutdownTest {
 
         Thread.sleep((NodeSettings.Default.PING_SCHEDULE_TIME_VALUE + 1) * 1000L);
 
-        boolean contains7 = containsNode(KadDistanceUtil.getReferencedNodes(messageSenderAPI.map.get(15)),7);
+        boolean contains7 = containsNode(closestPerBucketReferencedNodeStrategy.getReferencedNodes(messageSenderAPI.map.get(15)),7);
 
         Assertions.assertFalse(contains7, "Node 15 still knows about 7 even after 7 stopped");
 
@@ -99,7 +101,7 @@ class ShutdownTest {
         node7.stopNow();
         messageSenderAPI.map.remove(7);
 
-        boolean contains7 = containsNode(KadDistanceUtil.getReferencedNodes(messageSenderAPI.map.get(15)),7);
+        boolean contains7 = containsNode(new ClosestPerBucketReferencedNodeStrategy().getReferencedNodes(messageSenderAPI.map.get(15)),7);
 
         Assertions.assertTrue(contains7, "Node 15 already forgot about 7");
 
@@ -107,7 +109,7 @@ class ShutdownTest {
         Thread.sleep(nodeSettings.getPingScheduleTimeValue() * 1100L);
 
         // Now 15 should not know 7
-        contains7 = containsNode(KadDistanceUtil.getReferencedNodes(messageSenderAPI.map.get(15)),7);
+        contains7 = containsNode(new ClosestPerBucketReferencedNodeStrategy().getReferencedNodes(messageSenderAPI.map.get(15)),7);
         Assertions.assertFalse(contains7, "Node 15 still knows about 7 even after 7 ping");
 
         // stop all

@@ -4,6 +4,7 @@ import io.ep2p.kademlia.NodeSettings;
 import io.ep2p.kademlia.connection.ConnectionInfo;
 import io.ep2p.kademlia.connection.MessageSender;
 import io.ep2p.kademlia.exception.HandlerNotFoundException;
+import io.ep2p.kademlia.node.strategies.ReferencedNodesStrategy;
 import io.ep2p.kademlia.protocol.handler.MessageHandler;
 import io.ep2p.kademlia.protocol.message.KademliaMessage;
 import io.ep2p.kademlia.table.Bucket;
@@ -72,4 +73,6 @@ public interface KademliaNodeAPI<ID extends Number, C extends ConnectionInfo> ex
      * @throws HandlerNotFoundException when no handler is registered for type of the message
      */
     MessageHandler<ID, C> getHandler(String type) throws HandlerNotFoundException;
+
+    void setReferencedNodesStrategy(ReferencedNodesStrategy referencedNodesStrategy);
 }

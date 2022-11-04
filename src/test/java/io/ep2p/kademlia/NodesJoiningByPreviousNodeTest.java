@@ -5,6 +5,7 @@ import io.ep2p.kademlia.helpers.TestMessageSenderAPI;
 import io.ep2p.kademlia.node.KademliaNode;
 import io.ep2p.kademlia.node.KademliaNodeAPI;
 import io.ep2p.kademlia.node.Node;
+import io.ep2p.kademlia.node.strategies.ClosestPerBucketReferencedNodeStrategy;
 import io.ep2p.kademlia.table.Bucket;
 import io.ep2p.kademlia.table.DefaultRoutingTableFactory;
 import io.ep2p.kademlia.table.RoutingTableFactory;
@@ -30,6 +31,7 @@ class NodesJoiningByPreviousNodeTest {
         NodeSettings.Default.BUCKET_SIZE = 100;
         NodeSettings.Default.PING_SCHEDULE_TIME_VALUE = 5;
         NodeSettings nodeSettings = NodeSettings.Default.build();
+        ClosestPerBucketReferencedNodeStrategy closestPerBucketReferencedNodeStrategy = new ClosestPerBucketReferencedNodeStrategy();
 
         RoutingTableFactory<Integer, EmptyConnectionInfo, Bucket<Integer, EmptyConnectionInfo>> routingTableFactory = new DefaultRoutingTableFactory<>(nodeSettings);
 
@@ -54,12 +56,12 @@ class NodesJoiningByPreviousNodeTest {
 
         // Test if nodes know about each other
 
-        Assertions.assertTrue(listContainsAll(KadDistanceUtil.getReferencedNodes(messageSenderAPI.map.get(0)), 1,2,4,8));
-        Assertions.assertTrue(listContainsAll(KadDistanceUtil.getReferencedNodes(messageSenderAPI.map.get(1)), 0,3,5,9));
-        Assertions.assertTrue(listContainsAll(KadDistanceUtil.getReferencedNodes(messageSenderAPI.map.get(2)), 3,0,6,10));
-        Assertions.assertTrue(listContainsAll(KadDistanceUtil.getReferencedNodes(messageSenderAPI.map.get(3)), 2,1,7,11));
-        Assertions.assertTrue(listContainsAll(KadDistanceUtil.getReferencedNodes(messageSenderAPI.map.get(15)), 14,13,11,7));
-        Assertions.assertTrue(listContainsAll(KadDistanceUtil.getReferencedNodes(messageSenderAPI.map.get(7)), 6,5,3,15));
+        Assertions.assertTrue(listContainsAll(closestPerBucketReferencedNodeStrategy.getReferencedNodes(messageSenderAPI.map.get(0)), 1,2,4,8));
+        Assertions.assertTrue(listContainsAll(closestPerBucketReferencedNodeStrategy.getReferencedNodes(messageSenderAPI.map.get(1)), 0,3,5,9));
+        Assertions.assertTrue(listContainsAll(closestPerBucketReferencedNodeStrategy.getReferencedNodes(messageSenderAPI.map.get(2)), 3,0,6,10));
+        Assertions.assertTrue(listContainsAll(closestPerBucketReferencedNodeStrategy.getReferencedNodes(messageSenderAPI.map.get(3)), 2,1,7,11));
+        Assertions.assertTrue(listContainsAll(closestPerBucketReferencedNodeStrategy.getReferencedNodes(messageSenderAPI.map.get(15)), 14,13,11,7));
+        Assertions.assertTrue(listContainsAll(closestPerBucketReferencedNodeStrategy.getReferencedNodes(messageSenderAPI.map.get(7)), 6,5,3,15));
 
 
         // stop all
