@@ -1,10 +1,5 @@
 package io.ep2p.kademlia.util;
 
-import io.ep2p.kademlia.connection.ConnectionInfo;
-import io.ep2p.kademlia.model.FindNodeAnswer;
-import io.ep2p.kademlia.node.KademliaNodeAPI;
-import io.ep2p.kademlia.node.Node;
-
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -13,6 +8,8 @@ import java.util.Map;
 
 public class KadDistanceUtil {
     private static final Map<Integer, List<Integer>> identifierToDistanceListMap = new HashMap<>();
+
+    private KadDistanceUtil(){}
 
     public static synchronized List<Integer> getDistancesOfIdentifierSize(int identifierSize){
         if(identifierToDistanceListMap.containsKey(identifierSize)){
@@ -27,7 +24,7 @@ public class KadDistanceUtil {
     }
 
     @SuppressWarnings("unchecked")
-    public static synchronized <ID extends Number> List<ID> getNodesWithDistance(ID nodeId, int identifierSize) {
+    public static <ID extends Number> List<ID> getNodesWithDistance(ID nodeId, int identifierSize) {
         if(nodeId instanceof Long){
             ArrayList<Long> validNodes = new ArrayList<>();
             getDistancesOfIdentifierSize(identifierSize).forEach(distance -> validNodes.add(((Long) nodeId) ^ distance));

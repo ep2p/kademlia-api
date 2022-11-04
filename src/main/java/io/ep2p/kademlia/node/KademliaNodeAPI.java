@@ -74,5 +74,8 @@ public interface KademliaNodeAPI<ID extends Number, C extends ConnectionInfo> ex
      */
     MessageHandler<ID, C> getHandler(String type) throws HandlerNotFoundException;
 
+    /**
+     * @param referencedNodesStrategy strategy to get nodes for ping and graceful shutdown
+     */
     void setReferencedNodesStrategy(ReferencedNodesStrategy referencedNodesStrategy);
 }
