@@ -6,7 +6,7 @@
 
     <groupId>io.ep2p</groupId>
     <artifactId>kademlia-api</artifactId>
-    <version>4.1.14-RELEASE</version>
+    <version>4.1.15-RELEASE</version>
     <url>https://github.com/ep2p/kademlia-api</url>
     <name>Abstract Kademlia API</name>
     <description>Java library for kademlia algorithm API with abstract networking layer.</description>
@@ -23,14 +23,6 @@
         <developer>
             <name>Sepehr Ghorbanpoor</name>
             <email>sepehrgh01@gmail.com</email>
-            <organization>Eleuth P2P</organization>
-            <organizationUrl>https://ep2p.io</organizationUrl>
-        </developer>
-        <developer>
-            <name>Pegah Maboudi</name>
-            <email>pegah.m86@gmail.com</email>
-            <organization>Eleuth P2P</organization>
-            <organizationUrl>https://ep2p.io</organizationUrl>
         </developer>
     </developers>
 
