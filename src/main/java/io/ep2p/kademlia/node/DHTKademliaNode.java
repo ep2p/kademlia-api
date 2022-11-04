@@ -9,7 +9,9 @@ import io.ep2p.kademlia.model.StoreAnswer;
 import io.ep2p.kademlia.protocol.MessageType;
 import io.ep2p.kademlia.repository.KademliaRepository;
 import io.ep2p.kademlia.services.DHTLookupService;
+import io.ep2p.kademlia.services.DHTLookupServiceAPI;
 import io.ep2p.kademlia.services.DHTStoreService;
+import io.ep2p.kademlia.services.DHTStoreServiceAPI;
 import io.ep2p.kademlia.table.Bucket;
 import io.ep2p.kademlia.table.RoutingTable;
 import lombok.Getter;
@@ -27,9 +29,10 @@ public class DHTKademliaNode<ID extends Number, C extends ConnectionInfo, K exte
     private final transient KademliaRepository<K, V> kademliaRepository;
     @Getter
     private final transient KeyHashGenerator<ID, K> keyHashGenerator;
-    private final transient ExecutorService cleanupExecutor = Executors.newSingleThreadExecutor();
-    private transient DHTStoreService<ID, C, K, V> storeService = null;
-    private transient DHTLookupService<ID, C, K, V> lookupService = null;
+    @Getter
+    private transient DHTStoreServiceAPI<ID, C, K, V> storeService = null;
+    @Getter
+    private transient DHTLookupServiceAPI<ID, C, K, V> lookupService = null;
 
     public DHTKademliaNode(ID id, C connectionInfo, RoutingTable<ID, C, Bucket<ID, C>> routingTable, MessageSender<ID, C> messageSender, NodeSettings nodeSettings, KademliaRepository<K, V> kademliaRepository, KeyHashGenerator<ID, K> keyHashGenerator) {
         this(id, connectionInfo, routingTable, messageSender, nodeSettings, kademliaRepository, keyHashGenerator, Executors.newFixedThreadPool(nodeSettings.getDhtExecutorPoolSize() + 1), Executors.newScheduledThreadPool(nodeSettings.getScheduledExecutorPoolSize()));
@@ -48,14 +51,12 @@ public class DHTKademliaNode<ID extends Number, C extends ConnectionInfo, K exte
     public void stop() {
         this.cleanup();
         super.stop();
-        this.cleanupExecutor.shutdown();
     }
 
     @Override
     public void stopNow() {
         this.cleanup();
         super.stopNow();
-        this.cleanupExecutor.shutdownNow();
     }
 
     protected void cleanup(){
@@ -81,11 +82,22 @@ public class DHTKademliaNode<ID extends Number, C extends ConnectionInfo, K exte
     }
 
     protected void initDHTKademliaNode(){
-        this.storeService = new DHTStoreService<>(this, getExecutorService(), this.cleanupExecutor);
-        this.lookupService = new DHTLookupService<>(this, getExecutorService(), this.cleanupExecutor);
-        this.registerMessageHandler(MessageType.DHT_LOOKUP, this.lookupService);
-        this.registerMessageHandler(MessageType.DHT_LOOKUP_RESULT, this.lookupService);
+        ExecutorService executorService = Executors.newSingleThreadExecutor();
+        setLookupService(new DHTLookupService<>(this, getExecutorService(), executorService));
+        setStoreService(new DHTStoreService<>(this, getExecutorService(), executorService));
+    }
+
+    public void setStoreService(DHTStoreServiceAPI<ID, C, K, V> storeService) {
+        this.storeService = storeService;
         this.registerMessageHandler(MessageType.DHT_STORE, this.storeService);
         this.registerMessageHandler(MessageType.DHT_STORE_RESULT, this.storeService);
     }
+
+    public void setLookupService(DHTLookupServiceAPI<ID, C, K, V> lookupService) {
+        this.lookupService = lookupService;
+        this.registerMessageHandler(MessageType.DHT_LOOKUP, this.lookupService);
+        this.registerMessageHandler(MessageType.DHT_LOOKUP_RESULT, this.lookupService);
+    }
+
+
 }

@@ -12,7 +12,6 @@ import io.ep2p.kademlia.node.KademliaNodeAPI;
 import io.ep2p.kademlia.node.Node;
 import io.ep2p.kademlia.node.external.ExternalNode;
 import io.ep2p.kademlia.protocol.MessageType;
-import io.ep2p.kademlia.protocol.handler.MessageHandler;
 import io.ep2p.kademlia.protocol.message.DHTStoreKademliaMessage;
 import io.ep2p.kademlia.protocol.message.DHTStoreResultKademliaMessage;
 import io.ep2p.kademlia.protocol.message.EmptyKademliaMessage;
@@ -29,7 +28,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
 
-public class DHTStoreService<ID extends Number, C extends ConnectionInfo, K extends Serializable, V extends Serializable> implements MessageHandler<ID, C> {
+public class DHTStoreService<ID extends Number, C extends ConnectionInfo, K extends Serializable, V extends Serializable> implements DHTStoreServiceAPI<ID, C, K, V> {
     private final DHTKademliaNodeAPI<ID, C, K, V> dhtKademliaNode;
     private final ListeningExecutorService listeningExecutorService;
     private final ExecutorService cleanupExecutor;
@@ -81,6 +80,7 @@ public class DHTStoreService<ID extends Number, C extends ConnectionInfo, K exte
     public void cleanUp(){
         this.storeMap.forEach((k, idkStoreAnswer) -> idkStoreAnswer.finishWatch());
         this.storeMap.clear();
+        this.cleanupExecutor.shutdown();
     }
 
     protected StoreAnswer<ID, K> handleStore(Node<ID, C> caller, Node<ID, C> requester, K key, V value){
@@ -212,7 +212,7 @@ public class DHTStoreService<ID extends Number, C extends ConnectionInfo, K exte
                     throw new IllegalArgumentException("Cant handle message. Required: DHTStoreResultKademliaMessage");
                 return (O) handleStoreResult((DHTStoreResultKademliaMessage<ID, C, K>) message);
             default:
-                throw new IllegalArgumentException("message param is not supported");
+                throw new IllegalArgumentException("Message param is not supported");
         }
     }
 }

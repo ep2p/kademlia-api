@@ -11,7 +11,6 @@ import io.ep2p.kademlia.node.KademliaNodeAPI;
 import io.ep2p.kademlia.node.Node;
 import io.ep2p.kademlia.node.external.ExternalNode;
 import io.ep2p.kademlia.protocol.MessageType;
-import io.ep2p.kademlia.protocol.handler.MessageHandler;
 import io.ep2p.kademlia.protocol.message.DHTLookupKademliaMessage;
 import io.ep2p.kademlia.protocol.message.DHTLookupResultKademliaMessage;
 import io.ep2p.kademlia.protocol.message.EmptyKademliaMessage;
@@ -28,7 +27,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
 
-public class DHTLookupService<ID extends Number, C extends ConnectionInfo, K extends Serializable, V extends Serializable> implements MessageHandler<ID, C> {
+public class DHTLookupService<ID extends Number, C extends ConnectionInfo, K extends Serializable, V extends Serializable> implements DHTLookupServiceAPI<ID, C, K, V> {
     private final Map<K, Future<LookupAnswer<ID, K, V>>> lookupFutureMap = new ConcurrentHashMap<>();
     private final Map<K, LookupAnswer<ID, K, V>> lookupAnswerMap = new ConcurrentHashMap<>();
 
@@ -72,6 +71,7 @@ public class DHTLookupService<ID extends Number, C extends ConnectionInfo, K ext
         this.lookupAnswerMap.forEach((k, idkvLookupAnswer) -> idkvLookupAnswer.finishWatch());
         this.lookupFutureMap.clear();
         this.lookupAnswerMap.clear();
+        this.cleanupExecutor.shutdown();
     }
 
     public Future<LookupAnswer<ID, K, V>> lookup(K key){
