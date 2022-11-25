@@ -33,7 +33,7 @@ Using **maven central**
 <dependency>
     <groupId>io.ep2p</groupId>
     <artifactId>kademlia-api</artifactId>
-    <version>4.1.16-RELEASE</version>
+    <version>4.1.17-RELEASE</version>
 </dependency>
 ```
 
