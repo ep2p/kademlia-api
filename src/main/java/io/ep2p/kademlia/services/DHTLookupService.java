@@ -89,34 +89,6 @@ public class DHTLookupService<ID extends Number, C extends ConnectionInfo, K ext
         return lookupAnswerFuture;
     }
 
-    /*public Future<LookupAnswer<ID, K, V>> lookup(K key){
-        synchronized (this) {
-            Future<LookupAnswer<ID, K, V>> f = null;
-            if ((f = lookupFutureMap.get(key)) != null) {
-                return f;
-            }
-        }
-
-        ListenableFuture<LookupAnswer<ID, K, V>> futureAnswer = this.listeningExecutorService.submit(
-                () -> {
-                    LookupAnswer<ID, K, V> lookupAnswer = handleLookup(this.dhtKademliaNode, this.dhtKademliaNode, key, 0);
-                    if (lookupAnswer.getResult().equals(LookupAnswer.Result.FOUND) || lookupAnswer.getResult().equals(LookupAnswer.Result.FAILED)){
-                        return lookupAnswer;
-                    }
-                    lookupAnswerMap.put(key, lookupAnswer);
-                    lookupAnswer.watch();
-                    return lookupAnswer;
-                });
-        this.lookupFutureMap.put(key, futureAnswer);
-
-        futureAnswer.addListener(() -> {
-            this.lookupFutureMap.remove(key);
-            this.lookupAnswerMap.remove(key);
-        }, this.cleanupExecutor);
-
-        return futureAnswer;
-    }*/
-
     protected LookupAnswer<ID, K, V> handleLookup(Node<ID, C> caller, Node<ID, C> requester, K key, int currentTry){
         // Check if current node contains data
         if(this.dhtKademliaNode.getKademliaRepository().contains(key)){
