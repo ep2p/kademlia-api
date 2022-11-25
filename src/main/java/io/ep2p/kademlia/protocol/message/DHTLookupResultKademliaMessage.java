@@ -7,9 +7,11 @@ import io.ep2p.kademlia.protocol.MessageType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import java.io.Serializable;
 
+@ToString
 public class DHTLookupResultKademliaMessage<ID extends Number, C extends ConnectionInfo, K extends Serializable, V extends Serializable> extends KademliaMessage<ID, C, DHTLookupResultKademliaMessage.DHTLookupResult<K, V>> {
 
     public DHTLookupResultKademliaMessage(DHTLookupResult<K, V> data) {
@@ -24,6 +26,7 @@ public class DHTLookupResultKademliaMessage<ID extends Number, C extends Connect
     @Data
     @AllArgsConstructor
     @NoArgsConstructor
+    @ToString
     public static class DHTLookupResult<K extends Serializable, V extends Serializable> implements Serializable{
         private LookupAnswer.Result result;
         private K key;

@@ -86,20 +86,6 @@ class DHTKademliaNodeMapCleanupTest {
         Assertions.assertFalse(((Map<Integer, StoreAnswer<Integer, Integer>>) storeMap).containsKey(data.hashCode()));
         Assertions.assertEquals(((Map<Integer, StoreAnswer<Integer, Integer>>) storeMap).size(), 0);
 
-
-        bootstrapNode.lookup(data.hashCode()).get();
-        Thread.sleep(1000);
-
-        field = bootstrapNode.getClass().getDeclaredField("lookupService");
-        field.setAccessible(true);
-        Object lookupService = field.get(bootstrapNode);
-
-        field = lookupService.getClass().getDeclaredField("lookupFutureMap");
-        field.setAccessible(true);
-        Object lm = field.get(lookupService);
-        Assertions.assertFalse(((Map<Integer, Future<LookupAnswer<Integer, Integer, String>>>) lm).containsKey(data.hashCode()));
-        Assertions.assertEquals(0, ((Map<Integer, Future<LookupAnswer<Integer, Integer, String>>>) lm).size());
-
         messageSenderAPI.stopAll();
 
     }

@@ -74,18 +74,12 @@ class DHTTest {
             Assertions.assertFalse(node.getKademliaRepository().contains(data.hashCode()));
 
         Future<LookupAnswer<Integer, Integer, String>> lookupFuture = node.lookup(data.hashCode());
-        Future<LookupAnswer<Integer, Integer, String>> lookupFuture2 = node.lookup(data.hashCode());
-        Assertions.assertEquals(lookupFuture2, lookupFuture);
         LookupAnswer<Integer, Integer, String> lookupAnswer = lookupFuture.get();
-        LookupAnswer<Integer, Integer, String> lookupAnswer2 = lookupFuture2.get();
 
         Assertions.assertEquals(LookupAnswer.Result.FOUND, lookupAnswer.getResult());
         Assertions.assertEquals(lookupAnswer.getValue(), data);
         Assertions.assertEquals(lookupAnswer.getNodeId(), storeAnswer.getNodeId());
 
-        Assertions.assertEquals(LookupAnswer.Result.FOUND, lookupAnswer2.getResult());
-        Assertions.assertEquals(lookupAnswer2.getValue(), data);
-        Assertions.assertEquals(lookupAnswer2.getNodeId(), storeAnswer.getNodeId());
         System.out.println(lookupAnswer.getNodeId() + " returned the data");
     }
 

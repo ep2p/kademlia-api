@@ -5,11 +5,13 @@ import io.ep2p.kademlia.connection.ConnectionInfo;
 import io.ep2p.kademlia.node.Node;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 import java.io.Serializable;
 
 @Getter
 @Setter
+@ToString
 public abstract class KademliaMessage<ID extends Number, C extends ConnectionInfo, D extends Serializable> {
     private D data;
     private String type;

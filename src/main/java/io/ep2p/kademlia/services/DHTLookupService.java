@@ -20,19 +20,14 @@ import io.ep2p.kademlia.util.NodeUtil;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.Serializable;
-import java.util.Date;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
+import java.util.*;
+import java.util.concurrent.*;
 
 
 public class DHTLookupService<ID extends Number, C extends ConnectionInfo, K extends Serializable, V extends Serializable> implements DHTLookupServiceAPI<ID, C, K, V> {
-    private final Map<K, Future<LookupAnswer<ID, K, V>>> lookupFutureMap = new ConcurrentHashMap<>();
-    private final Map<K, LookupAnswer<ID, K, V>> lookupAnswerMap = new ConcurrentHashMap<>();
+    private final Map<K, List<CompletableFuture<LookupAnswer<ID, K, V>>>> lookupFutureMap = new ConcurrentHashMap<>();
 
     private final DHTKademliaNodeAPI<ID, C, K, V> dhtKademliaNode;
-    private final ListeningExecutorService listeningExecutorService;
     private final ExecutorService cleanupExecutor;
     private final ExecutorService handlerExecutorService;
 
@@ -42,7 +37,6 @@ public class DHTLookupService<ID extends Number, C extends ConnectionInfo, K ext
             ExecutorService cleanupExecutor
     ) {
         this.dhtKademliaNode = dhtKademliaNode;
-        this.listeningExecutorService = (executorService instanceof ListeningExecutorService) ? (ListeningExecutorService) executorService : MoreExecutors.listeningDecorator(executorService);
         this.cleanupExecutor = cleanupExecutor;
         this.handlerExecutorService = executorService;
     }
@@ -68,13 +62,34 @@ public class DHTLookupService<ID extends Number, C extends ConnectionInfo, K ext
     }
 
     public void cleanUp(){
-        this.lookupAnswerMap.forEach((k, idkvLookupAnswer) -> idkvLookupAnswer.finishWatch());
+        this.lookupFutureMap.forEach((k, completableFutures) -> {
+            completableFutures.forEach(lookupAnswerCompletableFuture -> {
+                lookupAnswerCompletableFuture.cancel(true);
+            });
+        });
         this.lookupFutureMap.clear();
-        this.lookupAnswerMap.clear();
         this.cleanupExecutor.shutdown();
     }
 
+
     public Future<LookupAnswer<ID, K, V>> lookup(K key){
+        List<CompletableFuture<LookupAnswer<ID, K, V>>> futures = this.lookupFutureMap.computeIfAbsent(key, k -> new CopyOnWriteArrayList<>());
+
+        CompletableFuture<LookupAnswer<ID, K, V>> lookupAnswerFuture = new CompletableFuture<>();
+        futures.add(lookupAnswerFuture);
+
+        this.handlerExecutorService.submit(() -> {
+            LookupAnswer<ID, K, V> lookupAnswer = handleLookup(this.dhtKademliaNode, this.dhtKademliaNode, key, 0);
+            if (lookupAnswer.getResult().equals(LookupAnswer.Result.FOUND) || lookupAnswer.getResult().equals(LookupAnswer.Result.FAILED)) {
+                lookupAnswerFuture.complete(lookupAnswer);
+                futures.remove(lookupAnswerFuture);
+            }
+        });
+
+        return lookupAnswerFuture;
+    }
+
+    /*public Future<LookupAnswer<ID, K, V>> lookup(K key){
         synchronized (this) {
             Future<LookupAnswer<ID, K, V>> f = null;
             if ((f = lookupFutureMap.get(key)) != null) {
@@ -100,7 +115,7 @@ public class DHTLookupService<ID extends Number, C extends ConnectionInfo, K ext
         }, this.cleanupExecutor);
 
         return futureAnswer;
-    }
+    }*/
 
     protected LookupAnswer<ID, K, V> handleLookup(Node<ID, C> caller, Node<ID, C> requester, K key, int currentTry){
         // Check if current node contains data
@@ -154,13 +169,18 @@ public class DHTLookupService<ID extends Number, C extends ConnectionInfo, K ext
 
     protected EmptyKademliaMessage<ID, C> handleLookupResult(DHTLookupResultKademliaMessage<ID, C, K, V> message) {
         DHTLookupResultKademliaMessage.DHTLookupResult<K, V> data = message.getData();
-        LookupAnswer<ID, K, V> answer = this.lookupAnswerMap.get(data.getKey());
-        if (answer != null){
+        List<CompletableFuture<LookupAnswer<ID, K, V>>> futuresList = this.lookupFutureMap.get(data.getKey());
+        if (futuresList != null){
+            LookupAnswer<ID, K, V> answer = new LookupAnswer<>();
             answer.setResult(data.getResult());
             answer.setKey(data.getKey());
             answer.setValue(data.getValue());
             answer.setNodeId(message.getNode().getId());
-            answer.finishWatch();
+            Iterator<CompletableFuture<LookupAnswer<ID, K, V>>> iterator = futuresList.iterator();
+            while (iterator.hasNext()){
+                CompletableFuture<LookupAnswer<ID, K, V>> future = iterator.next();
+                future.complete(answer);
+            }
         }
         return new EmptyKademliaMessage<>();
     }

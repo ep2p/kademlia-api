@@ -7,9 +7,11 @@ import io.ep2p.kademlia.protocol.MessageType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import java.io.Serializable;
 
+@ToString
 public class DHTStoreKademliaMessage<ID extends Number, C extends ConnectionInfo, K extends Serializable, V extends Serializable> extends KademliaMessage<ID, C, DHTStoreKademliaMessage.DHTData<ID, C, K, V>> {
 
     public DHTStoreKademliaMessage(DHTData<ID, C, K, V> data) {
@@ -24,6 +26,7 @@ public class DHTStoreKademliaMessage<ID extends Number, C extends ConnectionInfo
     @Data
     @AllArgsConstructor
     @NoArgsConstructor
+    @ToString
     public static class DHTData<ID extends Number, C extends ConnectionInfo, K extends Serializable, V extends Serializable> implements Serializable{
         private Node<ID, C> requester;
         private K key;
