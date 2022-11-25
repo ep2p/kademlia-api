@@ -128,6 +128,11 @@ public class DHTLookupService<ID extends Number, C extends ConnectionInfo, K ext
             if(externalNode.getId().equals(this.dhtKademliaNode.getId()) || (caller != null && externalNode.getId().equals(caller.getId())))
                 continue;
 
+            // If requester knew the data, it wouldn't have asked for it
+            if (externalNode.getId().equals(requester.getId())){
+                continue;
+            }
+
             //if node is alive, ask for data
             if(NodeUtil.recentlySeenOrAlive(this.dhtKademliaNode, externalNode, date)){
                 KademliaMessage<ID, C, Serializable> response = this.dhtKademliaNode.getMessageSender().sendMessage(
