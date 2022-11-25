@@ -39,7 +39,7 @@ Using **maven central**
 
 Github releases page only contains certain releases. See [all maven releases](https://search.maven.org/artifact/io.ep2p/kademlia-api) in maven repository and choose the newest one there.
 
-**Important**: Since version 4 many things has changed, so we recommend you to avoid using any older versions than 4.0.0.
+**Important**: Since version 4 many things has changed, so we recommend you to avoid using any older versions than 4.0.0. Latest version is always the most reliable.
 
 ---
 
