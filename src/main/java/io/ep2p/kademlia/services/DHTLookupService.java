@@ -76,6 +76,10 @@ public class DHTLookupService<ID extends Number, C extends ConnectionInfo, K ext
         List<CompletableFuture<LookupAnswer<ID, K, V>>> futures = this.lookupFutureMap.computeIfAbsent(key, k -> new CopyOnWriteArrayList<>());
 
         CompletableFuture<LookupAnswer<ID, K, V>> lookupAnswerFuture = new CompletableFuture<>();
+        lookupAnswerFuture.whenComplete((a, t) -> {
+            futures.remove(lookupAnswerFuture);
+        });
+
         futures.add(lookupAnswerFuture);
 
         this.handlerExecutorService.submit(() -> {
