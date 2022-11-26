@@ -15,7 +15,7 @@ import java.io.Serializable;
 @NoArgsConstructor
 @Getter
 @Setter
-public class LookupAnswer<ID extends Number, K extends Serializable, V extends Serializable> extends WatchableAnswer<ID> {
+public class LookupAnswer<ID extends Number, K extends Serializable, V extends Serializable> extends Answer<ID> {
     private K key;
     private V value;
     private Result result = Result.FAILED;
