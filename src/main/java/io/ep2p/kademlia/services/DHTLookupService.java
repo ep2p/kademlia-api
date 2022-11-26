@@ -39,6 +39,8 @@ public class DHTLookupService<ID extends Number, C extends ConnectionInfo, K ext
         this.dhtKademliaNode = dhtKademliaNode;
         this.cleanupExecutor = cleanupExecutor;
         this.handlerExecutorService = executorService;
+        ListeningExecutorService listeningExecutorService = (executorService instanceof ListeningExecutorService) ? (ListeningExecutorService) executorService : MoreExecutors.listeningDecorator(executorService);
+
     }
 
     @Override
