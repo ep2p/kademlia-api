@@ -14,6 +14,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigInteger;
+import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -21,6 +22,71 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 class BigIntegerDHTTest {
+
+    @Test
+    void testRandomStore() throws ExecutionException, InterruptedException, DuplicateStoreRequest {
+        TestMessageSenderAPI<BigInteger, EmptyConnectionInfo> messageSenderAPI = new TestMessageSenderAPI<>();
+
+        NodeSettings.Default.IDENTIFIER_SIZE = 128;
+        NodeSettings.Default.BUCKET_SIZE = 100;
+        NodeSettings.Default.PING_SCHEDULE_TIME_VALUE = 5;
+        NodeSettings.Default.ENABLED_FIRST_STORE_REQUEST_FORCE_PASS = false;
+        NodeSettings nodeSettings = NodeSettings.Default.build();
+
+
+        RoutingTableFactory<BigInteger, EmptyConnectionInfo, Bucket<BigInteger, EmptyConnectionInfo>> routingTableFactory = new DefaultRoutingTableFactory<>(nodeSettings);
+
+        KeyHashGenerator<BigInteger, BigInteger> keyHashGenerator = new SampleBigIntegerKeyHashGenerator(NodeSettings.Default.IDENTIFIER_SIZE);
+
+        // Bootstrap Node
+        DHTKademliaNodeAPI<BigInteger, EmptyConnectionInfo, BigInteger, String> bootstrapNode = new DHTKademliaNode<>(
+                BigInteger.valueOf(0),
+                new EmptyConnectionInfo(),
+                routingTableFactory.getRoutingTable(BigInteger.valueOf(0)),
+                messageSenderAPI,
+                nodeSettings,
+                new SampleBigIntegerRepository(),
+                keyHashGenerator
+        );
+        messageSenderAPI.registerNode(bootstrapNode);
+        bootstrapNode.start();
+        bootstrapNode.store(BigInteger.valueOf(0), BigInteger.valueOf(0).toString()).get();
+
+        // Other nodes
+        for(int i = 1; i < 32; i++){
+            BigInteger id = BigInteger.valueOf(new Random().nextInt((int) Math.pow(2, NodeSettings.Default.IDENTIFIER_SIZE)));
+            DHTKademliaNodeAPI<BigInteger, EmptyConnectionInfo, BigInteger, String> nextNode = new DHTKademliaNode<>(
+                    id,
+                    new EmptyConnectionInfo(),
+                    routingTableFactory.getRoutingTable(id),
+                    messageSenderAPI,
+                    nodeSettings,
+                    new SampleBigIntegerRepository(),
+                    keyHashGenerator
+            );
+            messageSenderAPI.registerNode(nextNode);
+            Assertions.assertTrue(nextNode.start(bootstrapNode).get(), "Failed to bootstrap the node with ID " + i);
+            bootstrapNode.store(id, id.toString()).get();
+            System.out.println("Stored data in " + id);
+        }
+        System.out.println("Started all nodes.");
+
+        Thread.sleep(6000);
+
+        System.out.println("Testing ...");
+        messageSenderAPI.map.forEach((bigInteger, kademliaNodeAPI) -> {
+            messageSenderAPI.map.keySet().forEach(key -> {
+                try {
+                    LookupAnswer<BigInteger, BigInteger, String> lookupAnswer = ((DHTKademliaNodeAPI<BigInteger, EmptyConnectionInfo, BigInteger, String>) kademliaNodeAPI).lookup(key).get(5, TimeUnit.SECONDS);
+                    Assertions.assertEquals(LookupAnswer.Result.FOUND, lookupAnswer.getResult(), kademliaNodeAPI.getId() + " couldn't find key " + key);
+                    System.out.println("Requester: " + kademliaNodeAPI.getId() + " - Key: " + key + " - Owner: " + lookupAnswer.getNodeId());
+                } catch (InterruptedException | ExecutionException | TimeoutException e) {
+                    e.printStackTrace();
+                }
+            });
+        });
+        System.out.println("Done");
+    }
 
     @Test
     void testStore() throws ExecutionException, InterruptedException, DuplicateStoreRequest {
@@ -51,7 +117,7 @@ class BigIntegerDHTTest {
 
         // Other nodes
         for(int i = 1; i < 30; i++){
-            BigInteger id = BigInteger.valueOf((int) ((Math.random() * (Math.pow(2, NodeSettings.Default.IDENTIFIER_SIZE) - 1)) + 1));
+            BigInteger id = BigInteger.valueOf(i);
             DHTKademliaNodeAPI<BigInteger, EmptyConnectionInfo, BigInteger, String> nextNode = new DHTKademliaNode<>(
                     id,
                     new EmptyConnectionInfo(),
