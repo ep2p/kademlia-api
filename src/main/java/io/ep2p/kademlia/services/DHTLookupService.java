@@ -1,8 +1,6 @@
 package io.ep2p.kademlia.services;
 
-import com.google.common.util.concurrent.ListenableFuture;
-import com.google.common.util.concurrent.ListeningExecutorService;
-import com.google.common.util.concurrent.MoreExecutors;
+
 import io.ep2p.kademlia.connection.ConnectionInfo;
 import io.ep2p.kademlia.model.FindNodeAnswer;
 import io.ep2p.kademlia.model.LookupAnswer;
@@ -20,7 +18,10 @@ import io.ep2p.kademlia.util.NodeUtil;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.Serializable;
-import java.util.*;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.*;
 
 

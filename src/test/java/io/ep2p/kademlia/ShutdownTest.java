@@ -9,7 +9,6 @@ import io.ep2p.kademlia.node.strategies.ClosestPerBucketReferencedNodeStrategy;
 import io.ep2p.kademlia.table.Bucket;
 import io.ep2p.kademlia.table.DefaultRoutingTableFactory;
 import io.ep2p.kademlia.table.RoutingTableFactory;
-import io.ep2p.kademlia.util.KadDistanceUtil;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

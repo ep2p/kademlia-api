@@ -4,7 +4,6 @@ import io.ep2p.kademlia.helpers.EmptyConnectionInfo;
 import io.ep2p.kademlia.helpers.SampleKeyHashGenerator;
 import io.ep2p.kademlia.helpers.SampleRepository;
 import io.ep2p.kademlia.helpers.TestMessageSenderAPI;
-import io.ep2p.kademlia.model.LookupAnswer;
 import io.ep2p.kademlia.model.StoreAnswer;
 import io.ep2p.kademlia.node.DHTKademliaNode;
 import io.ep2p.kademlia.node.DHTKademliaNodeAPI;
@@ -19,7 +18,6 @@ import org.junit.jupiter.api.Test;
 import java.lang.reflect.Field;
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 class DHTKademliaNodeMapCleanupTest {

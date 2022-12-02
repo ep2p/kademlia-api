@@ -6,7 +6,10 @@ import io.ep2p.kademlia.helpers.EmptyConnectionInfo;
 import io.ep2p.kademlia.helpers.TestMessageSenderAPI;
 import io.ep2p.kademlia.node.KademliaNode;
 import io.ep2p.kademlia.node.KademliaNodeAPI;
-import io.ep2p.kademlia.table.*;
+import io.ep2p.kademlia.table.BigIntegerBucket;
+import io.ep2p.kademlia.table.DefaultRoutingTableFactory;
+import io.ep2p.kademlia.table.RoutingTable;
+import io.ep2p.kademlia.table.RoutingTableFactory;
 
 import java.math.BigInteger;
 
