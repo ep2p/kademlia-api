@@ -3,6 +3,7 @@ package io.ep2p.kademlia.node.decorators;
 import io.ep2p.kademlia.connection.ConnectionInfo;
 import io.ep2p.kademlia.node.Node;
 import io.ep2p.kademlia.node.NodeDecorator;
+import lombok.ToString;
 
 import java.util.Date;
 
@@ -11,6 +12,7 @@ import java.util.Date;
  * @param <ID> Node ID type
  * @param <C> Node ConnectionInfo type
  */
+@ToString(callSuper = true)
 public class DateAwareNodeDecorator<ID extends Number, C extends ConnectionInfo> extends NodeDecorator<ID, C> {
     private Date lastSeen = new Date();
 

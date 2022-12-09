@@ -15,6 +15,7 @@ import io.ep2p.kademlia.services.DHTStoreServiceAPI;
 import io.ep2p.kademlia.table.Bucket;
 import io.ep2p.kademlia.table.RoutingTable;
 import lombok.Getter;
+import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.Serializable;
@@ -24,6 +25,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
 
 @Slf4j
+@ToString(callSuper = true)
 public class DHTKademliaNode<ID extends Number, C extends ConnectionInfo, K extends Serializable, V extends Serializable> extends KademliaNode<ID, C> implements DHTKademliaNodeAPI<ID, C, K, V> {
     @Getter
     private final transient KademliaRepository<K, V> kademliaRepository;
@@ -98,6 +100,5 @@ public class DHTKademliaNode<ID extends Number, C extends ConnectionInfo, K exte
         this.registerMessageHandler(MessageType.DHT_LOOKUP, this.lookupService);
         this.registerMessageHandler(MessageType.DHT_LOOKUP_RESULT, this.lookupService);
     }
-
 
 }

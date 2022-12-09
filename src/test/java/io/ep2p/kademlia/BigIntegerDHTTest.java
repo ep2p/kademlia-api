@@ -27,36 +27,28 @@ import java.util.concurrent.TimeoutException;
 class BigIntegerDHTTest {
 
     @Test
-    void testRandomStore() throws ExecutionException, InterruptedException, DuplicateStoreRequest {
+    void testRandomStore() throws ExecutionException, InterruptedException {
         TestMessageSenderAPI<BigInteger, EmptyConnectionInfo> messageSenderAPI = new TestMessageSenderAPI<>();
 
         NodeSettings.Default.IDENTIFIER_SIZE = 128;
         NodeSettings.Default.BUCKET_SIZE = 100;
-        NodeSettings.Default.PING_SCHEDULE_TIME_VALUE = 5;
+        NodeSettings.Default.PING_SCHEDULE_TIME_VALUE = 2;
         NodeSettings.Default.ENABLED_FIRST_STORE_REQUEST_FORCE_PASS = false;
         NodeSettings nodeSettings = NodeSettings.Default.build();
 
 
         RoutingTableFactory<BigInteger, EmptyConnectionInfo, Bucket<BigInteger, EmptyConnectionInfo>> routingTableFactory = new DefaultRoutingTableFactory<>(nodeSettings);
 
-        KeyHashGenerator<BigInteger, BigInteger> keyHashGenerator = new SampleBigIntegerKeyHashGenerator(NodeSettings.Default.IDENTIFIER_SIZE);
+        KeyHashGenerator<BigInteger, BigInteger> keyHashGenerator = new KeyHashGenerator<BigInteger, BigInteger>() {
+            @Override
+            public BigInteger generateHash(BigInteger key) {
+                return BigInteger.valueOf(1);
+            }
+        };
 
-        // Bootstrap Node
-        DHTKademliaNodeAPI<BigInteger, EmptyConnectionInfo, BigInteger, String> bootstrapNode = new DHTKademliaNode<>(
-                BigInteger.valueOf(0),
-                new EmptyConnectionInfo(),
-                routingTableFactory.getRoutingTable(BigInteger.valueOf(0)),
-                messageSenderAPI,
-                nodeSettings,
-                new SampleBigIntegerRepository(),
-                keyHashGenerator
-        );
-        messageSenderAPI.registerNode(bootstrapNode);
-        bootstrapNode.start();
-        bootstrapNode.store(BigInteger.valueOf(0), BigInteger.valueOf(0).toString()).get();
 
-        // Other nodes
-        for(int i = 1; i < 32; i++){
+        DHTKademliaNodeAPI<BigInteger, EmptyConnectionInfo, BigInteger, String> previousNode = null;
+        for(int i = 1; i < 8; i++){
             BigInteger id = BigInteger.valueOf(new Random().nextInt((int) Math.pow(2, NodeSettings.Default.IDENTIFIER_SIZE)));
             DHTKademliaNodeAPI<BigInteger, EmptyConnectionInfo, BigInteger, String> nextNode = new DHTKademliaNode<>(
                     id,
@@ -68,15 +60,25 @@ class BigIntegerDHTTest {
                     keyHashGenerator
             );
             messageSenderAPI.registerNode(nextNode);
-            Assertions.assertTrue(nextNode.start(bootstrapNode).get(), "Failed to bootstrap the node with ID " + i);
-            bootstrapNode.store(id, id.toString()).get();
-            System.out.println("Stored data in " + id);
+            if (previousNode != null)
+                Assertions.assertTrue(nextNode.start(previousNode).get(), "Failed to bootstrap the node with ID " + i);
+            else
+                nextNode.start();
+            previousNode = nextNode;
         }
         System.out.println("Started all nodes.");
 
-        Thread.sleep(6000);
+        Thread.sleep(5000);
 
-        System.out.println("Testing ...");
+        messageSenderAPI.map.forEach((bigInteger, kademliaNodeAPI) -> {
+            try {
+                StoreAnswer<BigInteger, BigInteger> storeAnswer = ((DHTKademliaNodeAPI<BigInteger, EmptyConnectionInfo, BigInteger, String>) kademliaNodeAPI).store(kademliaNodeAPI.getId(), kademliaNodeAPI.getId().toString()).get();
+                Assertions.assertEquals(StoreAnswer.Result.STORED, storeAnswer.getResult());
+                System.out.println("["+storeAnswer.getNodeId()+"] stored " + storeAnswer.getKey());
+            } catch (DuplicateStoreRequest | InterruptedException | ExecutionException e) {
+                e.printStackTrace();
+            }
+        });
         messageSenderAPI.map.forEach((bigInteger, kademliaNodeAPI) -> {
             messageSenderAPI.map.keySet().forEach(key -> {
                 try {
@@ -88,7 +90,6 @@ class BigIntegerDHTTest {
                 }
             });
         });
-        System.out.println("Done");
     }
 
     @Test

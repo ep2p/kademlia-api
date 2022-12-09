@@ -16,6 +16,7 @@ import io.ep2p.kademlia.table.Bucket;
 import io.ep2p.kademlia.table.RoutingTable;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.Serializable;
@@ -200,5 +201,13 @@ public class KademliaNode<ID extends Number, C extends ConnectionInfo> implement
     @Override
     public int hashCode() {
         return Objects.hashCode(getId(), getConnectionInfo());
+    }
+
+    @Override
+    public String toString() {
+        return "KademliaNode{" +
+                "id=" + id +
+                ", connectionInfo=" + connectionInfo +
+                '}';
     }
 }

@@ -11,7 +11,7 @@ import lombok.ToString;
 
 import java.io.Serializable;
 
-@ToString
+@ToString(callSuper = true)
 public class DHTStoreKademliaMessage<ID extends Number, C extends ConnectionInfo, K extends Serializable, V extends Serializable> extends KademliaMessage<ID, C, DHTStoreKademliaMessage.DHTData<ID, C, K, V>> {
 
     public DHTStoreKademliaMessage(DHTData<ID, C, K, V> data) {
