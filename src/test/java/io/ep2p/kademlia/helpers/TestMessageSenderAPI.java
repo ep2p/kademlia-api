@@ -9,7 +9,6 @@ import io.ep2p.kademlia.node.decorators.DateAwareNodeDecorator;
 import io.ep2p.kademlia.protocol.message.EmptyKademliaMessage;
 import io.ep2p.kademlia.protocol.message.KademliaMessage;
 import lombok.SneakyThrows;
-import lombok.var;
 
 import java.io.Serializable;
 import java.util.HashMap;

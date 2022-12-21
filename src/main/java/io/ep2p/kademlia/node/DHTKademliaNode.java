@@ -42,8 +42,7 @@ public class DHTKademliaNode<ID extends Number, C extends ConnectionInfo, K exte
 
     public DHTKademliaNode(ID id, C connectionInfo, RoutingTable<ID, C, Bucket<ID, C>> routingTable, MessageSender<ID, C> messageSender, NodeSettings nodeSettings, KademliaRepository<K, V> kademliaRepository, KeyHashGenerator<ID, K> keyHashGenerator, ExecutorService executorService, ScheduledExecutorService scheduledExecutorService) {
         super(id, connectionInfo, routingTable, messageSender, nodeSettings,
-                executorService,
-                scheduledExecutorService);
+                                scheduledExecutorService);
         this.kademliaRepository = kademliaRepository;
         this.keyHashGenerator = keyHashGenerator;
         this.initDHTKademliaNode();
@@ -85,8 +84,8 @@ public class DHTKademliaNode<ID extends Number, C extends ConnectionInfo, K exte
 
     protected void initDHTKademliaNode(){
         ExecutorService executorService = Executors.newSingleThreadExecutor();
-        setLookupService(new DHTLookupService<>(this, getExecutorService(), executorService));
-        setStoreService(new DHTStoreService<>(this, getExecutorService(), executorService));
+        setLookupService(new DHTLookupService<>(this, getExecutorService()));
+        setStoreService(new DHTStoreService<>(this, getExecutorService()));
     }
 
     public void setStoreService(DHTStoreServiceAPI<ID, C, K, V> storeService) {

@@ -1,6 +1,5 @@
 package io.ep2p.kademlia.services;
 
-import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
 import io.ep2p.kademlia.connection.ConnectionInfo;
@@ -23,6 +22,7 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
@@ -31,56 +31,66 @@ import java.util.concurrent.Future;
 public class DHTStoreService<ID extends Number, C extends ConnectionInfo, K extends Serializable, V extends Serializable> implements DHTStoreServiceAPI<ID, C, K, V> {
     private final DHTKademliaNodeAPI<ID, C, K, V> dhtKademliaNode;
     private final ListeningExecutorService listeningExecutorService;
-    private final ExecutorService cleanupExecutor;
     private final ExecutorService handlerExecutorService;
-    private final Map<K, StoreAnswer<ID, K>> storeMap = new ConcurrentHashMap<>();
+    private final Map<K, CompletableFuture<StoreAnswer<ID, K>>> storeFutureMap = new ConcurrentHashMap<>();
 
     public DHTStoreService(
             DHTKademliaNodeAPI<ID, C, K, V> dhtKademliaNode,
-            ExecutorService executorService,
-            ExecutorService cleanupExecutor
+            ExecutorService executorService
     ) {
         this.dhtKademliaNode = dhtKademliaNode;
         this.listeningExecutorService = (executorService instanceof ListeningExecutorService) ? (ListeningExecutorService) executorService : MoreExecutors.listeningDecorator(executorService);
-        this.cleanupExecutor = cleanupExecutor;
         this.handlerExecutorService = executorService;
     }
 
+    // Todo: use the same pattern from DHTLookupService
     public Future<StoreAnswer<ID, K>> store(K key, V value) throws DuplicateStoreRequest {
-        // Todo: compute if absent
-
-        if (storeMap.containsKey(key)) {
-            throw new DuplicateStoreRequest();
-        }
-
-
-        ListenableFuture<StoreAnswer<ID, K>> futureAnswer = this.listeningExecutorService.submit(
-            () -> {
-                StoreAnswer<ID, K> storeAnswer = handleStore(this.dhtKademliaNode, this.dhtKademliaNode, key, value);
-                // If immediately failed or stored, then return, otherwise watch storeAnswer
-                if (storeAnswer.getResult().equals(StoreAnswer.Result.STORED) || storeAnswer.getResult().equals(StoreAnswer.Result.FAILED)){
-                    return storeAnswer;
-                }
-                storeMap.put(key, storeAnswer);
-                storeAnswer.watch();
-                return storeAnswer;
+        return storeFutureMap.computeIfAbsent(key, k -> {
+            CompletableFuture<StoreAnswer<ID, K>> completableFuture = new CompletableFuture<>();
+            StoreAnswer<ID, K> storeAnswer = handleStore(this.dhtKademliaNode, this.dhtKademliaNode, key, value);
+            if (storeAnswer.getResult().equals(StoreAnswer.Result.STORED) || storeAnswer.getResult().equals(StoreAnswer.Result.FAILED)){
+                completableFuture.complete(storeAnswer);
+                return completableFuture;
             }
-        );
-
-        futureAnswer.addListener(() -> {
-            StoreAnswer<ID, K> storeAnswer = storeMap.remove(key);
-            if (storeAnswer != null){
-                storeAnswer.finishWatch();
-            }
-        }, this.cleanupExecutor);
-
-        return futureAnswer;
+            completableFuture.whenComplete((a, t) -> {
+                storeFutureMap.remove(key);
+            });
+            return completableFuture;
+        });
+//
+//        if (storeMap.containsKey(key)) {
+//            throw new DuplicateStoreRequest();
+//        }
+//
+//
+//        ListenableFuture<StoreAnswer<ID, K>> futureAnswer = this.listeningExecutorService.submit(
+//            () -> {
+//                StoreAnswer<ID, K> storeAnswer = handleStore(this.dhtKademliaNode, this.dhtKademliaNode, key, value);
+//                // If immediately failed or stored, then return, otherwise watch storeAnswer
+//                if (storeAnswer.getResult().equals(StoreAnswer.Result.STORED) || storeAnswer.getResult().equals(StoreAnswer.Result.FAILED)){
+//                    return storeAnswer;
+//                }
+//                storeMap.put(key, storeAnswer);
+//                storeAnswer.watch();
+//                return storeAnswer;
+//            }
+//        );
+//
+//        futureAnswer.addListener(() -> {
+//            StoreAnswer<ID, K> storeAnswer = storeMap.remove(key);
+//            if (storeAnswer != null){
+//                storeAnswer.finishWatch();
+//            }
+//        }, this.cleanupExecutor);
+//
+//        return futureAnswer;
     }
 
     public void cleanUp(){
-        this.storeMap.forEach((k, idkStoreAnswer) -> idkStoreAnswer.finishWatch());
-        this.storeMap.clear();
-        this.cleanupExecutor.shutdown();
+        this.storeFutureMap.forEach((k, storeAnswerCompletableFuture) -> {
+            storeAnswerCompletableFuture.cancel(true);
+        });
+        this.storeFutureMap.clear();
     }
 
     protected StoreAnswer<ID, K> handleStore(Node<ID, C> caller, Node<ID, C> requester, K key, V value){
@@ -159,12 +169,13 @@ public class DHTStoreService<ID extends Number, C extends ConnectionInfo, K exte
 
     protected EmptyKademliaMessage<ID, C> handleStoreResult(DHTStoreResultKademliaMessage<ID, C, K> message) {
         DHTStoreResultKademliaMessage.DHTStoreResult<K> data = message.getData();
-        StoreAnswer<ID, K> storeAnswer = this.storeMap.get(data.getKey());
-        if (storeAnswer != null){
+        CompletableFuture<StoreAnswer<ID, K>> completableFuture = this.storeFutureMap.get(data.getKey());
+        if (completableFuture != null){
+            StoreAnswer<ID, K> storeAnswer = new StoreAnswer<>();
             storeAnswer.setNodeId(message.getNode().getId());
             storeAnswer.setResult(data.getResult());
             storeAnswer.setAlive(true);
-            storeAnswer.finishWatch();
+            completableFuture.complete(storeAnswer);
         }
         return new EmptyKademliaMessage<>();
     }

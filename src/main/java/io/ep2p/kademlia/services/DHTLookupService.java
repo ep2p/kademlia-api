@@ -29,16 +29,13 @@ public class DHTLookupService<ID extends Number, C extends ConnectionInfo, K ext
     private final Map<K, List<CompletableFuture<LookupAnswer<ID, K, V>>>> lookupFutureMap = new ConcurrentHashMap<>();
 
     private final DHTKademliaNodeAPI<ID, C, K, V> dhtKademliaNode;
-    private final ExecutorService cleanupExecutor;
     private final ExecutorService handlerExecutorService;
 
     public DHTLookupService(
             DHTKademliaNodeAPI<ID, C, K, V> dhtKademliaNode,
-            ExecutorService executorService,
-            ExecutorService cleanupExecutor
+            ExecutorService executorService
     ) {
         this.dhtKademliaNode = dhtKademliaNode;
-        this.cleanupExecutor = cleanupExecutor;
         this.handlerExecutorService = executorService;
     }
 
@@ -69,7 +66,6 @@ public class DHTLookupService<ID extends Number, C extends ConnectionInfo, K ext
             });
         });
         this.lookupFutureMap.clear();
-        this.cleanupExecutor.shutdown();
     }
 
 

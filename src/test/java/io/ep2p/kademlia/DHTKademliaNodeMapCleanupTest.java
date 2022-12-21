@@ -14,11 +14,13 @@ import io.ep2p.kademlia.table.RoutingTableFactory;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.function.Executable;
 
 import java.lang.reflect.Field;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 class DHTKademliaNodeMapCleanupTest {
 
@@ -59,26 +61,18 @@ class DHTKademliaNodeMapCleanupTest {
         field.setAccessible(true);
         Object storeService = field.get(bootstrapNode);
 
-        field = storeService.getClass().getDeclaredField("storeMap");
+        field = storeService.getClass().getDeclaredField("storeFutureMap");
         field.setAccessible(true);
         Object storeMap = field.get(storeService);
-        Assertions.assertFalse(((Map<Integer, StoreAnswer<Integer, Integer>>) storeMap).containsKey(data.hashCode()));
-        Assertions.assertEquals(((Map<Integer, StoreAnswer<Integer, Integer>>) storeMap).size(), 0);
-
-        boolean exceptionThrown = false;
-        try {
-            data = UUID.randomUUID().toString();
-            storeAnswer = bootstrapNode.store(data.hashCode(), data).get(1, TimeUnit.NANOSECONDS);
-            System.out.println("stored second one! :O ");
-        } catch (Exception e){
-            exceptionThrown = true;
-            System.out.println("This exception has to happen");
-            e.printStackTrace();
-        } finally {
-            System.out.println(storeAnswer);
-        }
-
-        Assertions.assertTrue(exceptionThrown);
+        Assertions.assertFalse(((Map<Integer, Object>) storeMap).containsKey(data.hashCode()));
+        Assertions.assertEquals(((Map<Integer, Object>) storeMap).size(), 0);
+        Assertions.assertThrows(TimeoutException.class, new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                String data = UUID.randomUUID().toString();
+                StoreAnswer<Integer, Integer> storeAnswer = bootstrapNode.store(data.hashCode(), data).get(1, TimeUnit.NANOSECONDS);
+            }
+        });
 
         Thread.sleep(100); // giving time for cleanup
         Assertions.assertFalse(((Map<Integer, StoreAnswer<Integer, Integer>>) storeMap).containsKey(data.hashCode()));

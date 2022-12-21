@@ -52,16 +52,16 @@ public class KademliaNode<ID extends Number, C extends ConnectionInfo> implement
 
 
     public KademliaNode(ID id, C connectionInfo, RoutingTable<ID, C, Bucket<ID, C>> routingTable, MessageSender<ID, C> messageSender, NodeSettings nodeSettings) {
-        this(id, connectionInfo, routingTable, messageSender, nodeSettings, Executors.newFixedThreadPool(nodeSettings.getDhtExecutorPoolSize()), Executors.newSingleThreadScheduledExecutor());
+        this(id, connectionInfo, routingTable, messageSender, nodeSettings, Executors.newSingleThreadScheduledExecutor());
     }
 
-    public KademliaNode(ID id, C connectionInfo, RoutingTable<ID, C, Bucket<ID, C>> routingTable, MessageSender<ID, C> messageSender, NodeSettings nodeSettings, ExecutorService executorService, ScheduledExecutorService scheduledExecutorService) {
+    public KademliaNode(ID id, C connectionInfo, RoutingTable<ID, C, Bucket<ID, C>> routingTable, MessageSender<ID, C> messageSender, NodeSettings nodeSettings, ScheduledExecutorService scheduledExecutorService) {
         this.id = id;
         this.connectionInfo = connectionInfo;
         this.routingTable = routingTable;
         this.messageSender = messageSender;
         this.nodeSettings = nodeSettings;
-        this.executorService = executorService;
+        this.executorService = Executors.newSingleThreadExecutor();
         this.scheduledExecutorService = scheduledExecutorService;
         this.init();
     }
@@ -151,22 +151,22 @@ public class KademliaNode<ID extends Number, C extends ConnectionInfo> implement
     protected Future<Boolean> bootstrap(Node<ID, C> bootstrapNode) {
         this.getRoutingTable().forceUpdate(bootstrapNode);
 
-        CompletableFuture<Boolean> completableFuture = new CompletableFuture<>();
-
-        this.executorService.submit(() -> {
-            FindNodeRequestMessage<ID, C> message = new FindNodeRequestMessage<>();
-            message.setData(this.getId());
-            try {
-                KademliaMessage<ID, C, ?> response = getMessageSender().sendMessage(this, bootstrapNode, message);
-                onMessage(response);
-                completableFuture.complete(true);
-            } catch (Exception e) {
-                completableFuture.complete(false);
-                log.error(e.getMessage(), e);
+        var node = this;
+        return this.executorService.submit(new Callable<Boolean>() {
+            @Override
+            public Boolean call() throws Exception {
+                FindNodeRequestMessage<ID, C> message = new FindNodeRequestMessage<>();
+                message.setData(node.getId());
+                try {
+                    KademliaMessage<ID, C, ?> response = node.getMessageSender().sendMessage(node, bootstrapNode, message);
+                    onMessage(response);
+                    return true;
+                } catch (Exception e) {
+                    log.error(e.getMessage(), e);
+                    return false;
+                }
             }
         });
-
-        return completableFuture;
     }
 
     protected void pingSchedule(){
