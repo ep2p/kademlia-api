@@ -8,6 +8,7 @@ import io.ep2p.kademlia.model.StoreAnswer;
 import io.ep2p.kademlia.node.DHTKademliaNode;
 import io.ep2p.kademlia.node.DHTKademliaNodeAPI;
 import io.ep2p.kademlia.node.KeyHashGenerator;
+import io.ep2p.kademlia.node.builder.DHTKademliaNodeBuilder;
 import io.ep2p.kademlia.table.Bucket;
 import io.ep2p.kademlia.table.DefaultRoutingTableFactory;
 import io.ep2p.kademlia.table.RoutingTableFactory;
@@ -17,6 +18,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
 
 import java.lang.reflect.Field;
+import java.math.BigInteger;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
@@ -41,13 +43,13 @@ class DHTKademliaNodeMapCleanupTest {
         KeyHashGenerator<Integer, Integer> keyHashGenerator = new SampleKeyHashGenerator(NodeSettings.Default.IDENTIFIER_SIZE);
 
         // Bootstrap Node
-        DHTKademliaNodeAPI<Integer, EmptyConnectionInfo, Integer, String> bootstrapNode = new DHTKademliaNode<>(0, new EmptyConnectionInfo(), routingTableFactory.getRoutingTable(0), messageSenderAPI, nodeSettings, new SampleRepository(), keyHashGenerator);
+        DHTKademliaNodeAPI<Integer, EmptyConnectionInfo, Integer, String> bootstrapNode = new DHTKademliaNodeBuilder<>(0, new EmptyConnectionInfo(), routingTableFactory.getRoutingTable(0), messageSenderAPI, keyHashGenerator, new SampleRepository<>()).build();
         messageSenderAPI.registerNode(bootstrapNode);
         bootstrapNode.start();
 
         // Other nodes
         for(int i = 1; i < Math.pow(2, NodeSettings.Default.IDENTIFIER_SIZE); i++){
-            DHTKademliaNodeAPI<Integer, EmptyConnectionInfo, Integer, String> nextNode = new DHTKademliaNode<>(i, new EmptyConnectionInfo(), routingTableFactory.getRoutingTable(i), messageSenderAPI, nodeSettings, new SampleRepository(), keyHashGenerator);
+            DHTKademliaNodeAPI<Integer, EmptyConnectionInfo, Integer, String> nextNode = new DHTKademliaNodeBuilder<>(i, new EmptyConnectionInfo(), routingTableFactory.getRoutingTable(i), messageSenderAPI, keyHashGenerator, new SampleRepository<>()).build();
             messageSenderAPI.registerNode(nextNode);
             Assertions.assertTrue(nextNode.start(bootstrapNode).get(), "Failed to bootstrap the node with ID " + i);
         }
@@ -66,12 +68,9 @@ class DHTKademliaNodeMapCleanupTest {
         Object storeMap = field.get(storeService);
         Assertions.assertFalse(((Map<Integer, Object>) storeMap).containsKey(data.hashCode()));
         Assertions.assertEquals(((Map<Integer, Object>) storeMap).size(), 0);
-        Assertions.assertThrows(TimeoutException.class, new Executable() {
-            @Override
-            public void execute() throws Throwable {
-                String data = UUID.randomUUID().toString();
-                StoreAnswer<Integer, Integer> storeAnswer = bootstrapNode.store(data.hashCode(), data).get(1, TimeUnit.NANOSECONDS);
-            }
+        Assertions.assertThrows(TimeoutException.class, () -> {
+            String data1 = UUID.randomUUID().toString();
+            StoreAnswer<Integer, Integer> storeAnswer1 = bootstrapNode.store(data1.hashCode(), data1).get(1, TimeUnit.NANOSECONDS);
         });
 
         Thread.sleep(100); // giving time for cleanup

@@ -7,9 +7,9 @@ import io.ep2p.kademlia.helpers.SampleRepository;
 import io.ep2p.kademlia.helpers.TestMessageSenderAPI;
 import io.ep2p.kademlia.model.LookupAnswer;
 import io.ep2p.kademlia.model.StoreAnswer;
-import io.ep2p.kademlia.node.DHTKademliaNode;
 import io.ep2p.kademlia.node.DHTKademliaNodeAPI;
 import io.ep2p.kademlia.node.KeyHashGenerator;
+import io.ep2p.kademlia.node.builder.DHTKademliaNodeBuilder;
 import io.ep2p.kademlia.table.Bucket;
 import io.ep2p.kademlia.table.DefaultRoutingTableFactory;
 import io.ep2p.kademlia.table.RoutingTableFactory;
@@ -38,18 +38,17 @@ class DHTTest {
         KeyHashGenerator<Integer, Integer> keyHashGenerator = new SampleKeyHashGenerator(NodeSettings.Default.IDENTIFIER_SIZE);
 
         // Bootstrap Node
-        DHTKademliaNodeAPI<Integer, EmptyConnectionInfo, Integer, String> bootstrapNode = new DHTKademliaNode<>(0, new EmptyConnectionInfo(), routingTableFactory.getRoutingTable(0), messageSenderAPI, nodeSettings, new SampleRepository(), keyHashGenerator);
+        DHTKademliaNodeAPI<Integer, EmptyConnectionInfo, Integer, String> bootstrapNode = new DHTKademliaNodeBuilder<>(0, new EmptyConnectionInfo(), routingTableFactory.getRoutingTable(0), messageSenderAPI, keyHashGenerator, new SampleRepository<>()).build();
         messageSenderAPI.registerNode(bootstrapNode);
         bootstrapNode.start();
 
         // Other nodes
         for(int i = 1; i < Math.pow(2, NodeSettings.Default.IDENTIFIER_SIZE); i++){
-            DHTKademliaNodeAPI<Integer, EmptyConnectionInfo, Integer, String> nextNode = new DHTKademliaNode<>(i, new EmptyConnectionInfo(), routingTableFactory.getRoutingTable(i), messageSenderAPI, nodeSettings, new SampleRepository(), keyHashGenerator);
+            DHTKademliaNodeAPI<Integer, EmptyConnectionInfo, Integer, String> nextNode = new DHTKademliaNodeBuilder<>(i, new EmptyConnectionInfo(), routingTableFactory.getRoutingTable(i), messageSenderAPI, keyHashGenerator, new SampleRepository<>()).build();
             messageSenderAPI.registerNode(nextNode);
             Assertions.assertTrue(nextNode.start(bootstrapNode).get(), "Failed to bootstrap the node with ID " + i);
         }
 
-        
 
         Thread.sleep(2000);
 

@@ -1,51 +1,42 @@
 package io.ep2p.kademlia.node;
 
-import io.ep2p.kademlia.NodeSettings;
 import io.ep2p.kademlia.connection.ConnectionInfo;
-import io.ep2p.kademlia.connection.MessageSender;
 import io.ep2p.kademlia.exception.DuplicateStoreRequest;
 import io.ep2p.kademlia.model.LookupAnswer;
 import io.ep2p.kademlia.model.StoreAnswer;
 import io.ep2p.kademlia.protocol.MessageType;
 import io.ep2p.kademlia.repository.KademliaRepository;
-import io.ep2p.kademlia.services.DHTLookupService;
-import io.ep2p.kademlia.services.DHTLookupServiceAPI;
-import io.ep2p.kademlia.services.DHTStoreService;
-import io.ep2p.kademlia.services.DHTStoreServiceAPI;
-import io.ep2p.kademlia.table.Bucket;
-import io.ep2p.kademlia.table.RoutingTable;
+import io.ep2p.kademlia.services.*;
 import lombok.Getter;
-import lombok.ToString;
-import lombok.extern.slf4j.Slf4j;
 
 import java.io.Serializable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import java.util.concurrent.ScheduledExecutorService;
 
-@Slf4j
-@ToString(callSuper = true)
-public class DHTKademliaNode<ID extends Number, C extends ConnectionInfo, K extends Serializable, V extends Serializable> extends KademliaNode<ID, C> implements DHTKademliaNodeAPI<ID, C, K, V> {
+public class DHTKademliaNode<ID extends Number, C extends ConnectionInfo, K extends Serializable, V extends Serializable> extends KademliaNodeAPIDecorator<ID, C> implements DHTKademliaNodeAPI<ID, C, K, V>{
     @Getter
-    private final transient KademliaRepository<K, V> kademliaRepository;
+    private final KeyHashGenerator<ID, K> keyHashGenerator;
     @Getter
-    private final transient KeyHashGenerator<ID, K> keyHashGenerator;
+    private final KademliaRepository<K, V> kademliaRepository;
     @Getter
-    private transient DHTStoreServiceAPI<ID, C, K, V> storeService = null;
+    private transient DHTStoreServiceAPI<ID, C, K, V> storeService;
     @Getter
-    private transient DHTLookupServiceAPI<ID, C, K, V> lookupService = null;
+    private transient DHTLookupServiceAPI<ID, C, K, V> lookupService;
+    @Getter
+    private final DHTStoreServiceFactory<ID, C, K, V> dhtStoreServiceFactory;
+    @Getter
+    private final DHTLookupServiceFactory<ID, C, K, V> dhtLookupServiceFactory;
 
-    public DHTKademliaNode(ID id, C connectionInfo, RoutingTable<ID, C, Bucket<ID, C>> routingTable, MessageSender<ID, C> messageSender, NodeSettings nodeSettings, KademliaRepository<K, V> kademliaRepository, KeyHashGenerator<ID, K> keyHashGenerator) {
-        this(id, connectionInfo, routingTable, messageSender, nodeSettings, kademliaRepository, keyHashGenerator, Executors.newFixedThreadPool(nodeSettings.getDhtExecutorPoolSize() + 1), Executors.newScheduledThreadPool(nodeSettings.getScheduledExecutorPoolSize()));
+    public DHTKademliaNode(KademliaNodeAPI<ID, C> kademliaNode, KeyHashGenerator<ID, K> keyHashGenerator, KademliaRepository<K, V> kademliaRepository, DHTStoreServiceFactory<ID, C, K, V> dhtStoreServiceFactory, DHTLookupServiceFactory<ID, C, K, V> dhtLookupServiceFactory) {
+        super(kademliaNode);
+        this.keyHashGenerator = keyHashGenerator;
+        this.kademliaRepository = kademliaRepository;
+        this.dhtStoreServiceFactory = dhtStoreServiceFactory;
+        this.dhtLookupServiceFactory = dhtLookupServiceFactory;
+        this.initDHTKademliaNode();
     }
 
-    public DHTKademliaNode(ID id, C connectionInfo, RoutingTable<ID, C, Bucket<ID, C>> routingTable, MessageSender<ID, C> messageSender, NodeSettings nodeSettings, KademliaRepository<K, V> kademliaRepository, KeyHashGenerator<ID, K> keyHashGenerator, ExecutorService executorService, ScheduledExecutorService scheduledExecutorService) {
-        super(id, connectionInfo, routingTable, messageSender, nodeSettings,
-                                scheduledExecutorService);
-        this.kademliaRepository = kademliaRepository;
-        this.keyHashGenerator = keyHashGenerator;
-        this.initDHTKademliaNode();
+    public DHTKademliaNode(KademliaNodeAPI<ID, C> kademliaNode, KeyHashGenerator<ID, K> keyHashGenerator, KademliaRepository<K, V> kademliaRepository) {
+        this(kademliaNode, keyHashGenerator, kademliaRepository, new DHTStoreServiceFactory.DefaultDHTStoreServiceFactory<>(), new DHTLookupServiceFactory.DefaultDHTLookupServiceFactory<>());
     }
 
     @Override
@@ -78,26 +69,23 @@ public class DHTKademliaNode<ID extends Number, C extends ConnectionInfo, K exte
     public Future<LookupAnswer<ID, K, V>> lookup(K key) {
         if(!isRunning())
             throw new IllegalStateException("Node is not running");
-
         return this.lookupService.lookup(key);
     }
 
     protected void initDHTKademliaNode(){
-        ExecutorService executorService = Executors.newSingleThreadExecutor();
-        setLookupService(new DHTLookupService<>(this, getExecutorService()));
-        setStoreService(new DHTStoreService<>(this, getExecutorService()));
+        setLookupService(this.dhtLookupServiceFactory.getDhtLookupService(this));
+        setStoreService(this.dhtStoreServiceFactory.getDhtStoreService(this));
     }
 
-    public void setStoreService(DHTStoreServiceAPI<ID, C, K, V> storeService) {
+    protected void setStoreService(DHTStoreServiceAPI<ID, C, K, V> storeService) {
         this.storeService = storeService;
         this.registerMessageHandler(MessageType.DHT_STORE, this.storeService);
         this.registerMessageHandler(MessageType.DHT_STORE_RESULT, this.storeService);
     }
 
-    public void setLookupService(DHTLookupServiceAPI<ID, C, K, V> lookupService) {
+    protected void setLookupService(DHTLookupServiceAPI<ID, C, K, V> lookupService) {
         this.lookupService = lookupService;
         this.registerMessageHandler(MessageType.DHT_LOOKUP, this.lookupService);
         this.registerMessageHandler(MessageType.DHT_LOOKUP_RESULT, this.lookupService);
     }
-
 }

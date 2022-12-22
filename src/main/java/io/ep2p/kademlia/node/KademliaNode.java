@@ -16,7 +16,6 @@ import io.ep2p.kademlia.table.Bucket;
 import io.ep2p.kademlia.table.RoutingTable;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.Serializable;
@@ -39,7 +38,7 @@ public class KademliaNode<ID extends Number, C extends ConnectionInfo> implement
     private final transient NodeSettings nodeSettings;
 
     @Getter
-    private final transient ExecutorService executorService;
+    private final transient ExecutorService executorService = Executors.newSingleThreadExecutor();
     @Getter
     private final transient ScheduledExecutorService scheduledExecutorService;
     @Getter
@@ -61,7 +60,6 @@ public class KademliaNode<ID extends Number, C extends ConnectionInfo> implement
         this.routingTable = routingTable;
         this.messageSender = messageSender;
         this.nodeSettings = nodeSettings;
-        this.executorService = Executors.newSingleThreadExecutor();
         this.scheduledExecutorService = scheduledExecutorService;
         this.init();
     }
@@ -152,19 +150,18 @@ public class KademliaNode<ID extends Number, C extends ConnectionInfo> implement
         this.getRoutingTable().forceUpdate(bootstrapNode);
 
         var node = this;
-        return this.executorService.submit(new Callable<Boolean>() {
-            @Override
-            public Boolean call() throws Exception {
-                FindNodeRequestMessage<ID, C> message = new FindNodeRequestMessage<>();
-                message.setData(node.getId());
-                try {
-                    KademliaMessage<ID, C, ?> response = node.getMessageSender().sendMessage(node, bootstrapNode, message);
-                    onMessage(response);
-                    return true;
-                } catch (Exception e) {
-                    log.error(e.getMessage(), e);
-                    return false;
-                }
+        return this.executorService.submit(() -> {
+            FindNodeRequestMessage<ID, C> message = new FindNodeRequestMessage<>();
+            message.setData(node.getId());
+            try {
+                KademliaMessage<ID, C, ?> response = node.getMessageSender().sendMessage(node, bootstrapNode, message);
+                onMessage(response);
+                return true;
+            } catch (Exception e) {
+                log.error(e.getMessage(), e);
+                return false;
+            } finally {
+                executorService.shutdown();
             }
         });
     }

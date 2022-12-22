@@ -1,7 +1,5 @@
 package io.ep2p.kademlia.services;
 
-import com.google.common.util.concurrent.ListeningExecutorService;
-import com.google.common.util.concurrent.MoreExecutors;
 import io.ep2p.kademlia.connection.ConnectionInfo;
 import io.ep2p.kademlia.exception.DuplicateStoreRequest;
 import io.ep2p.kademlia.model.FindNodeAnswer;
@@ -28,18 +26,16 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
 
-public class DHTStoreService<ID extends Number, C extends ConnectionInfo, K extends Serializable, V extends Serializable> implements DHTStoreServiceAPI<ID, C, K, V> {
+public class PushingDHTStoreService<ID extends Number, C extends ConnectionInfo, K extends Serializable, V extends Serializable> implements DHTStoreServiceAPI<ID, C, K, V> {
     private final DHTKademliaNodeAPI<ID, C, K, V> dhtKademliaNode;
-    private final ListeningExecutorService listeningExecutorService;
     private final ExecutorService handlerExecutorService;
     private final Map<K, CompletableFuture<StoreAnswer<ID, K>>> storeFutureMap = new ConcurrentHashMap<>();
 
-    public DHTStoreService(
+    public PushingDHTStoreService(
             DHTKademliaNodeAPI<ID, C, K, V> dhtKademliaNode,
             ExecutorService executorService
     ) {
         this.dhtKademliaNode = dhtKademliaNode;
-        this.listeningExecutorService = (executorService instanceof ListeningExecutorService) ? (ListeningExecutorService) executorService : MoreExecutors.listeningDecorator(executorService);
         this.handlerExecutorService = executorService;
     }
 
@@ -52,44 +48,13 @@ public class DHTStoreService<ID extends Number, C extends ConnectionInfo, K exte
                 completableFuture.complete(storeAnswer);
                 return completableFuture;
             }
-            completableFuture.whenComplete((a, t) -> {
-                storeFutureMap.remove(key);
-            });
+            completableFuture.whenComplete((a, t) -> storeFutureMap.remove(key));
             return completableFuture;
         });
-//
-//        if (storeMap.containsKey(key)) {
-//            throw new DuplicateStoreRequest();
-//        }
-//
-//
-//        ListenableFuture<StoreAnswer<ID, K>> futureAnswer = this.listeningExecutorService.submit(
-//            () -> {
-//                StoreAnswer<ID, K> storeAnswer = handleStore(this.dhtKademliaNode, this.dhtKademliaNode, key, value);
-//                // If immediately failed or stored, then return, otherwise watch storeAnswer
-//                if (storeAnswer.getResult().equals(StoreAnswer.Result.STORED) || storeAnswer.getResult().equals(StoreAnswer.Result.FAILED)){
-//                    return storeAnswer;
-//                }
-//                storeMap.put(key, storeAnswer);
-//                storeAnswer.watch();
-//                return storeAnswer;
-//            }
-//        );
-//
-//        futureAnswer.addListener(() -> {
-//            StoreAnswer<ID, K> storeAnswer = storeMap.remove(key);
-//            if (storeAnswer != null){
-//                storeAnswer.finishWatch();
-//            }
-//        }, this.cleanupExecutor);
-//
-//        return futureAnswer;
     }
 
     public void cleanUp(){
-        this.storeFutureMap.forEach((k, storeAnswerCompletableFuture) -> {
-            storeAnswerCompletableFuture.cancel(true);
-        });
+        this.storeFutureMap.forEach((k, storeAnswerCompletableFuture) -> storeAnswerCompletableFuture.cancel(true));
         this.storeFutureMap.clear();
     }
 

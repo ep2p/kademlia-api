@@ -1,15 +1,13 @@
 package io.ep2p.kademlia;
 
 import io.ep2p.kademlia.exception.DuplicateStoreRequest;
-import io.ep2p.kademlia.helpers.EmptyConnectionInfo;
-import io.ep2p.kademlia.helpers.SampleBigIntegerKeyHashGenerator;
-import io.ep2p.kademlia.helpers.SampleBigIntegerRepository;
-import io.ep2p.kademlia.helpers.TestMessageSenderAPI;
+import io.ep2p.kademlia.helpers.*;
 import io.ep2p.kademlia.model.LookupAnswer;
 import io.ep2p.kademlia.model.StoreAnswer;
 import io.ep2p.kademlia.node.DHTKademliaNode;
 import io.ep2p.kademlia.node.DHTKademliaNodeAPI;
 import io.ep2p.kademlia.node.KeyHashGenerator;
+import io.ep2p.kademlia.node.builder.DHTKademliaNodeBuilder;
 import io.ep2p.kademlia.table.Bucket;
 import io.ep2p.kademlia.table.DefaultRoutingTableFactory;
 import io.ep2p.kademlia.table.RoutingTableFactory;
@@ -39,26 +37,13 @@ class BigIntegerDHTTest {
 
         RoutingTableFactory<BigInteger, EmptyConnectionInfo, Bucket<BigInteger, EmptyConnectionInfo>> routingTableFactory = new DefaultRoutingTableFactory<>(nodeSettings);
 
-        KeyHashGenerator<BigInteger, BigInteger> keyHashGenerator = new KeyHashGenerator<BigInteger, BigInteger>() {
-            @Override
-            public BigInteger generateHash(BigInteger key) {
-                return BigInteger.valueOf(1);
-            }
-        };
+        KeyHashGenerator<BigInteger, BigInteger> keyHashGenerator = key -> BigInteger.valueOf(1);
 
 
         DHTKademliaNodeAPI<BigInteger, EmptyConnectionInfo, BigInteger, String> previousNode = null;
         for(int i = 1; i < 8; i++){
             BigInteger id = BigInteger.valueOf(new Random().nextInt((int) Math.pow(2, NodeSettings.Default.IDENTIFIER_SIZE)));
-            DHTKademliaNodeAPI<BigInteger, EmptyConnectionInfo, BigInteger, String> nextNode = new DHTKademliaNode<>(
-                    id,
-                    new EmptyConnectionInfo(),
-                    routingTableFactory.getRoutingTable(id),
-                    messageSenderAPI,
-                    nodeSettings,
-                    new SampleBigIntegerRepository(),
-                    keyHashGenerator
-            );
+            DHTKademliaNodeAPI<BigInteger, EmptyConnectionInfo, BigInteger, String> nextNode = new DHTKademliaNodeBuilder<>(id, new EmptyConnectionInfo(), routingTableFactory.getRoutingTable(id), messageSenderAPI, keyHashGenerator, new SampleBigIntegerRepository()).build();
             messageSenderAPI.registerNode(nextNode);
             if (previousNode != null)
                 Assertions.assertTrue(nextNode.start(previousNode).get(), "Failed to bootstrap the node with ID " + i);
@@ -79,17 +64,15 @@ class BigIntegerDHTTest {
                 e.printStackTrace();
             }
         });
-        messageSenderAPI.map.forEach((bigInteger, kademliaNodeAPI) -> {
-            messageSenderAPI.map.keySet().forEach(key -> {
-                try {
-                    LookupAnswer<BigInteger, BigInteger, String> lookupAnswer = ((DHTKademliaNodeAPI<BigInteger, EmptyConnectionInfo, BigInteger, String>) kademliaNodeAPI).lookup(key).get(5, TimeUnit.SECONDS);
-                    Assertions.assertEquals(LookupAnswer.Result.FOUND, lookupAnswer.getResult(), kademliaNodeAPI.getId() + " couldn't find key " + key);
-                    System.out.println("Requester: " + kademliaNodeAPI.getId() + " - Key: " + key + " - Owner: " + lookupAnswer.getNodeId());
-                } catch (InterruptedException | ExecutionException | TimeoutException e) {
-                    e.printStackTrace();
-                }
-            });
-        });
+        messageSenderAPI.map.forEach((bigInteger, kademliaNodeAPI) -> messageSenderAPI.map.keySet().forEach(key -> {
+            try {
+                LookupAnswer<BigInteger, BigInteger, String> lookupAnswer = ((DHTKademliaNodeAPI<BigInteger, EmptyConnectionInfo, BigInteger, String>) kademliaNodeAPI).lookup(key).get(5, TimeUnit.SECONDS);
+                Assertions.assertEquals(LookupAnswer.Result.FOUND, lookupAnswer.getResult(), kademliaNodeAPI.getId() + " couldn't find key " + key);
+                System.out.println("Requester: " + kademliaNodeAPI.getId() + " - Key: " + key + " - Owner: " + lookupAnswer.getNodeId());
+            } catch (InterruptedException | ExecutionException | TimeoutException e) {
+                e.printStackTrace();
+            }
+        }));
     }
 
     @Test
@@ -107,30 +90,14 @@ class BigIntegerDHTTest {
         KeyHashGenerator<BigInteger, BigInteger> keyHashGenerator = new SampleBigIntegerKeyHashGenerator(NodeSettings.Default.IDENTIFIER_SIZE);
 
         // Bootstrap Node
-        DHTKademliaNodeAPI<BigInteger, EmptyConnectionInfo, BigInteger, String> bootstrapNode = new DHTKademliaNode<>(
-                BigInteger.valueOf(0),
-                new EmptyConnectionInfo(),
-                routingTableFactory.getRoutingTable(BigInteger.valueOf(0)),
-                messageSenderAPI,
-                nodeSettings,
-                new SampleBigIntegerRepository(),
-                keyHashGenerator
-        );
+        DHTKademliaNodeAPI<BigInteger, EmptyConnectionInfo, BigInteger, String> bootstrapNode = new DHTKademliaNodeBuilder<>(BigInteger.valueOf(0), new EmptyConnectionInfo(), routingTableFactory.getRoutingTable(BigInteger.valueOf(0)), messageSenderAPI, keyHashGenerator, new SampleRepository<>()).build();
         messageSenderAPI.registerNode(bootstrapNode);
         bootstrapNode.start();
 
         // Other nodes
         for(int i = 1; i < 30; i++){
             BigInteger id = BigInteger.valueOf(i);
-            DHTKademliaNodeAPI<BigInteger, EmptyConnectionInfo, BigInteger, String> nextNode = new DHTKademliaNode<>(
-                    id,
-                    new EmptyConnectionInfo(),
-                    routingTableFactory.getRoutingTable(id),
-                    messageSenderAPI,
-                    nodeSettings,
-                    new SampleBigIntegerRepository(),
-                    keyHashGenerator
-            );
+            DHTKademliaNodeAPI<BigInteger, EmptyConnectionInfo, BigInteger, String> nextNode = new DHTKademliaNodeBuilder<>(id, new EmptyConnectionInfo(), routingTableFactory.getRoutingTable(id), messageSenderAPI, keyHashGenerator, new SampleRepository<>()).build();
             messageSenderAPI.registerNode(nextNode);
             Assertions.assertTrue(nextNode.start(bootstrapNode).get(), "Failed to bootstrap the node with ID " + i);
         }

@@ -20,7 +20,8 @@ public class NodeSettings implements Serializable {
   public int maximumLastSeenAgeToConsiderAlive;
 
   public int pingScheduleTimeValue;
-  public TimeUnit pingScheduleTimeUnit;
+  @Builder.Default
+  public TimeUnit pingScheduleTimeUnit = TimeUnit.SECONDS;
   public int dhtExecutorPoolSize;
   public int scheduledExecutorPoolSize;
   public boolean enabledFirstStoreRequestForcePass;
