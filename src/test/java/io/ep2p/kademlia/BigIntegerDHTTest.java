@@ -57,18 +57,18 @@ class BigIntegerDHTTest {
 
         messageSenderAPI.map.forEach((bigInteger, kademliaNodeAPI) -> {
             try {
-                StoreAnswer<BigInteger, BigInteger> storeAnswer = ((DHTKademliaNodeAPI<BigInteger, EmptyConnectionInfo, BigInteger, String>) kademliaNodeAPI).store(kademliaNodeAPI.getId(), kademliaNodeAPI.getId().toString()).get();
+                StoreAnswer<BigInteger, EmptyConnectionInfo, BigInteger> storeAnswer = ((DHTKademliaNodeAPI<BigInteger, EmptyConnectionInfo, BigInteger, String>) kademliaNodeAPI).store(kademliaNodeAPI.getId(), kademliaNodeAPI.getId().toString()).get();
                 Assertions.assertEquals(StoreAnswer.Result.STORED, storeAnswer.getResult());
-                System.out.println("["+storeAnswer.getNodeId()+"] stored " + storeAnswer.getKey());
+                System.out.println("["+storeAnswer.getNode().getId()+"] stored " + storeAnswer.getKey());
             } catch (DuplicateStoreRequest | InterruptedException | ExecutionException e) {
                 e.printStackTrace();
             }
         });
         messageSenderAPI.map.forEach((bigInteger, kademliaNodeAPI) -> messageSenderAPI.map.keySet().forEach(key -> {
             try {
-                LookupAnswer<BigInteger, BigInteger, String> lookupAnswer = ((DHTKademliaNodeAPI<BigInteger, EmptyConnectionInfo, BigInteger, String>) kademliaNodeAPI).lookup(key).get(5, TimeUnit.SECONDS);
+                LookupAnswer<BigInteger, EmptyConnectionInfo, BigInteger, String> lookupAnswer = ((DHTKademliaNodeAPI<BigInteger, EmptyConnectionInfo, BigInteger, String>) kademliaNodeAPI).lookup(key).get(5, TimeUnit.SECONDS);
                 Assertions.assertEquals(LookupAnswer.Result.FOUND, lookupAnswer.getResult(), kademliaNodeAPI.getId() + " couldn't find key " + key);
-                System.out.println("Requester: " + kademliaNodeAPI.getId() + " - Key: " + key + " - Owner: " + lookupAnswer.getNodeId());
+                System.out.println("Requester: " + kademliaNodeAPI.getId() + " - Key: " + key + " - Owner: " + lookupAnswer.getNode().getId());
             } catch (InterruptedException | ExecutionException | TimeoutException e) {
                 e.printStackTrace();
             }
@@ -116,21 +116,21 @@ class BigIntegerDHTTest {
     }
 
     private void testStore(DHTKademliaNodeAPI<BigInteger, EmptyConnectionInfo, BigInteger, String> node, String data) throws ExecutionException, InterruptedException, DuplicateStoreRequest {
-        Future<StoreAnswer<BigInteger, BigInteger>> storeFuture = node.store(BigInteger.valueOf(data.hashCode()), data);
-        StoreAnswer<BigInteger, BigInteger> storeAnswer = storeFuture.get();
-        Assertions.assertEquals(storeAnswer.getResult(), StoreAnswer.Result.STORED, "StoreAnswer Result was " + storeAnswer.getResult() + ", stored in node" + storeAnswer.getNodeId());
-        System.out.println(storeAnswer.getNodeId() + " stored " + storeAnswer.getKey());
+        Future<StoreAnswer<BigInteger, EmptyConnectionInfo, BigInteger>> storeFuture = node.store(BigInteger.valueOf(data.hashCode()), data);
+        StoreAnswer<BigInteger, EmptyConnectionInfo, BigInteger> storeAnswer = storeFuture.get();
+        Assertions.assertEquals(storeAnswer.getResult(), StoreAnswer.Result.STORED, "StoreAnswer Result was " + storeAnswer.getResult() + ", stored in node" + storeAnswer.getNode().getId());
+        System.out.println(storeAnswer.getNode().getId() + " stored " + storeAnswer.getKey());
 
-        if (!storeAnswer.getNodeId().equals(node.getId()))
+        if (!storeAnswer.getNode().getId().equals(node.getId()))
             Assertions.assertFalse(node.getKademliaRepository().contains(BigInteger.valueOf(data.hashCode())));
 
-        Future<LookupAnswer<BigInteger, BigInteger, String>> lookupFuture = node.lookup(BigInteger.valueOf(data.hashCode()));
-        LookupAnswer<BigInteger, BigInteger, String> lookupAnswer = lookupFuture.get();
+        Future<LookupAnswer<BigInteger, EmptyConnectionInfo, BigInteger, String>> lookupFuture = node.lookup(BigInteger.valueOf(data.hashCode()));
+        LookupAnswer<BigInteger, EmptyConnectionInfo, BigInteger, String> lookupAnswer = lookupFuture.get();
 
         Assertions.assertEquals(lookupAnswer.getResult(), LookupAnswer.Result.FOUND);
         Assertions.assertEquals(lookupAnswer.getValue(), data);
-        Assertions.assertEquals(lookupAnswer.getNodeId(), storeAnswer.getNodeId());
-        System.out.println(lookupAnswer.getNodeId() + " returned the data");
+        Assertions.assertEquals(lookupAnswer.getNode().getId(), storeAnswer.getNode().getId());
+        System.out.println(lookupAnswer.getNode().getId() + " returned the data");
     }
 
 }

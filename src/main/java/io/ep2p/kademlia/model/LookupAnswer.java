@@ -1,5 +1,6 @@
 package io.ep2p.kademlia.model;
 
+import io.ep2p.kademlia.connection.ConnectionInfo;
 import lombok.*;
 
 import java.io.Serializable;
@@ -15,7 +16,7 @@ import java.io.Serializable;
 @NoArgsConstructor
 @Getter
 @Setter
-public class LookupAnswer<ID extends Number, K extends Serializable, V extends Serializable> extends Answer<ID> {
+public class LookupAnswer<ID extends Number, C extends ConnectionInfo, K extends Serializable, V extends Serializable> extends Answer<ID, C> {
     private K key;
     private V value;
     private Result result = Result.FAILED;

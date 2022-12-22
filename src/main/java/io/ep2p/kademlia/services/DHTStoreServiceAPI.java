@@ -10,5 +10,5 @@ import java.util.concurrent.Future;
 
 public interface DHTStoreServiceAPI<ID extends Number, C extends ConnectionInfo, K extends Serializable, V extends Serializable> extends MessageHandler<ID, C> {
     default void cleanUp(){}
-    Future<StoreAnswer<ID, K>> store(K key, V value) throws DuplicateStoreRequest;
+    Future<StoreAnswer<ID, C, K>> store(K key, V value) throws DuplicateStoreRequest;
 }

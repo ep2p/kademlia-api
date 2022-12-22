@@ -22,12 +22,12 @@ public interface DHTKademliaNodeAPI<ID extends Number, C extends ConnectionInfo,
      * @param value Serializable value of the data to store
      * @return Future object of StoreAnswer, contains result status and node that stored the data
      */
-    Future<StoreAnswer<ID, K>> store(K key, V value) throws DuplicateStoreRequest;
+    Future<StoreAnswer<ID, C, K>> store(K key, V value) throws DuplicateStoreRequest;
     /**
      * @param key Serializable key of the data to look up
      * @return Future object of LookupAnswer, contains value, result status and node that stored the data
      */
-    Future<LookupAnswer<ID, K, V>> lookup(K key);
+    Future<LookupAnswer<ID, C, K, V>> lookup(K key);
     /**
      * @return KademliaRepository of this node
      */

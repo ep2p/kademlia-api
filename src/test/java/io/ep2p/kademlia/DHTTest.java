@@ -64,22 +64,22 @@ class DHTTest {
     }
 
     private void testStore(DHTKademliaNodeAPI<Integer, EmptyConnectionInfo, Integer, String> node, String data) throws ExecutionException, InterruptedException, DuplicateStoreRequest {
-        Future<StoreAnswer<Integer, Integer>> storeFuture = node.store(data.hashCode(), data);
-        StoreAnswer<Integer, Integer> storeAnswer = storeFuture.get();
-        Assertions.assertEquals( StoreAnswer.Result.STORED, storeAnswer.getResult(), "StoreAnswer Result was " + storeAnswer.getResult() + ", stored in node" + storeAnswer.getNodeId());
-        System.out.println(storeAnswer.getNodeId() + " stored " + storeAnswer.getKey());
+        Future<StoreAnswer<Integer, EmptyConnectionInfo, Integer>> storeFuture = node.store(data.hashCode(), data);
+        StoreAnswer<Integer, EmptyConnectionInfo, Integer> storeAnswer = storeFuture.get();
+        Assertions.assertEquals( StoreAnswer.Result.STORED, storeAnswer.getResult(), "StoreAnswer Result was " + storeAnswer.getResult() + ", stored in node" + storeAnswer.getNode().getId());
+        System.out.println(storeAnswer.getNode().getId() + " stored " + storeAnswer.getKey());
 
-        if (!storeAnswer.getNodeId().equals(node.getId()))
+        if (!storeAnswer.getNode().getId().equals(node.getId()))
             Assertions.assertFalse(node.getKademliaRepository().contains(data.hashCode()));
 
-        Future<LookupAnswer<Integer, Integer, String>> lookupFuture = node.lookup(data.hashCode());
-        LookupAnswer<Integer, Integer, String> lookupAnswer = lookupFuture.get();
+        Future<LookupAnswer<Integer, EmptyConnectionInfo, Integer, String>> lookupFuture = node.lookup(data.hashCode());
+        LookupAnswer<Integer, EmptyConnectionInfo, Integer, String> lookupAnswer = lookupFuture.get();
 
         Assertions.assertEquals(LookupAnswer.Result.FOUND, lookupAnswer.getResult());
         Assertions.assertEquals(lookupAnswer.getValue(), data);
-        Assertions.assertEquals(lookupAnswer.getNodeId(), storeAnswer.getNodeId());
+        Assertions.assertEquals(lookupAnswer.getNode().getId(), storeAnswer.getNode().getId());
 
-        System.out.println(lookupAnswer.getNodeId() + " returned the data");
+        System.out.println(lookupAnswer.getNode().getId() + " returned the data");
     }
 
 }

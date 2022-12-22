@@ -59,14 +59,14 @@ public class DHTKademliaNode<ID extends Number, C extends ConnectionInfo, K exte
     }
 
     @Override
-    public Future<StoreAnswer<ID, K>> store(K key, V value) throws DuplicateStoreRequest {
+    public Future<StoreAnswer<ID, C, K>> store(K key, V value) throws DuplicateStoreRequest {
         if(!isRunning())
             throw new IllegalStateException("Node is not running");
         return this.storeService.store(key, value);
     }
 
     @Override
-    public Future<LookupAnswer<ID, K, V>> lookup(K key) {
+    public Future<LookupAnswer<ID, C, K, V>> lookup(K key) {
         if(!isRunning())
             throw new IllegalStateException("Node is not running");
         return this.lookupService.lookup(key);

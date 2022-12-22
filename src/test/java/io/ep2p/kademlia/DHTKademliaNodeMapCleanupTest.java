@@ -5,7 +5,6 @@ import io.ep2p.kademlia.helpers.SampleKeyHashGenerator;
 import io.ep2p.kademlia.helpers.SampleRepository;
 import io.ep2p.kademlia.helpers.TestMessageSenderAPI;
 import io.ep2p.kademlia.model.StoreAnswer;
-import io.ep2p.kademlia.node.DHTKademliaNode;
 import io.ep2p.kademlia.node.DHTKademliaNodeAPI;
 import io.ep2p.kademlia.node.KeyHashGenerator;
 import io.ep2p.kademlia.node.builder.DHTKademliaNodeBuilder;
@@ -15,10 +14,8 @@ import io.ep2p.kademlia.table.RoutingTableFactory;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.function.Executable;
 
 import java.lang.reflect.Field;
-import java.math.BigInteger;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
@@ -55,7 +52,7 @@ class DHTKademliaNodeMapCleanupTest {
         }
 
         String data = "Eleuth";
-        StoreAnswer<Integer, Integer> storeAnswer = bootstrapNode.store(data.hashCode(), data).get();
+        StoreAnswer<Integer, EmptyConnectionInfo, Integer> storeAnswer = bootstrapNode.store(data.hashCode(), data).get();
 
         Thread.sleep(100); // giving time for cleanup
 
@@ -70,12 +67,12 @@ class DHTKademliaNodeMapCleanupTest {
         Assertions.assertEquals(((Map<Integer, Object>) storeMap).size(), 0);
         Assertions.assertThrows(TimeoutException.class, () -> {
             String data1 = UUID.randomUUID().toString();
-            StoreAnswer<Integer, Integer> storeAnswer1 = bootstrapNode.store(data1.hashCode(), data1).get(1, TimeUnit.NANOSECONDS);
+            StoreAnswer<Integer, EmptyConnectionInfo, Integer> storeAnswer1 = bootstrapNode.store(data1.hashCode(), data1).get(1, TimeUnit.NANOSECONDS);
         });
 
         Thread.sleep(100); // giving time for cleanup
-        Assertions.assertFalse(((Map<Integer, StoreAnswer<Integer, Integer>>) storeMap).containsKey(data.hashCode()));
-        Assertions.assertEquals(((Map<Integer, StoreAnswer<Integer, Integer>>) storeMap).size(), 0);
+        Assertions.assertFalse(((Map<Integer, StoreAnswer<Integer, EmptyConnectionInfo, Integer>>) storeMap).containsKey(data.hashCode()));
+        Assertions.assertEquals(((Map<Integer, StoreAnswer<Integer, EmptyConnectionInfo, Integer>>) storeMap).size(), 0);
 
         messageSenderAPI.stopAll();
 

@@ -16,12 +16,12 @@ public abstract class DHTKademliaNodeAPIDecorator<ID extends Number, C extends C
     }
 
     @Override
-    public Future<StoreAnswer<ID, K>> store(K key, V value) throws DuplicateStoreRequest {
+    public Future<StoreAnswer<ID, C, K>> store(K key, V value) throws DuplicateStoreRequest {
         return ((DHTKademliaNodeAPI<ID, C, K, V>) getKademliaNode()).store(key, value);
     }
 
     @Override
-    public Future<LookupAnswer<ID, K, V>> lookup(K key) {
+    public Future<LookupAnswer<ID, C, K, V>> lookup(K key) {
         return ((DHTKademliaNodeAPI<ID, C, K, V>) getKademliaNode()).lookup(key);
     }
 
