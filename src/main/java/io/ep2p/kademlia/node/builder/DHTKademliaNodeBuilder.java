@@ -17,6 +17,12 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
 
+/**
+ * @param <ID> Type of ID (number)
+ * @param <C> Type of connection info
+ * @param <K> Type of keys in DHT (serializable)
+ * @param <V> Type of values in DHT (serializable)
+ */
 public class DHTKademliaNodeBuilder<ID extends Number, C extends ConnectionInfo, K extends Serializable, V extends Serializable> {
     private ID id;
     private C connectionInfo;
@@ -30,6 +36,14 @@ public class DHTKademliaNodeBuilder<ID extends Number, C extends ConnectionInfo,
     private DHTStoreServiceFactory<ID, C, K, V> dhtStoreServiceFactory;
     private DHTLookupServiceFactory<ID, C, K, V> dhtLookupServiceFactory;
 
+    /**
+     * @param id ID of the node
+     * @param connectionInfo Connection info of the node
+     * @param routingTable Routing table of the node
+     * @param messageSender MessageSender implementation
+     * @param keyHashGenerator DHT KeyHashGenerator implementation
+     * @param kademliaRepository DHT repository
+     */
     public DHTKademliaNodeBuilder(ID id, C connectionInfo, RoutingTable<ID, C, Bucket<ID, C>> routingTable, MessageSender<ID, C> messageSender, KeyHashGenerator<ID, K> keyHashGenerator, KademliaRepository<K, V> kademliaRepository){
         setId(id);
         setConnectionInfo(connectionInfo);
@@ -39,6 +53,9 @@ public class DHTKademliaNodeBuilder<ID extends Number, C extends ConnectionInfo,
         setKademliaRepository(kademliaRepository);
     }
 
+    /**
+     * @return built DHTKademliaNodeAPI
+     */
     public DHTKademliaNodeAPI<ID, C, K, V> build(){
         return new DHTKademliaNode<>(this.buildKademliaNode(), getKeyHashGenerator(), getKademliaRepository(), getDhtStoreServiceFactory(), getDhtLookupServiceFactory());
     }

@@ -1,6 +1,5 @@
 package io.ep2p.kademlia;
 
-import io.ep2p.kademlia.exception.DuplicateStoreRequest;
 import io.ep2p.kademlia.helpers.EmptyConnectionInfo;
 import io.ep2p.kademlia.helpers.SampleKeyHashGenerator;
 import io.ep2p.kademlia.helpers.SampleRepository;
@@ -25,7 +24,7 @@ import java.util.concurrent.TimeoutException;
 class DHTTest {
 
     @Test
-    void testStore() throws ExecutionException, InterruptedException, DuplicateStoreRequest {
+    void testStore() throws ExecutionException, InterruptedException {
         TestMessageSenderAPI<Integer, EmptyConnectionInfo> messageSenderAPI = new TestMessageSenderAPI<>();
 
         NodeSettings.Default.IDENTIFIER_SIZE = 4;
@@ -60,7 +59,7 @@ class DHTTest {
         messageSenderAPI.stopAll();
     }
 
-    private void testStore(DHTKademliaNodeAPI<Integer, EmptyConnectionInfo, Integer, String> node, String data) throws ExecutionException, InterruptedException, DuplicateStoreRequest {
+    private void testStore(DHTKademliaNodeAPI<Integer, EmptyConnectionInfo, Integer, String> node, String data) throws ExecutionException, InterruptedException {
         Future<StoreAnswer<Integer, EmptyConnectionInfo, Integer>> storeFuture = node.store(data.hashCode(), data);
         StoreAnswer<Integer, EmptyConnectionInfo, Integer> storeAnswer = storeFuture.get();
         Assertions.assertEquals( StoreAnswer.Result.STORED, storeAnswer.getResult(), "StoreAnswer Result was " + storeAnswer.getResult() + ", stored in node" + storeAnswer.getNode().getId());

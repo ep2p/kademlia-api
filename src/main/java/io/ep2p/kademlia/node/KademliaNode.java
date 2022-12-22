@@ -149,7 +149,7 @@ public class KademliaNode<ID extends Number, C extends ConnectionInfo> implement
     protected Future<Boolean> bootstrap(Node<ID, C> bootstrapNode) {
         this.getRoutingTable().forceUpdate(bootstrapNode);
 
-        var node = this;
+        KademliaNode<ID, C> node = this;
         return this.executorService.submit(() -> {
             FindNodeRequestMessage<ID, C> message = new FindNodeRequestMessage<>();
             message.setData(node.getId());

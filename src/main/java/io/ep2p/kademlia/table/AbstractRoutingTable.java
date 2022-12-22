@@ -36,6 +36,7 @@ public abstract class AbstractRoutingTable<ID extends Number, C extends Connecti
 
   /**
    * @param id Node id of the table owner
+   * @param nodeSettings Node setting
    */
   protected AbstractRoutingTable(ID id, NodeSettings nodeSettings) {
     this.id = id;

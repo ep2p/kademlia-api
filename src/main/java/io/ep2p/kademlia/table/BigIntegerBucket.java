@@ -10,6 +10,10 @@ import io.ep2p.kademlia.connection.ConnectionInfo;
 
 import java.math.BigInteger;
 
+/**
+ * BigInteger implementation of Bucket
+ * @param <C> Connection Info Type
+ */
 public class BigIntegerBucket<C extends ConnectionInfo> extends AbstractBucket<BigInteger, C> {
   private static final long serialVersionUID = 2319131318326916205L;
 

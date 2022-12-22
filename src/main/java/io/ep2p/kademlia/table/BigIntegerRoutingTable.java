@@ -33,21 +33,6 @@ public class BigIntegerRoutingTable<C extends ConnectionInfo> extends AbstractRo
     return new BigIntegerExternalNode<>(node, this.getDistance(node.getId()));
   }
 
-  /**
-   * Returns an identifier which is in a specific bucket of a routing table
-   * @param id id of the routing table owner
-   * @param prefix id of the bucket where we want that identifier to be
-   */
-  public BigInteger getIdInPrefix(BigInteger id, int prefix) {
-    if (prefix == 0) {
-      return BigInteger.valueOf(0);
-    }
-    BigInteger identifier = BigInteger.valueOf(1);
-    identifier = identifier.shiftLeft(prefix - 1);
-    identifier = identifier.xor(id);
-    return identifier;
-  }
-
   /* Returns the corresponding node prefix for a given id */
   public int getNodePrefix(BigInteger id) {
     for (int j = 0; j < this.nodeSettings.getIdentifierSize(); j++) {

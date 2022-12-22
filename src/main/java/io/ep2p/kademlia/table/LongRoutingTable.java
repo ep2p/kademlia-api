@@ -31,21 +31,6 @@ public class LongRoutingTable<C extends ConnectionInfo> extends AbstractRoutingT
     return new LongExternalNode<>(node, this.getDistance(node.getId()));
   }
 
-  /**
-   * Returns an identifier which is in a specific bucket of a routing table
-   * @param id id of the routing table owner
-   * @param prefix id of the bucket where we want that identifier to be
-   */
-  public Long getIdInPrefix(Long id, int prefix) {
-    if (prefix == 0) {
-      return 0L;
-    }
-    long identifier = 1;
-    identifier = identifier << (prefix - 1);
-    identifier = identifier ^ id;
-    return identifier;
-  }
-
   /* Returns the corresponding node prefix for a given id */
   public int getNodePrefix(Long id) {
     for (int j = 0; j < this.nodeSettings.getIdentifierSize(); j++) {

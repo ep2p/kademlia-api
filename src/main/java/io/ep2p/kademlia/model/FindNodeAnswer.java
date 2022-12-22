@@ -57,6 +57,7 @@ public class FindNodeAnswer<ID extends Number, C extends ConnectionInfo> impleme
   /**
    * Merge the contents of this answer with another answer
    * @param findNodeAnswer another answer
+   * @param findNodeSize maximum size of nodes to keep in FindNodeAnswer
    * @return number of nodes added to answer
    */
   public int merge(FindNodeAnswer<ID, C> findNodeAnswer, int findNodeSize) {
