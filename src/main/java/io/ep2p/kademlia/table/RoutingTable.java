@@ -11,13 +11,6 @@ import java.util.List;
 
 public interface RoutingTable<ID extends Number, C extends ConnectionInfo, B extends Bucket<ID, C>> extends Serializable {
     /**
-     * Returns an identifier which is in a specific bucket of a routing table
-     * @param id id of the routing table owner
-     * @param prefix id of the bucket where we want that identifier to be
-     */
-    ID getIdInPrefix(ID id, int prefix);
-
-    /**
      * Returns the corresponding node prefix for a given id
      * @param id node to look for prefix
      * @return prefix
@@ -35,6 +28,7 @@ public interface RoutingTable<ID extends Number, C extends ConnectionInfo, B ext
      * Updates the routing table with a new node. Returns true if node didnt exist in table before
      * @param node to update
      * @return if node is added newly
+     * @throws FullBucketException if bucket that should hold the node is full
      */
     boolean update(Node<ID, C> node) throws FullBucketException;
 

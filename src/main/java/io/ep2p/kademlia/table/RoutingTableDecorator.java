@@ -16,12 +16,6 @@ public abstract class RoutingTableDecorator<ID extends Number, C extends Connect
         this.routingTable = routingTable;
     }
 
-
-    @Override
-    public ID getIdInPrefix(ID id, int prefix) {
-        return this.routingTable.getIdInPrefix(id, prefix);
-    }
-
     @Override
     public int getNodePrefix(ID id) {
         return this.routingTable.getNodePrefix(id);

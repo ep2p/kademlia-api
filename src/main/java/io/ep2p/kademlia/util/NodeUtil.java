@@ -18,6 +18,8 @@ public class NodeUtil {
      * @param kademliaNodeAPI Node to send message from
      * @param externalNode Node to check
      * @param date Date to use for comparing
+     * @param <ID> ID type of the node
+     * @param <C> ConnectionInfo type of the node
      * @return boolean True if node is alive
      */
     public static <ID extends Number, C extends ConnectionInfo> boolean recentlySeenOrAlive(KademliaNodeAPI<ID, C> kademliaNodeAPI, ExternalNode<ID, C> externalNode, Date date) {

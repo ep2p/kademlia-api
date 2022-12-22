@@ -1,10 +1,8 @@
 package io.ep2p.kademlia;
 
-import io.ep2p.kademlia.exception.DuplicateStoreRequest;
 import io.ep2p.kademlia.helpers.*;
 import io.ep2p.kademlia.model.LookupAnswer;
 import io.ep2p.kademlia.model.StoreAnswer;
-import io.ep2p.kademlia.node.DHTKademliaNode;
 import io.ep2p.kademlia.node.DHTKademliaNodeAPI;
 import io.ep2p.kademlia.node.KeyHashGenerator;
 import io.ep2p.kademlia.node.builder.DHTKademliaNodeBuilder;
@@ -60,7 +58,7 @@ class BigIntegerDHTTest {
                 StoreAnswer<BigInteger, EmptyConnectionInfo, BigInteger> storeAnswer = ((DHTKademliaNodeAPI<BigInteger, EmptyConnectionInfo, BigInteger, String>) kademliaNodeAPI).store(kademliaNodeAPI.getId(), kademliaNodeAPI.getId().toString()).get();
                 Assertions.assertEquals(StoreAnswer.Result.STORED, storeAnswer.getResult());
                 System.out.println("["+storeAnswer.getNode().getId()+"] stored " + storeAnswer.getKey());
-            } catch (DuplicateStoreRequest | InterruptedException | ExecutionException e) {
+            } catch (InterruptedException | ExecutionException e) {
                 e.printStackTrace();
             }
         });
@@ -76,7 +74,7 @@ class BigIntegerDHTTest {
     }
 
     @Test
-    void testStore() throws ExecutionException, InterruptedException, DuplicateStoreRequest {
+    void testStore() throws ExecutionException, InterruptedException {
         TestMessageSenderAPI<BigInteger, EmptyConnectionInfo> messageSenderAPI = new TestMessageSenderAPI<>();
 
         NodeSettings.Default.IDENTIFIER_SIZE = 32;
@@ -115,7 +113,7 @@ class BigIntegerDHTTest {
         messageSenderAPI.stopAll();
     }
 
-    private void testStore(DHTKademliaNodeAPI<BigInteger, EmptyConnectionInfo, BigInteger, String> node, String data) throws ExecutionException, InterruptedException, DuplicateStoreRequest {
+    private void testStore(DHTKademliaNodeAPI<BigInteger, EmptyConnectionInfo, BigInteger, String> node, String data) throws ExecutionException, InterruptedException {
         Future<StoreAnswer<BigInteger, EmptyConnectionInfo, BigInteger>> storeFuture = node.store(BigInteger.valueOf(data.hashCode()), data);
         StoreAnswer<BigInteger, EmptyConnectionInfo, BigInteger> storeAnswer = storeFuture.get();
         Assertions.assertEquals(storeAnswer.getResult(), StoreAnswer.Result.STORED, "StoreAnswer Result was " + storeAnswer.getResult() + ", stored in node" + storeAnswer.getNode().getId());

@@ -1,7 +1,6 @@
 package io.ep2p.kademlia.services;
 
 import io.ep2p.kademlia.connection.ConnectionInfo;
-import io.ep2p.kademlia.exception.DuplicateStoreRequest;
 import io.ep2p.kademlia.model.FindNodeAnswer;
 import io.ep2p.kademlia.model.StoreAnswer;
 import io.ep2p.kademlia.node.DHTKademliaNodeAPI;
@@ -39,7 +38,7 @@ public class PushingDHTStoreService<ID extends Number, C extends ConnectionInfo,
         this.handlerExecutorService = executorService;
     }
 
-    public Future<StoreAnswer<ID, C, K>> store(K key, V value) throws DuplicateStoreRequest {
+    public Future<StoreAnswer<ID, C, K>> store(K key, V value) {
         CompletableFuture<StoreAnswer<ID, C, K>> completableFuture = new CompletableFuture<>();
         storeFutureMap.computeIfAbsent(key, k -> {
             completableFuture.whenComplete((a, t) -> storeFutureMap.remove(key));

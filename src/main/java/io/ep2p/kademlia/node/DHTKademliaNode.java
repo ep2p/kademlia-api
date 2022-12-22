@@ -1,7 +1,6 @@
 package io.ep2p.kademlia.node;
 
 import io.ep2p.kademlia.connection.ConnectionInfo;
-import io.ep2p.kademlia.exception.DuplicateStoreRequest;
 import io.ep2p.kademlia.model.LookupAnswer;
 import io.ep2p.kademlia.model.StoreAnswer;
 import io.ep2p.kademlia.protocol.MessageType;
@@ -59,7 +58,7 @@ public class DHTKademliaNode<ID extends Number, C extends ConnectionInfo, K exte
     }
 
     @Override
-    public Future<StoreAnswer<ID, C, K>> store(K key, V value) throws DuplicateStoreRequest {
+    public Future<StoreAnswer<ID, C, K>> store(K key, V value) {
         if(!isRunning())
             throw new IllegalStateException("Node is not running");
         return this.storeService.store(key, value);
