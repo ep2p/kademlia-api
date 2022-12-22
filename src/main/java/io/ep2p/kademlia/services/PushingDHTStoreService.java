@@ -39,18 +39,18 @@ public class PushingDHTStoreService<ID extends Number, C extends ConnectionInfo,
         this.handlerExecutorService = executorService;
     }
 
-    // Todo: use the same pattern from DHTLookupService
     public Future<StoreAnswer<ID, C, K>> store(K key, V value) throws DuplicateStoreRequest {
-        return storeFutureMap.computeIfAbsent(key, k -> {
-            CompletableFuture<StoreAnswer<ID, C, K>> completableFuture = new CompletableFuture<>();
+        CompletableFuture<StoreAnswer<ID, C, K>> completableFuture = new CompletableFuture<>();
+        storeFutureMap.computeIfAbsent(key, k -> {
+            completableFuture.whenComplete((a, t) -> storeFutureMap.remove(key));
             StoreAnswer<ID, C, K> storeAnswer = handleStore(this.dhtKademliaNode, this.dhtKademliaNode, key, value);
             if (storeAnswer.getResult().equals(StoreAnswer.Result.STORED) || storeAnswer.getResult().equals(StoreAnswer.Result.FAILED)){
                 completableFuture.complete(storeAnswer);
-                return completableFuture;
+                return null;
             }
-            completableFuture.whenComplete((a, t) -> storeFutureMap.remove(key));
             return completableFuture;
         });
+        return completableFuture;
     }
 
     public void cleanUp(){
