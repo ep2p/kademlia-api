@@ -1,0 +1,8 @@
+baseURL = 'http://example.org/'
+languageCode = 'en-us'
+title = 'My New Hugo Site'
+
+
+[module]
+[[module.imports]]
+path = 'github.com/alex-shpak/hugo-book'
