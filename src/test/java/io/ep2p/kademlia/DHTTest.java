@@ -57,9 +57,6 @@ class DHTTest {
             testStore(bootstrapNode, UUID.randomUUID().toString());
         }
 
-        String data2 = UUID.randomUUID().toString();
-        Assertions.assertThrows(TimeoutException.class, () -> bootstrapNode.store(data2.hashCode(), data2).get(1, TimeUnit.NANOSECONDS));
-
         messageSenderAPI.stopAll();
     }
 

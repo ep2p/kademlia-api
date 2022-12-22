@@ -28,7 +28,7 @@ class NodesJoiningByPreviousNodeTest {
 
         NodeSettings.Default.IDENTIFIER_SIZE = 4;
         NodeSettings.Default.BUCKET_SIZE = 100;
-        NodeSettings.Default.PING_SCHEDULE_TIME_VALUE = 5;
+        NodeSettings.Default.PING_SCHEDULE_TIME_VALUE = 2;
         NodeSettings nodeSettings = NodeSettings.Default.build();
         ClosestPerBucketReferencedNodeStrategy closestPerBucketReferencedNodeStrategy = new ClosestPerBucketReferencedNodeStrategy();
 
@@ -51,7 +51,7 @@ class NodesJoiningByPreviousNodeTest {
 
         
 
-        Thread.sleep(2000);
+        Thread.sleep(3000);
 
         // Test if nodes know about each other
 
