@@ -140,6 +140,7 @@ public class PushingDHTStoreService<ID extends Number, C extends ConnectionInfo,
             storeAnswer.setNode(message.getNode());
             storeAnswer.setResult(data.getResult());
             storeAnswer.setAlive(true);
+            storeAnswer.setKey(message.getData().getKey());
             completableFuture.complete(storeAnswer);
         }
         return new EmptyKademliaMessage<>();
