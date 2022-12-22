@@ -126,7 +126,10 @@ public class DHTKademliaNodeBuilder<ID extends Number, C extends ConnectionInfo,
         return scheduledExecutorService == null ? Executors.newSingleThreadScheduledExecutor() : scheduledExecutorService;
     }
 
-    protected ExecutorService getDhtExecutorService() {
+    protected synchronized ExecutorService getDhtExecutorService() {
+        if (dhtExecutorService == null){
+            dhtExecutorService = Executors.newFixedThreadPool(getNodeSettings().getDhtExecutorPoolSize());
+        }
         return dhtExecutorService;
     }
 
@@ -139,10 +142,14 @@ public class DHTKademliaNodeBuilder<ID extends Number, C extends ConnectionInfo,
     }
 
     protected DHTStoreServiceFactory<ID, C, K, V> getDhtStoreServiceFactory() {
-        return dhtStoreServiceFactory != null ? dhtStoreServiceFactory : new DHTStoreServiceFactory.DefaultDHTStoreServiceFactory<>();
+        return dhtStoreServiceFactory != null ? dhtStoreServiceFactory : new DHTStoreServiceFactory.DefaultDHTStoreServiceFactory<>(
+                getDhtExecutorService()
+        );
     }
 
     protected DHTLookupServiceFactory<ID, C, K, V> getDhtLookupServiceFactory() {
-        return dhtLookupServiceFactory != null ? dhtLookupServiceFactory : new DHTLookupServiceFactory.DefaultDHTLookupServiceFactory<>();
+        return dhtLookupServiceFactory != null ? dhtLookupServiceFactory : new DHTLookupServiceFactory.DefaultDHTLookupServiceFactory<>(
+                getDhtExecutorService()
+        );
     }
 }
