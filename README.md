@@ -1,3 +1,4 @@
+[![Documentation](https://img.shields.io/badge/documentation-white?style=flat&logo=hugo&logoColor=7289DA)](https://ep2p.github.io/kademlia-api/)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.ep2p/kademlia-api/badge.png?gav=true)](https://maven-badges.herokuapp.com/maven-central/io.ep2p/kademlia-api)
 [![Github Releases](https://badgen.net/github/release/ep2p/kademlia-api)](https://github.com/ep2p/kademlia-api/releases)
 [![Open Issues](https://badgen.net/github/open-issues/ep2p/kademlia-api)](https://github.com/ep2p/kademlia-api/issues)
@@ -6,9 +7,9 @@
 # Kademlia Api
 Abstract Java Kademlia API
 
-This API mainly focuses on routing table, peer choosing logic and DHT basics, and moves data persistence & networking to an abstraction layer.
+This API mainly focuses on an abstraction layer for Kademlia Algorithm, allows you to implement the network and storage layer in any ways you want.
 
-Networking layer which covers the subjects of how packets move through the network, serialization and validation of packets should be implemented by the developer and your protocol of choice. 
+However, DHT, node bootstrapping, and other communications logics are already implemented.
 
 
 ## Key Features
@@ -23,8 +24,6 @@ Networking layer which covers the subjects of how packets move through the netwo
 - It's written protocol based where all messages have `type`s, and you can register different handler for each message type.
 - Ping, Pong, Find node (+ bootstrapping), DHT (store & lookup) are already implemented
 
----
-
 ## Installation
 
 Using **maven central**
@@ -37,140 +36,13 @@ Using **maven central**
 </dependency>
 ```
 
-Github releases page only contains certain releases. See [all maven releases](https://search.maven.org/artifact/io.ep2p/kademlia-api) in maven repository and choose the newest one there.
-
-**Important**: Since version 4 many things has changed, so we recommend you to avoid using any older versions than 4.0.0. Latest version is always the most reliable.
+GitHub releases page only contains certain releases. See [all maven releases](https://search.maven.org/artifact/io.ep2p/kademlia-api) in maven repository and choose the newest one there.
 
 ---
 
-## Abstraction Layer
+## Documentation
 
-### ConnectionInfo
-Create your implementation of `com.github.ep2p.kademlia.connection.ConnectionInfo` which can represent connection information for each node to contact.
-This can simply be `ip` and `port` for a TCP/UDP connection. Keep your implementation simple and Serializable.
-
-
-```
-.=====================================================.             .=====================================================.
-|                                    .----------------|             |                                                     |
-|                                    | Message Sender |----         |-----------------------------------------------------|
-|                                    '----------------|    \        |----------------.                   |                |
-|-----------------------------------------------------|     \------>|  onMessage()   |   KADEMLIA NODE   |  Routing Table |
-|                |                   .----------------|             |----------------'                   |                |
-| Routing Table  |   KADEMLIA NODE   |    Node API    |<------      |-----------------------------------------------------|
-|                |                   '----------------|       \     |----------------.                                    |
-|-----------------------------------------------------|        \----| Message Sender |                                    |
-|                                                     |             |----------------'                                    |
-'====================================================='             '====================================================='
-
-                                                         Figure 1
-```
-
-
-### MessageSender Interface
-
-This is the networking layer. Should be implemented to send message (`KademliaMessage`) from the `caller` kademlia-node to `receiver` node.
-Serialization, Validation, and request sending are the basic things that shall be done here. 
-The output of the API call probably has a response which should still be converted to the proper `KademliaMessage` and returned to the caller.
-
-On the receiver side, when a message comes in, it should be passed to `KademliaNodeAPI.onMessage(message)` after deserialization and validation.
-
-The default package where messages exist is `io.ep2p.kademlia.protocol.message`.
-Each message has certain type of serializable data attached to it, and it includes repliers' `id` and `alive` status of replier.
-
-You should pass certain implementation of `KademliaMessage` per each `status` to the node.
-Here are the ones that shall be supported and converted during the serialization process.
-
-| Type              | KademliaMessage Class          |
-|-------------------|--------------------------------|
-| EMPTY             | EmptyKademliaMessage           |
-| PING              | PingKademliaMessage            |
-| PONG              | PongKademliaMessage            |
-| FIND_NODE_REQ     | FindNodeRequestMessage         |
-| FIND_NODE_RES     | FindNodeResponseMessage        |
-| SHUTDOWN          | ShutdownKademliaMessage        |
-| DHT_LOOKUP        | DHTLookupKademliaMessage       |
-| DHT_LOOKUP_RESULT | DHTLookupResultKademliaMessage |
-| DHT_STORE         | DHTStoreKademliaMessage        |
-| DHT_STORE_RESULT  | DHTStoreResultKademliaMessage  |
-|                   |                                |
-
-
-### RoutingTable
-Notice that `RoutingTable` and its buckets are Serializable. So you will easily be able to write it to a file. When you are creating an instance of your node, you can pass a new routing table or use one from disk.
-At this stage, there is no helper class for writing routing table on disk.
-
----
-
-## Using Kademlia
-
-For only network bootstrapping and continues routing-table updates you can consider using default `KademliaNodeAPI (interface)` implementation: `KademliaNode (impelementation)`.
-
-```java
-KademliaNodeAPI<ID, C> node = new KademliaNode<>(id, connectionionInfo, routingTable, messageSenderAPI, nodeSettings);
-```
-
-You can start the node by calling `start()` method, or you can bootstrap it by calling `bootstrap(bootstrapNode)` method and pass `Node<ID, C>` of bootstrap node as the parameter. 
-
-You can stop the node by calling `stop()` method which should gracefully stop the node and its executor services, or you can stop it by calling `stopNow()` method which will immediately the running jobs.
-
-### Generics
-Note that KademliaNode and all its subclasses are Generic. 
-
-The first generic type is for ID of the node, and you can choose between `Integer`, `Long`, `BigInteger` as these are the only ones supported and you should decide on which on to use based on your GUID space size. For example on **Eleuth Node System** Biginteger is being used since node IDs are `SHA1` of a public keys. You can [choose the appropriate `RoutingTable`](https://github.com/ep2p/kademlia-api/tree/main/src/main/java/io/ep2p/kademlia/table) implementation based on this key size. There is an implementation available for all of the three supported ID types.
-
-The second generic type is type of your class that implements `ConnectionInfo`.
-
-### Configuration
-
-You can configure your node by passing an instance of `NodeSettings` to `KademliaNode` or it's subclasses. 
-By default, they use the configuration from `NodeSettings.Default` which has static fields. You can edit `NodeSettings.Default` if all of the nodes that you want to have in a single application are having the same configuration.
-
-
-## DHT
-
-For **Distributed Hash Table** you should consider using `DHTKademliaNodeAPI` interface.
-
-```java
-DHTKademliaNodeAPI<ID, C, K, V> node = new DHTKademliaNode<>(id, c, routingTable, messageSenderAPI, nodeSettings, repository, keyHashGenerator);
-```
-
-Where repository is an implementation of `KademliaRepository<K,V>` to store <Key , Value> data.
-
-
-One of the most important aspects of a DHT is how we use the hash for keys to make them unique or identifiable. Usually the key is the hash of the value itself. 
-However, in this kademlia implementation your hash types should be the same number format as your GUID (`Integer`, `Long`, `BigInteger`).
-That's where you'd need a mutual mechanism in all of your peers to generate hash of the key (which it can still be the key itself). You should pass your implementation of `KeyHashGenerator` to `DHTKademliaNode`
-
----
-
-## Node Settings
-
-Node Settings explanation table:
-
-| Name                                    | Info                                                                                                                       |
-|-----------------------------------------|----------------------------------------------------------------------------------------------------------------------------|
-| IDENTIFIER_SIZE                         | GUID Space AKA Routing table buckets count                                                                                 |
-| BUCKET_SIZE                             | Max size of each bucket in routing table                                                                                   |
-| FIND_NODE_SIZE                          | Size of results list when finding close nodes                                                                              |
-| MAXIMUM_LAST_SEEN_AGE_TO_CONSIDER_ALIVE | Value in seconds. If a node is older than this age, we will ping it before sending messages                                |
-| PING_SCHEDULE_TIME_VALUE                | Value in `PING_SCHEDULE_TIME_UNIT` to send pings in scheduler                                                              |
-| PING_SCHEDULE_TIME_UNIT                 | TimeUnit for ping scheduler                                                                                                |
-| DHT_EXECUTOR_POOL_SIZE                  | Size of ExecutorService in DHT for default constructor                                                                     |
-| SCHEDULED_EXECUTOR_POOL_SIZE            | Pool size of ScheduledExecutorService (mostly used for ping scheduler)                                                     |
-| ENABLED_FIRST_STORE_REQUEST_FORCE_PASS  | Enables force pass on first store loop. Has negative impact on performance but makes sure another node also tries to store |
-|                                         | Useful in situations where a node doesn't know much about other nodes in the network                                       |
-
-## Republishing Keys
-
-In DHT we often require to republish keys. For example in a scenario where a node is shutting down there should be a mechanism for the node to republish its keys (and values) to other nodes before shutting down.
-This way there won't be much data loss. Another scenario is when a new node joins the network, and we (as an individual node) may want to pass the data that the new node should hold to them.
-Therefore, we should periodically republish our data so closer nodes hold it.
-
-This kademlia-api does not implement key republishing since `4.0.0-RELEASE` version. This mechanism can be very tricky and very depended on how each developer implements their `KademliaRepository`.
-For example, when a single key can hold large amount of data we'd probably want to find a closer node first and then pass the data to them in different chunks.
-
----
+You can access the [full documentation](https://ep2p.github.io/kademlia-api/) in our Hugo hosted website :)
 
 ## Donations
 
