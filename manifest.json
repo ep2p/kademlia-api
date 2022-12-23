@@ -1,6 +1,6 @@
 {
-  "name": "My New Hugo Site",
-  "short_name": "My New Hugo Site",
+  "name": "EP2P | Kademlia API",
+  "short_name": "EP2P | Kademlia API",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
