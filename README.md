@@ -5,11 +5,12 @@
 [![Liscence](https://badgen.net/github/license/ep2p/kademlia-api)](https://github.com/ep2p/kademlia-api/blob/main/LICENSE)
 
 # Kademlia Api
-Abstract Java Kademlia API
+Abstract Java Kademlia API.
 
 This API mainly focuses on an abstraction layer for Kademlia Algorithm, allows you to implement the network and storage layer in any ways you want.
-
 However, DHT, node bootstrapping, and other communications logics are already implemented.
+
+If you want to skip the network abstraction implementation, take a look at **[Kademlia Netty](https://github.com/ep2p/kademlia-netty)** project.
 
 
 ## Key Features
