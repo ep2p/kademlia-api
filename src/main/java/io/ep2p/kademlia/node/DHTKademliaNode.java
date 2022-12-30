@@ -78,13 +78,15 @@ public class DHTKademliaNode<ID extends Number, C extends ConnectionInfo, K exte
 
     protected void setStoreService(DHTStoreServiceAPI<ID, C, K, V> storeService) {
         this.storeService = storeService;
-        this.registerMessageHandler(MessageType.DHT_STORE, this.storeService);
-        this.registerMessageHandler(MessageType.DHT_STORE_RESULT, this.storeService);
+        this.storeService.getMessageHandlerTypes().forEach(type -> {
+            this.registerMessageHandler(type, this.storeService);
+        });
     }
 
     protected void setLookupService(DHTLookupServiceAPI<ID, C, K, V> lookupService) {
         this.lookupService = lookupService;
-        this.registerMessageHandler(MessageType.DHT_LOOKUP, this.lookupService);
-        this.registerMessageHandler(MessageType.DHT_LOOKUP_RESULT, this.lookupService);
+        this.lookupService.getMessageHandlerTypes().forEach(type -> {
+            this.registerMessageHandler(type, this.lookupService);
+        });
     }
 }
