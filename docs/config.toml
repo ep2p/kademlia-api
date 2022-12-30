@@ -1,6 +1,7 @@
 baseURL = 'https://ep2p.github.io/kademlia-api/'
 languageCode = 'en-us'
 title = 'EP2P | Kademlia API'
+enableGitInfo = true
 disableKinds = ['taxonomy', 'taxonomyTerm']
 
 [module]
@@ -11,3 +12,5 @@ path = 'github.com/alex-shpak/hugo-book'
     BookTheme = 'auto'
     BookToC = true
     BookMenuBundle = "/menu"
+    BookCommitPath = 'commit'
+    BookDateFormat = 'Jan 2, 2006'
