@@ -1,5 +1,5 @@
 ---
-title: "Kademlia"
+title: "Kademlia Usage"
 weight: 3
 ---
 
@@ -56,6 +56,36 @@ B. Using builder:
 
 ```java
 new DHTKademliaNodeBuilder<>(id, connectionInfo, routingTable, messageSenderAPI, keyHashGenerator, kademliaRepository).build();
+```
+
+## Performance
+
+The general performance of this library depends on how the abstraction is implemented. However, there were a couple of performance improvement techniques in mind.
+
+### Pushing/Pulling Values for `store()` call
+
+By default, when store method is called on a `DHTKademliaNode` it will _keep pushing the `<K,V>` to the closest node_.
+This may be a fine approach when the value is not large.
+
+Alternatively, you can choose the pulling mechanism, which will push only the key to find the closest node, and then __the closest node to store a key will pull the value from the requester node__.
+
+`DHTStoreServiceAPI` is in charge of handing the `store` mechanism. In order to override the default behavior you'd need to change the factory (`DHTStoreServiceFactory`) of your `DHTKademliaNode`.
+
+The code snippet below shows you how to do so:
+
+```java
+// Creating a factory to return PullingDHTStoreService instance
+DHTStoreServiceFactory<I, C, K, V> dhtStoreServiceFactory = new DHTStoreServiceFactory<I, C, K, V>() {
+    @Override
+    public PushingDHTStoreService<I, C, K, V> getDhtStoreService(DHTKademliaNodeAPI<I, C, K, V> kademliaNodeAPI) {
+        // Example of ExecutorService to use:  Executors.newFixedThreadPool((int) Math.ceil(kademliaNodeAPI.getNodeSettings().getDhtExecutorPoolSize()/2))
+        return new PullingDHTStoreService<>(kademliaNodeAPI, YOUR_DESIRED_EXECUTOR_SERVICE_HERE);
+    }
+};
+
+new DHTKademliaNodeBuilder<>(...)
+        .setDhtStoreServiceFactory(dhtStoreServiceFactory)
+        .build();
 ```
 
 
