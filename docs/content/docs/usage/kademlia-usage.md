@@ -1,9 +1,9 @@
 ---
-title: "Kademlia Usage"
+title: "Kademlia Node Usage"
 weight: 3
 ---
 
-# Kademlia Usage
+# Kademlia Node Usage
 
 In this section, we see how to create your Kademlia Nodes. Make sure you have read [abstraction layer]({{< relref "/docs/usage/abstraction.md" >}}) first.
 
