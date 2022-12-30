@@ -17,18 +17,22 @@ import io.ep2p.kademlia.util.NodeUtil;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
+import java.util.function.BiFunction;
+import java.util.function.Function;
 
 
 public class PushingDHTStoreService<ID extends Number, C extends ConnectionInfo, K extends Serializable, V extends Serializable> implements DHTStoreServiceAPI<ID, C, K, V> {
-    private final DHTKademliaNodeAPI<ID, C, K, V> dhtKademliaNode;
-    private final ExecutorService handlerExecutorService;
-    private final Map<K, CompletableFuture<StoreAnswer<ID, C, K>>> storeFutureMap = new ConcurrentHashMap<>();
+    protected final DHTKademliaNodeAPI<ID, C, K, V> dhtKademliaNode;
+    protected final ExecutorService handlerExecutorService;
+    protected final Map<K, CompletableFuture<StoreAnswer<ID, C, K>>> storeFutureMap = new ConcurrentHashMap<>();
+    protected final Map<String, BiFunction<KademliaNodeAPI<ID, C>, KademliaMessage<ID, C, ? extends Serializable>, KademliaMessage<ID, C, ? extends Serializable>>> handlerMapping = new HashMap<>();
 
     public PushingDHTStoreService(
             DHTKademliaNodeAPI<ID, C, K, V> dhtKademliaNode,
@@ -36,6 +40,16 @@ public class PushingDHTStoreService<ID extends Number, C extends ConnectionInfo,
     ) {
         this.dhtKademliaNode = dhtKademliaNode;
         this.handlerExecutorService = executorService;
+        this.handlerMapping.put(MessageType.DHT_STORE, (kademliaNodeAPI, message) -> {
+            if (!(message instanceof DHTStoreKademliaMessage))
+                throw new IllegalArgumentException("Cant handle message. Required: DHTStoreKademliaMessage");
+            return handleStoreRequest((DHTStoreKademliaMessage<ID, C, K, V>) message);
+        });
+        this.handlerMapping.put(MessageType.DHT_STORE_RESULT, (kademliaNodeAPI, message) -> {
+            if (!(message instanceof DHTStoreResultKademliaMessage))
+                throw new IllegalArgumentException("Cant handle message. Required: DHTStoreResultKademliaMessage");
+            return handleStoreResult((DHTStoreResultKademliaMessage<ID, C, K>) message);
+        });
     }
 
     public Future<StoreAnswer<ID, C, K>> store(K key, V value) {
@@ -75,7 +89,6 @@ public class PushingDHTStoreService<ID extends Number, C extends ConnectionInfo,
         FindNodeAnswer<ID, C> findNodeAnswer = this.dhtKademliaNode.getRoutingTable().findClosest(hash);
         storeAnswer = storeDataToClosestNode(caller, requester, findNodeAnswer.getNodes(), key, value);
 
-
         if(storeAnswer.getResult().equals(StoreAnswer.Result.FAILED)){
             storeAnswer = doStore(key, value);
         }
@@ -92,8 +105,7 @@ public class PushingDHTStoreService<ID extends Number, C extends ConnectionInfo,
         for (ExternalNode<ID, C> externalNode : externalNodeList) {
             //if current node is the closest node, store the value (Scenario A)
             if(externalNode.getId().equals(this.dhtKademliaNode.getId())){
-                this.dhtKademliaNode.getKademliaRepository().store(key, value);
-                return getNewStoreAnswer(key, StoreAnswer.Result.STORED, this.dhtKademliaNode);
+                return doStore(key, value);
             }
 
             // Continue if requester is known to be the closest, but it's also same as caller
@@ -131,17 +143,16 @@ public class PushingDHTStoreService<ID extends Number, C extends ConnectionInfo,
     }
 
 
+    protected void finalizeStoreResult(K key, StoreAnswer.Result result, Node<ID, C> node) {
+        CompletableFuture<StoreAnswer<ID, C, K>> completableFuture = this.storeFutureMap.get(key);
+        if (completableFuture != null){
+            completableFuture.complete(getNewStoreAnswer(key, result, node));
+        }
+    }
+
     protected EmptyKademliaMessage<ID, C> handleStoreResult(DHTStoreResultKademliaMessage<ID, C, K> message) {
         DHTStoreResultKademliaMessage.DHTStoreResult<K> data = message.getData();
-        CompletableFuture<StoreAnswer<ID, C, K>> completableFuture = this.storeFutureMap.get(data.getKey());
-        if (completableFuture != null){
-            StoreAnswer<ID, C, K> storeAnswer = new StoreAnswer<>();
-            storeAnswer.setNode(message.getNode());
-            storeAnswer.setResult(data.getResult());
-            storeAnswer.setAlive(true);
-            storeAnswer.setKey(message.getData().getKey());
-            completableFuture.complete(storeAnswer);
-        }
+        this.finalizeStoreResult(data.getKey(), data.getResult(), message.getNode());
         return new EmptyKademliaMessage<>();
     }
 
@@ -178,17 +189,10 @@ public class PushingDHTStoreService<ID extends Number, C extends ConnectionInfo,
         if (message.isAlive()){
             this.dhtKademliaNode.getRoutingTable().forceUpdate(message.getNode());
         }
-        switch (message.getType()) {
-            case MessageType.DHT_STORE:
-                if (!(message instanceof DHTStoreKademliaMessage))
-                    throw new IllegalArgumentException("Cant handle message. Required: DHTStoreKademliaMessage");
-                return (O) handleStoreRequest((DHTStoreKademliaMessage<ID, C, K, V>) message);
-            case MessageType.DHT_STORE_RESULT:
-                if (!(message instanceof DHTStoreResultKademliaMessage))
-                    throw new IllegalArgumentException("Cant handle message. Required: DHTStoreResultKademliaMessage");
-                return (O) handleStoreResult((DHTStoreResultKademliaMessage<ID, C, K>) message);
-            default:
-                throw new IllegalArgumentException("Message param is not supported");
+        BiFunction<KademliaNodeAPI<ID, C>, KademliaMessage<ID, C, ? extends Serializable>, KademliaMessage<ID, C, ? extends Serializable>> biFunction = this.handlerMapping.get(message.getType());
+        if (biFunction == null){
+            throw new IllegalArgumentException("Message param is not supported");
         }
+        return (O) biFunction.apply(kademliaNode, message);
     }
 }

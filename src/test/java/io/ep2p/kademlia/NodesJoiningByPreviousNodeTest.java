@@ -49,9 +49,7 @@ class NodesJoiningByPreviousNodeTest {
             previousNode = newNode;
         }
 
-        
-
-        Thread.sleep(3000);
+        Thread.sleep(4000);
 
         // Test if nodes know about each other
 

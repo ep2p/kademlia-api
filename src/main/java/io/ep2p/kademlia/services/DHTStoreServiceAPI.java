@@ -6,6 +6,7 @@ import io.ep2p.kademlia.protocol.MessageType;
 import io.ep2p.kademlia.protocol.handler.MessageHandler;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Future;
@@ -14,6 +15,6 @@ public interface DHTStoreServiceAPI<ID extends Number, C extends ConnectionInfo,
     default void cleanUp(){}
     Future<StoreAnswer<ID, C, K>> store(K key, V value);
     default List<String> getMessageHandlerTypes(){
-        return Arrays.asList(MessageType.DHT_STORE, MessageType.DHT_STORE_RESULT);
+        return new ArrayList<>(Arrays.asList(MessageType.DHT_STORE, MessageType.DHT_STORE_RESULT));
     }
 }

@@ -8,6 +8,7 @@ public interface MessageType {
     String PONG = "PONG";
     String SHUTDOWN = "SHUTDOWN";
     String DHT_STORE = "DHT_STORE";
+    String DHT_STORE_PULL = "DHT_STORE_PULL";
     String DHT_STORE_RESULT = "DHT_STORE_RESULT";
     String DHT_LOOKUP = "DHT_LOOKUP";
     String DHT_LOOKUP_RESULT = "DHT_LOOKUP_RESULT";
