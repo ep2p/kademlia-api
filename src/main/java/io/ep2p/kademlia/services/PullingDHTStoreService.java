@@ -10,6 +10,7 @@ import io.ep2p.kademlia.node.external.ExternalNode;
 import io.ep2p.kademlia.protocol.message.*;
 import io.ep2p.kademlia.util.DateUtil;
 import io.ep2p.kademlia.util.NodeUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.Serializable;
@@ -22,6 +23,7 @@ import java.util.concurrent.Future;
 import static io.ep2p.kademlia.protocol.MessageType.DHT_STORE_PULL;
 
 
+@Slf4j
 public class PullingDHTStoreService<ID extends Number, C extends ConnectionInfo, K extends Serializable, V extends Serializable> extends PushingDHTStoreService<ID, C, K, V> {
 
     public PullingDHTStoreService(
@@ -38,7 +40,13 @@ public class PullingDHTStoreService<ID extends Number, C extends ConnectionInfo,
 
     public Future<StoreAnswer<ID, C, K>> store(K key, @Nullable V value) {
         this.dhtKademliaNode.getKademliaRepository().store(key, value);
-        return super.store(key, null);
+        CompletableFuture<StoreAnswer<ID, C, K>> completableFuture = (CompletableFuture<StoreAnswer<ID, C, K>>) super.store(key, null);
+        completableFuture.whenComplete((a, t) -> {
+            if ((a != null && a.getResult().equals(StoreAnswer.Result.FAILED)) || t != null){
+                this.dhtKademliaNode.getKademliaRepository().remove(key);
+            }
+        });
+        return completableFuture;
     }
 
     protected StoreAnswer<ID, C, K> handleStore(Node<ID, C> caller, Node<ID, C> requester, K key, @Nullable V value){
