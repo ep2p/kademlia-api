@@ -11,9 +11,9 @@ import lombok.ToString;
 import java.io.Serializable;
 
 @ToString(callSuper = true)
-public class DHTStorePullKademliaMessage<ID extends Number, C extends ConnectionInfo, K extends Serializable> extends KademliaMessage<ID, C, DHTStorePullKademliaMessage.DHTStorePullData<ID, C, K>> {
+public class DHTStorePullKademliaMessage<ID extends Number, C extends ConnectionInfo, K extends Serializable> extends KademliaMessage<ID, C, DHTStorePullKademliaMessage.DHTStorePullData<K>> {
 
-    public DHTStorePullKademliaMessage(DHTStorePullData<ID, C, K> data) {
+    public DHTStorePullKademliaMessage(DHTStorePullData<K> data) {
         this();
         setData(data);
     }
@@ -26,14 +26,14 @@ public class DHTStorePullKademliaMessage<ID extends Number, C extends Connection
     @AllArgsConstructor
     @NoArgsConstructor
     @ToString
-    public static class DHTStorePullData<ID extends Number, C extends ConnectionInfo, K extends Serializable> implements Serializable{
+    public static class DHTStorePullData<K extends Serializable> implements Serializable{
         private K key;
 
         @Override
         public boolean equals(Object o) {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
-            DHTStorePullData<?, ?, ?> dhtLookup = (DHTStorePullData<?, ?, ?>) o;
+            DHTStorePullData<?> dhtLookup = (DHTStorePullData<?>) o;
             return Objects.equal(getKey(), dhtLookup.getKey());
         }
 
