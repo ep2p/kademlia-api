@@ -9,20 +9,20 @@ import io.ep2p.kademlia.node.external.ExternalNode;
 import java.io.Serializable;
 import java.util.List;
 
-public interface RoutingTable<ID extends Number, C extends ConnectionInfo, B extends Bucket<ID, C>> extends Serializable {
+public interface RoutingTable<I extends Number, C extends ConnectionInfo, B extends Bucket<I, C>> extends Serializable {
     /**
      * Returns the corresponding node prefix for a given id
      * @param id node to look for prefix
      * @return prefix
      */
-    int getNodePrefix(ID id);
+    int getNodePrefix(I id);
 
     /**
      * Finds the corresponding bucket in a routing table for a given identifier
      * @param id node to find bucket for
      * @return bucket
      */
-    Bucket<ID, C> findBucket(ID id);
+    Bucket<I, C> findBucket(I id);
 
     /**
      * Updates the routing table with a new node. Returns true if node didnt exist in table before
@@ -30,33 +30,33 @@ public interface RoutingTable<ID extends Number, C extends ConnectionInfo, B ext
      * @return if node is added newly
      * @throws FullBucketException if bucket that should hold the node is full
      */
-    boolean update(Node<ID, C> node) throws FullBucketException;
+    boolean update(Node<I, C> node) throws FullBucketException;
 
     /**
      * Updating the routing table with a new node.
      * Should definitely add the new node to the routing table even if bucket is full
      * @param node to update
      */
-    void forceUpdate(Node<ID, C> node);
+    void forceUpdate(Node<I, C> node);
 
     /**
      * Delete node from table
      * @param node to delete
      */
-    void delete(Node<ID, C> node);
+    void delete(Node<I, C> node);
 
     /**
      * Returns the closest nodes we know to a given id
      * @param destinationId lookup
      * @return result for closest nodes to destination
      */
-    FindNodeAnswer<ID, C> findClosest(ID destinationId);
+    FindNodeAnswer<I, C> findClosest(I destinationId);
 
-    boolean contains(ID nodeId);
+    boolean contains(I nodeId);
 
     List<B> getBuckets();
 
-    ID getDistance(ID id);
+    I getDistance(I id);
 
-    ExternalNode<ID,C> getExternalNode(Node<ID,C> node);
+    ExternalNode<I,C> getExternalNode(Node<I,C> node);
 }

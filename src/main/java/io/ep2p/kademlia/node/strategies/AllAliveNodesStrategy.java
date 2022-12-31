@@ -12,18 +12,16 @@ import java.util.List;
 
 public class AllAliveNodesStrategy implements ReferencedNodesStrategy {
     @Override
-    public <ID extends Number, C extends ConnectionInfo> List<Node<ID, C>> getReferencedNodes(KademliaNodeAPI<ID, C> kademliaNode) {
+    public <I extends Number, C extends ConnectionInfo> List<Node<I, C>> getReferencedNodes(KademliaNodeAPI<I, C> kademliaNode) {
         Date date = DateUtil.getDateOfSecondsAgo(kademliaNode.getNodeSettings().getMaximumLastSeenAgeToConsiderAlive());
-        List<Node<ID, C>> referencedNodes = new ArrayList<>();
+        List<Node<I, C>> referencedNodes = new ArrayList<>();
 
-        kademliaNode.getRoutingTable().getBuckets().forEach(bucket -> {
-            bucket.getNodeIds().forEach(id -> {
-                ExternalNode<ID, C> node = bucket.getNode(id);
-                if (node.getLastSeen().after(date)){
-                    referencedNodes.add(node);
-                }
-            });
-        });
+        kademliaNode.getRoutingTable().getBuckets().forEach(bucket -> bucket.getNodeIds().forEach(id -> {
+            ExternalNode<I, C> node = bucket.getNode(id);
+            if (node.getLastSeen().after(date)){
+                referencedNodes.add(node);
+            }
+        }));
 
         return referencedNodes;
     }

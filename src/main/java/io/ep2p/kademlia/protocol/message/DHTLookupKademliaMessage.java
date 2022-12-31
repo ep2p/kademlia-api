@@ -12,9 +12,9 @@ import lombok.ToString;
 import java.io.Serializable;
 
 @ToString(callSuper = true)
-public class DHTLookupKademliaMessage<ID extends Number, C extends ConnectionInfo, K extends Serializable> extends KademliaMessage<ID, C, DHTLookupKademliaMessage.DHTLookup<ID, C, K>> {
+public class DHTLookupKademliaMessage<I extends Number, C extends ConnectionInfo, K extends Serializable> extends KademliaMessage<I, C, DHTLookupKademliaMessage.DHTLookup<I, C, K>> {
 
-    public DHTLookupKademliaMessage(DHTLookup<ID, C, K> data) {
+    public DHTLookupKademliaMessage(DHTLookup<I, C, K> data) {
         this();
         setData(data);
     }
@@ -27,8 +27,8 @@ public class DHTLookupKademliaMessage<ID extends Number, C extends ConnectionInf
     @AllArgsConstructor
     @NoArgsConstructor
     @ToString
-    public static class DHTLookup<ID extends Number, C extends ConnectionInfo, K extends Serializable> implements Serializable{
-        private Node<ID, C> requester;
+    public static class DHTLookup<I extends Number, C extends ConnectionInfo, K extends Serializable> implements Serializable{
+        private Node<I, C> requester;
         private K key;
         private int currentTry;
 

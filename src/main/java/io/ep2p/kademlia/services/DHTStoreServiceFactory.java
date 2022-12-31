@@ -7,10 +7,10 @@ import java.io.Serializable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public interface DHTStoreServiceFactory<ID extends Number, C extends ConnectionInfo, K extends Serializable, V extends Serializable> {
-    PushingDHTStoreService<ID, C, K, V> getDhtStoreService(DHTKademliaNodeAPI<ID, C, K, V> kademliaNodeAPI);
+public interface DHTStoreServiceFactory<I extends Number, C extends ConnectionInfo, K extends Serializable, V extends Serializable> {
+    PushingDHTStoreService<I, C, K, V> getDhtStoreService(DHTKademliaNodeAPI<I, C, K, V> kademliaNodeAPI);
 
-    class DefaultDHTStoreServiceFactory<ID extends Number, C extends ConnectionInfo, K extends Serializable, V extends Serializable> implements DHTStoreServiceFactory<ID, C, K, V> {
+    class DefaultDHTStoreServiceFactory<I extends Number, C extends ConnectionInfo, K extends Serializable, V extends Serializable> implements DHTStoreServiceFactory<I, C, K, V> {
         private final ExecutorService handlerExecutorService;
 
         public DefaultDHTStoreServiceFactory(ExecutorService handlerExecutorService) {
@@ -22,7 +22,7 @@ public interface DHTStoreServiceFactory<ID extends Number, C extends ConnectionI
         }
 
         @Override
-        public PushingDHTStoreService<ID, C, K, V> getDhtStoreService(DHTKademliaNodeAPI<ID, C, K, V> kademliaNodeAPI) {
+        public PushingDHTStoreService<I, C, K, V> getDhtStoreService(DHTKademliaNodeAPI<I, C, K, V> kademliaNodeAPI) {
             return new PushingDHTStoreService<>(kademliaNodeAPI, handlerExecutorService);
         }
     }

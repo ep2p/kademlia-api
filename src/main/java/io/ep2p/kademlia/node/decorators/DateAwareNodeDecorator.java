@@ -9,14 +9,14 @@ import java.util.Date;
 
 /**
  * Node decorator to hold last seen of a node
- * @param <ID> Node ID type
+ * @param <I> Node ID type
  * @param <C> Node ConnectionInfo type
  */
 @ToString(callSuper = true)
-public class DateAwareNodeDecorator<ID extends Number, C extends ConnectionInfo> extends NodeDecorator<ID, C> {
+public class DateAwareNodeDecorator<I extends Number, C extends ConnectionInfo> extends NodeDecorator<I, C> {
     private Date lastSeen = new Date();
 
-    public DateAwareNodeDecorator(Node<ID, C> node) {
+    public DateAwareNodeDecorator(Node<I, C> node) {
         super(node);
     }
 

@@ -7,7 +7,7 @@ import lombok.ToString;
 import java.io.Serializable;
 
 @ToString(callSuper = true)
-public class EmptyKademliaMessage<ID extends Number, C extends ConnectionInfo> extends KademliaMessage<ID, C, Serializable> {
+public class EmptyKademliaMessage<I extends Number, C extends ConnectionInfo> extends KademliaMessage<I, C, Serializable> {
     public EmptyKademliaMessage() {
         super(MessageType.EMPTY);
     }

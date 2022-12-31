@@ -12,17 +12,17 @@ import lombok.SneakyThrows;
 
 import java.io.Serializable;
 
-public class FindNodeRequestMessageHandler<ID extends Number, C extends ConnectionInfo> extends GeneralResponseMessageHandler<ID, C> {
+public class FindNodeRequestMessageHandler<I extends Number, C extends ConnectionInfo> extends GeneralResponseMessageHandler<I, C> {
 
     @Override
     @SuppressWarnings("unchecked")
-    public <I extends KademliaMessage<ID, C, ? extends Serializable>, O extends KademliaMessage<ID, C, ? extends Serializable>> O doHandle(KademliaNodeAPI<ID, C> kademliaNode, I message) {
-        return (O) doHandle(kademliaNode, (FindNodeRequestMessage<ID, C>) message);
+    protected <U extends KademliaMessage<I, C, ?>, O extends KademliaMessage<I, C, ?>> O doHandle(KademliaNodeAPI<I,C> kademliaNode, U message) {
+        return (O) handleFindNodeRequestMessage(kademliaNode, (FindNodeRequestMessage<I, C>) message);
     }
 
     @SneakyThrows
-    protected FindNodeResponseMessage<ID, C> doHandle(KademliaNodeAPI<ID, C> kademliaNode, FindNodeRequestMessage<ID, C> message){
-        FindNodeAnswer<ID, C> findNodeAnswer = kademliaNode.getRoutingTable().findClosest(message.getDestinationId());
+    protected FindNodeResponseMessage<I, C> handleFindNodeRequestMessage(KademliaNodeAPI<I, C> kademliaNode, FindNodeRequestMessage<I, C> message){
+        FindNodeAnswer<I, C> findNodeAnswer = kademliaNode.getRoutingTable().findClosest(message.getDestinationId());
 
         try {
             kademliaNode.getRoutingTable().update(message.getNode());
@@ -30,7 +30,7 @@ public class FindNodeRequestMessageHandler<ID extends Number, C extends Connecti
             RoutingTableUtil.softUpdate(kademliaNode, message.getNode());
         }
 
-        FindNodeResponseMessage<ID, C> response = new FindNodeResponseMessage<ID, C>();
+        FindNodeResponseMessage<I, C> response = new FindNodeResponseMessage<>();
         response.setData(findNodeAnswer);
         return response;
     }

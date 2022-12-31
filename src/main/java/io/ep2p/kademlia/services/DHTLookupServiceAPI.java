@@ -10,9 +10,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Future;
 
-public interface DHTLookupServiceAPI<ID extends Number, C extends ConnectionInfo, K extends Serializable, V extends Serializable> extends MessageHandler<ID, C> {
+public interface DHTLookupServiceAPI<I extends Number, C extends ConnectionInfo, K extends Serializable, V extends Serializable> extends MessageHandler<I, C> {
     default void cleanUp(){}
-    Future<LookupAnswer<ID, C, K, V>> lookup(K key);
+    Future<LookupAnswer<I, C, K, V>> lookup(K key);
     default List<String> getMessageHandlerTypes(){
         return Arrays.asList(MessageType.DHT_LOOKUP, MessageType.DHT_LOOKUP_RESULT);
     }

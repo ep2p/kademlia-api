@@ -14,16 +14,16 @@ import lombok.Getter;
 import java.io.Serializable;
 import java.util.concurrent.Future;
 
-public abstract class KademliaNodeAPIDecorator<ID extends Number, C extends ConnectionInfo> implements KademliaNodeAPI<ID, C> {
+public abstract class KademliaNodeAPIDecorator<I extends Number, C extends ConnectionInfo> implements KademliaNodeAPI<I, C> {
     @Getter
-    private final KademliaNodeAPI<ID, C> kademliaNode;
+    private final KademliaNodeAPI<I, C> kademliaNode;
 
-    protected KademliaNodeAPIDecorator(KademliaNodeAPI<ID, C> kademliaNode) {
+    protected KademliaNodeAPIDecorator(KademliaNodeAPI<I, C> kademliaNode) {
         this.kademliaNode = kademliaNode;
     }
 
     @Override
-    public RoutingTable<ID, C, Bucket<ID, C>> getRoutingTable() {
+    public RoutingTable<I, C, Bucket<I, C>> getRoutingTable() {
         return this.getKademliaNode().getRoutingTable();
     }
 
@@ -33,7 +33,7 @@ public abstract class KademliaNodeAPIDecorator<ID extends Number, C extends Conn
     }
 
     @Override
-    public Future<Boolean> start(Node<ID, C> bootstrapNode) {
+    public Future<Boolean> start(Node<I, C> bootstrapNode) {
         return this.getKademliaNode().start(bootstrapNode);
     }
 
@@ -53,17 +53,17 @@ public abstract class KademliaNodeAPIDecorator<ID extends Number, C extends Conn
     }
 
     @Override
-    public KademliaMessage<ID, C, ? extends Serializable> onMessage(KademliaMessage<ID, C, ? extends Serializable> message) throws HandlerNotFoundException {
+    public KademliaMessage<I, C, ? extends Serializable> onMessage(KademliaMessage<I, C, ? extends Serializable> message) throws HandlerNotFoundException {
         return this.getKademliaNode().onMessage(message);
     }
 
     @Override
-    public void registerMessageHandler(String type, MessageHandler<ID, C> messageHandler) {
+    public void registerMessageHandler(String type, MessageHandler<I, C> messageHandler) {
         this.getKademliaNode().registerMessageHandler(type, messageHandler);
     }
 
     @Override
-    public MessageSender<ID, C> getMessageSender() {
+    public MessageSender<I, C> getMessageSender() {
         return this.getKademliaNode().getMessageSender();
     }
 
@@ -78,12 +78,12 @@ public abstract class KademliaNodeAPIDecorator<ID extends Number, C extends Conn
     }
 
     @Override
-    public ID getId() {
+    public I getId() {
         return this.getKademliaNode().getId();
     }
 
     @Override
-    public MessageHandler<ID, C> getHandler(String type) throws HandlerNotFoundException {
+    public MessageHandler<I, C> getHandler(String type) throws HandlerNotFoundException {
         return this.getKademliaNode().getHandler(type);
     }
 

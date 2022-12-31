@@ -6,9 +6,9 @@ import io.ep2p.kademlia.protocol.message.KademliaMessage;
 
 import java.io.Serializable;
 
-public interface MessageHandler<ID extends Number, C extends ConnectionInfo> {
-    <I extends KademliaMessage<ID, C, ? extends Serializable>, O extends KademliaMessage<ID, C, ? extends Serializable>> O handle(
-            KademliaNodeAPI<ID, C> kademliaNode,
-            I message
+public interface MessageHandler<I extends Number, C extends ConnectionInfo> {
+    <U extends KademliaMessage<I, C, ? extends Serializable>, O extends KademliaMessage<I, C, ? extends Serializable>> O handle(
+            KademliaNodeAPI<I, C> kademliaNode,
+            U message
     );
 }

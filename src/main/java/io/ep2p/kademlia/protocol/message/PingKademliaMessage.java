@@ -5,7 +5,7 @@ import io.ep2p.kademlia.protocol.MessageType;
 import lombok.ToString;
 
 @ToString(callSuper = true)
-public class PingKademliaMessage<ID extends Number, C extends ConnectionInfo> extends KademliaMessage<ID, C, String> {
+public class PingKademliaMessage<I extends Number, C extends ConnectionInfo> extends KademliaMessage<I, C, String> {
     public PingKademliaMessage() {
         super(MessageType.PING);
         setData("PING");

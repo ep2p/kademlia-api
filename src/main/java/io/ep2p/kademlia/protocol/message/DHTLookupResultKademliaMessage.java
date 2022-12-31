@@ -12,7 +12,7 @@ import lombok.ToString;
 import java.io.Serializable;
 
 @ToString(callSuper = true)
-public class DHTLookupResultKademliaMessage<ID extends Number, C extends ConnectionInfo, K extends Serializable, V extends Serializable> extends KademliaMessage<ID, C, DHTLookupResultKademliaMessage.DHTLookupResult<K, V>> {
+public class DHTLookupResultKademliaMessage<I extends Number, C extends ConnectionInfo, K extends Serializable, V extends Serializable> extends KademliaMessage<I, C, DHTLookupResultKademliaMessage.DHTLookupResult<K, V>> {
 
     public DHTLookupResultKademliaMessage(DHTLookupResult<K, V> data) {
         this();

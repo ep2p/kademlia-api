@@ -5,7 +5,7 @@ import io.ep2p.kademlia.connection.ConnectionInfo;
 
 import java.math.BigInteger;
 
-public class DefaultRoutingTableFactory<ID extends Number, C extends ConnectionInfo, B extends Bucket<ID, C>> implements RoutingTableFactory<ID, C, B> {
+public class DefaultRoutingTableFactory<I extends Number, C extends ConnectionInfo, B extends Bucket<I, C>> implements RoutingTableFactory<I, C, B> {
     private final NodeSettings nodeSettings;
 
     public DefaultRoutingTableFactory() {
@@ -18,14 +18,14 @@ public class DefaultRoutingTableFactory<ID extends Number, C extends ConnectionI
 
     @Override
     @SuppressWarnings("unchecked")
-    public RoutingTable<ID, C, B> getRoutingTable(ID i) {
+    public RoutingTable<I, C, B> getRoutingTable(I i) {
         if (i instanceof BigInteger){
-            return (RoutingTable<ID, C, B>) new BigIntegerRoutingTable<>((BigInteger) i, nodeSettings);
+            return (RoutingTable<I, C, B>) new BigIntegerRoutingTable<>((BigInteger) i, nodeSettings);
         }else if (i instanceof Long){
-            return (RoutingTable<ID, C, B>) new LongRoutingTable<>((Long) i, nodeSettings);
+            return (RoutingTable<I, C, B>) new LongRoutingTable<>((Long) i, nodeSettings);
         }else if (i instanceof Integer){
-            return (RoutingTable<ID, C, B>) new IntegerRoutingTable<>((Integer) i, nodeSettings);
+            return (RoutingTable<I, C, B>) new IntegerRoutingTable<>((Integer) i, nodeSettings);
         }
-        throw new IllegalArgumentException("Unsupported ID type");
+        throw new IllegalArgumentException("Unsupported I type");
     }
 }

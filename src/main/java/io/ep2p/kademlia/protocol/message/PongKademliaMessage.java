@@ -7,7 +7,7 @@ import lombok.Setter;
 import lombok.ToString;
 
 @ToString(callSuper = true)
-public class PongKademliaMessage<ID extends Number, C extends ConnectionInfo> extends KademliaMessage<ID, C, String> {
+public class PongKademliaMessage<I extends Number, C extends ConnectionInfo> extends KademliaMessage<I, C, String> {
     @Getter
     @Setter
     private boolean fromFindHandler = false;

@@ -11,21 +11,21 @@ import lombok.Getter;
 import java.io.Serializable;
 import java.util.concurrent.Future;
 
-public class DHTKademliaNode<ID extends Number, C extends ConnectionInfo, K extends Serializable, V extends Serializable> extends KademliaNodeAPIDecorator<ID, C> implements DHTKademliaNodeAPI<ID, C, K, V>{
+public class DHTKademliaNode<I extends Number, C extends ConnectionInfo, K extends Serializable, V extends Serializable> extends KademliaNodeAPIDecorator<I, C> implements DHTKademliaNodeAPI<I, C, K, V>{
     @Getter
-    private final KeyHashGenerator<ID, K> keyHashGenerator;
+    private final KeyHashGenerator<I, K> keyHashGenerator;
     @Getter
     private final KademliaRepository<K, V> kademliaRepository;
     @Getter
-    private transient DHTStoreServiceAPI<ID, C, K, V> storeService;
+    private transient DHTStoreServiceAPI<I, C, K, V> storeService;
     @Getter
-    private transient DHTLookupServiceAPI<ID, C, K, V> lookupService;
+    private transient DHTLookupServiceAPI<I, C, K, V> lookupService;
     @Getter
-    private final DHTStoreServiceFactory<ID, C, K, V> dhtStoreServiceFactory;
+    private final DHTStoreServiceFactory<I, C, K, V> dhtStoreServiceFactory;
     @Getter
-    private final DHTLookupServiceFactory<ID, C, K, V> dhtLookupServiceFactory;
+    private final DHTLookupServiceFactory<I, C, K, V> dhtLookupServiceFactory;
 
-    public DHTKademliaNode(KademliaNodeAPI<ID, C> kademliaNode, KeyHashGenerator<ID, K> keyHashGenerator, KademliaRepository<K, V> kademliaRepository, DHTStoreServiceFactory<ID, C, K, V> dhtStoreServiceFactory, DHTLookupServiceFactory<ID, C, K, V> dhtLookupServiceFactory) {
+    public DHTKademliaNode(KademliaNodeAPI<I, C> kademliaNode, KeyHashGenerator<I, K> keyHashGenerator, KademliaRepository<K, V> kademliaRepository, DHTStoreServiceFactory<I, C, K, V> dhtStoreServiceFactory, DHTLookupServiceFactory<I, C, K, V> dhtLookupServiceFactory) {
         super(kademliaNode);
         this.keyHashGenerator = keyHashGenerator;
         this.kademliaRepository = kademliaRepository;
@@ -34,7 +34,7 @@ public class DHTKademliaNode<ID extends Number, C extends ConnectionInfo, K exte
         this.initDHTKademliaNode();
     }
 
-    public DHTKademliaNode(KademliaNodeAPI<ID, C> kademliaNode, KeyHashGenerator<ID, K> keyHashGenerator, KademliaRepository<K, V> kademliaRepository) {
+    public DHTKademliaNode(KademliaNodeAPI<I, C> kademliaNode, KeyHashGenerator<I, K> keyHashGenerator, KademliaRepository<K, V> kademliaRepository) {
         this(kademliaNode, keyHashGenerator, kademliaRepository, new DHTStoreServiceFactory.DefaultDHTStoreServiceFactory<>(), new DHTLookupServiceFactory.DefaultDHTLookupServiceFactory<>());
     }
 
@@ -58,14 +58,14 @@ public class DHTKademliaNode<ID extends Number, C extends ConnectionInfo, K exte
     }
 
     @Override
-    public Future<StoreAnswer<ID, C, K>> store(K key, V value) {
+    public Future<StoreAnswer<I, C, K>> store(K key, V value) {
         if(!isRunning())
             throw new IllegalStateException("Node is not running");
         return this.storeService.store(key, value);
     }
 
     @Override
-    public Future<LookupAnswer<ID, C, K, V>> lookup(K key) {
+    public Future<LookupAnswer<I, C, K, V>> lookup(K key) {
         if(!isRunning())
             throw new IllegalStateException("Node is not running");
         return this.lookupService.lookup(key);
@@ -76,17 +76,13 @@ public class DHTKademliaNode<ID extends Number, C extends ConnectionInfo, K exte
         setStoreService(this.dhtStoreServiceFactory.getDhtStoreService(this));
     }
 
-    protected void setStoreService(DHTStoreServiceAPI<ID, C, K, V> storeService) {
+    protected void setStoreService(DHTStoreServiceAPI<I, C, K, V> storeService) {
         this.storeService = storeService;
-        this.storeService.getMessageHandlerTypes().forEach(type -> {
-            this.registerMessageHandler(type, this.storeService);
-        });
+        this.storeService.getMessageHandlerTypes().forEach(type -> this.registerMessageHandler(type, this.storeService));
     }
 
-    protected void setLookupService(DHTLookupServiceAPI<ID, C, K, V> lookupService) {
+    protected void setLookupService(DHTLookupServiceAPI<I, C, K, V> lookupService) {
         this.lookupService = lookupService;
-        this.lookupService.getMessageHandlerTypes().forEach(type -> {
-            this.registerMessageHandler(type, this.lookupService);
-        });
+        this.lookupService.getMessageHandlerTypes().forEach(type -> this.registerMessageHandler(type, this.lookupService));
     }
 }

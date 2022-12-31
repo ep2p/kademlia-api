@@ -7,7 +7,7 @@ import lombok.ToString;
 import java.io.Serializable;
 
 @ToString(callSuper = true)
-public class ShutdownKademliaMessage<ID extends Number, C extends ConnectionInfo> extends KademliaMessage<ID, C, Serializable> {
+public class ShutdownKademliaMessage<I extends Number, C extends ConnectionInfo> extends KademliaMessage<I, C, Serializable> {
 
     public ShutdownKademliaMessage() {
         super(MessageType.SHUTDOWN);

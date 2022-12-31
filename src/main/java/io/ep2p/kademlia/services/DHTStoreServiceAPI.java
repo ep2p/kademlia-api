@@ -11,9 +11,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Future;
 
-public interface DHTStoreServiceAPI<ID extends Number, C extends ConnectionInfo, K extends Serializable, V extends Serializable> extends MessageHandler<ID, C> {
+public interface DHTStoreServiceAPI<I extends Number, C extends ConnectionInfo, K extends Serializable, V extends Serializable> extends MessageHandler<I, C> {
     default void cleanUp(){}
-    Future<StoreAnswer<ID, C, K>> store(K key, V value);
+    Future<StoreAnswer<I, C, K>> store(K key, V value);
     default List<String> getMessageHandlerTypes(){
         return new ArrayList<>(Arrays.asList(MessageType.DHT_STORE, MessageType.DHT_STORE_RESULT));
     }

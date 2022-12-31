@@ -22,23 +22,23 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * @param <ID> Number type of node ID between supported types
+ * @param <I> Number type of node ID between supported types
  * @param <C> Your implementation of connection info
  * @param <B> Bucket type
  */
 @NoArgsConstructor
-public abstract class AbstractRoutingTable<ID extends Number, C extends ConnectionInfo, B extends Bucket<ID, C>> implements RoutingTable<ID, C, B> {
+public abstract class AbstractRoutingTable<I extends Number, C extends ConnectionInfo, B extends Bucket<I, C>> implements RoutingTable<I, C, B> {
   /* Bucket list */
   protected ArrayList<B> buckets;
   /* Id of the routing table owner (node id) */
-  protected ID id;
+  protected I id;
   protected transient NodeSettings nodeSettings;
 
   /**
    * @param id Node id of the table owner
    * @param nodeSettings Node setting
    */
-  protected AbstractRoutingTable(ID id, NodeSettings nodeSettings) {
+  protected AbstractRoutingTable(I id, NodeSettings nodeSettings) {
     this.id = id;
     this.nodeSettings = nodeSettings;
     buckets = new ArrayList<>();
@@ -55,18 +55,18 @@ public abstract class AbstractRoutingTable<ID extends Number, C extends Connecti
    * @param node to add or update (push to front)
    * @return if node is added newly (not updated)
    */
-  public boolean update(Node<ID, C> node) throws FullBucketException {
+  public boolean update(Node<I, C> node) throws FullBucketException {
     //Setting last seen date on node
 
-    ExternalNode<ID, C> externalNode;
+    ExternalNode<I, C> externalNode;
 
     if (!(node instanceof ExternalNode))
       externalNode = this.getExternalNode(node);
     else
-      externalNode = (ExternalNode<ID, C>) node;
+      externalNode = (ExternalNode<I, C>) node;
 
     externalNode.setLastSeen(new Date());
-    Bucket<ID, C> bucket = this.findBucket(node.getId());
+    Bucket<I, C> bucket = this.findBucket(node.getId());
     if (bucket.contains(node)) {
       // If the element is already in the bucket, we update it and push it to the front of the bucket.
       bucket.pushToFront(externalNode);
@@ -79,14 +79,14 @@ public abstract class AbstractRoutingTable<ID extends Number, C extends Connecti
   }
 
   @Override
-  public synchronized void forceUpdate(Node<ID, C> node) {
+  public synchronized void forceUpdate(Node<I, C> node) {
     try {
       this.update(node);
     } catch (FullBucketException e) {
-      Bucket<ID, C> bucket = this.findBucket(node.getId());
+      Bucket<I, C> bucket = this.findBucket(node.getId());
       Date date = null;
-      ID oldestNode = null;
-      for (ID nodeId : bucket.getNodeIds()) {
+      I oldestNode = null;
+      for (I nodeId : bucket.getNodeIds()) {
         if (nodeId.equals(this.id)){
           continue;
         }
@@ -105,8 +105,8 @@ public abstract class AbstractRoutingTable<ID extends Number, C extends Connecti
    * Delete node from table
    * @param node to delete
    */
-  public void delete(Node<ID, C> node) {
-    Bucket<ID, C> bucket = this.findBucket(node.getId());
+  public void delete(Node<I, C> node) {
+    Bucket<I, C> bucket = this.findBucket(node.getId());
     bucket.remove(node);
   }
 
@@ -117,9 +117,9 @@ public abstract class AbstractRoutingTable<ID extends Number, C extends Connecti
    * @param destinationId lookup
    * @return result for closest nodes to destination
    */
-  public FindNodeAnswer<ID, C> findClosest(ID destinationId) {
-    FindNodeAnswer<ID, C> findNodeAnswer = new FindNodeAnswer<>(destinationId);
-    Bucket<ID, C> bucket = this.findBucket(destinationId);
+  public FindNodeAnswer<I, C> findClosest(I destinationId) {
+    FindNodeAnswer<I, C> findNodeAnswer = new FindNodeAnswer<>(destinationId);
+    Bucket<I, C> bucket = this.findBucket(destinationId);
     BucketHelper.addToAnswer(bucket, findNodeAnswer, destinationId);
 
     // Loop over every bucket (max common.BucketSize or lte identifier size) and add it to answer
@@ -127,12 +127,12 @@ public abstract class AbstractRoutingTable<ID extends Number, C extends Connecti
                                     (bucket.getId() + i) <= this.nodeSettings.getIdentifierSize()); i++) {
       //Check the previous buckets
       if (bucket.getId() - i >= 0) {
-        Bucket<ID, C> bucketP = this.buckets.get(bucket.getId() - i);
+        Bucket<I, C> bucketP = this.buckets.get(bucket.getId() - i);
         BucketHelper.addToAnswer(bucketP, findNodeAnswer, destinationId);
       }
       //Check the next buckets
       if (bucket.getId() + i <= this.nodeSettings.getIdentifierSize()) {
-        Bucket<ID, C> bucketN = this.buckets.get(bucket.getId() + i);
+        Bucket<I, C> bucketN = this.buckets.get(bucket.getId() + i);
         BucketHelper.addToAnswer(bucketN, findNodeAnswer, destinationId);
       }
     }
@@ -148,8 +148,8 @@ public abstract class AbstractRoutingTable<ID extends Number, C extends Connecti
   }
 
   @Override
-  public boolean contains(ID nodeId) {
-    Bucket<ID, C> bucket = this.findBucket(nodeId);
+  public boolean contains(I nodeId) {
+    Bucket<I, C> bucket = this.findBucket(nodeId);
     return bucket.contains(nodeId);
   }
 
@@ -160,7 +160,7 @@ public abstract class AbstractRoutingTable<ID extends Number, C extends Connecti
   @Override
   public String toString() {
     StringBuilder string = new StringBuilder("LongRoutingTable [ id=" + id + " ");
-    for (Bucket<ID, C> bucket : buckets) {
+    for (Bucket<I, C> bucket : buckets) {
       if (bucket.size() > 0) {
         string.append(bucket.getId()).append(" ");
       }

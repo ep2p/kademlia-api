@@ -11,12 +11,12 @@ import java.util.List;
 
 public class ClosestPerBucketReferencedNodeStrategy implements ReferencedNodesStrategy {
     @Override
-    public <ID extends Number, C extends ConnectionInfo> List<Node<ID, C>> getReferencedNodes(KademliaNodeAPI<ID, C> kademliaNodeAPI) {
-        List<Node<ID, C>> referencedNodes = new ArrayList<>();
+    public <I extends Number, C extends ConnectionInfo> List<Node<I, C>> getReferencedNodes(KademliaNodeAPI<I, C> kademliaNodeAPI) {
+        List<Node<I, C>> referencedNodes = new ArrayList<>();
 
-        List<ID> distances = KadDistanceUtil.getNodesWithDistance(kademliaNodeAPI.getId(), kademliaNodeAPI.getNodeSettings().getIdentifierSize());
+        List<I> distances = KadDistanceUtil.getNodesWithDistance(kademliaNodeAPI.getId(), kademliaNodeAPI.getNodeSettings().getIdentifierSize());
         distances.forEach(distance -> {
-            FindNodeAnswer<ID, C> findNodeAnswer = kademliaNodeAPI.getRoutingTable().findClosest(distance);
+            FindNodeAnswer<I, C> findNodeAnswer = kademliaNodeAPI.getRoutingTable().findClosest(distance);
             if (findNodeAnswer.getNodes().isEmpty()) {
                 return;
             }

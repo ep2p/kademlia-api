@@ -17,15 +17,15 @@ import java.util.Objects;
 
 /**
  * Kademlia node from outside the system (other kademlia nodes are implementation of this class when they are seen in this system)
- * @param <ID> Number type of node ID between supported types
+ * @param <I> Number type of node ID between supported types
  * @param <C> Your implementation of connection info
  */
 @Getter
 @Setter
-public abstract class ExternalNode<ID extends Number, C extends ConnectionInfo> extends DateAwareNodeDecorator<ID, C> implements Comparable<Object> {
-  protected ID distance;
+public abstract class ExternalNode<I extends Number, C extends ConnectionInfo> extends DateAwareNodeDecorator<I, C> implements Comparable<Object> {
+  protected I distance;
 
-  protected ExternalNode(Node<ID, C> node, ID distance) {
+  protected ExternalNode(Node<I, C> node, I distance) {
     super(node);
     this.distance = distance;
   }

@@ -9,15 +9,15 @@ import io.ep2p.kademlia.protocol.message.PongKademliaMessage;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class PingMessageHandler<ID extends Number, C extends ConnectionInfo> extends GeneralResponseMessageHandler<ID, C> {
+public class PingMessageHandler<I extends Number, C extends ConnectionInfo> extends GeneralResponseMessageHandler<I, C> {
 
     @Override
     @SuppressWarnings("unchecked")
-    public <I extends KademliaMessage<ID, C, ?>, O extends KademliaMessage<ID, C, ?>> O doHandle(KademliaNodeAPI<ID, C> kademliaNode, I message) {
-        return (O) doHandle(kademliaNode, (PingKademliaMessage<ID, C>) message);
+    public <U extends KademliaMessage<I, C, ?>, O extends KademliaMessage<I, C, ?>> O doHandle(KademliaNodeAPI<I, C> kademliaNode, U message) {
+        return (O) doHandle(kademliaNode, (PingKademliaMessage<I, C>) message);
     }
 
-    protected PongKademliaMessage<ID, C> doHandle(KademliaNodeAPI<ID, C> kademliaNode, PingKademliaMessage<ID, C> message){
+    protected PongKademliaMessage<I, C> doHandle(KademliaNodeAPI<I, C> kademliaNode, PingKademliaMessage<I, C> message){
         if (kademliaNode.isRunning()){
             try {
                 kademliaNode.getRoutingTable().update(message.getNode());
@@ -25,7 +25,7 @@ public class PingMessageHandler<ID extends Number, C extends ConnectionInfo> ext
                 log.error(e.getMessage(), e);
             }
         }
-        PongKademliaMessage<ID, C> pongKademliaMessage = new PongKademliaMessage<>();
+        PongKademliaMessage<I, C> pongKademliaMessage = new PongKademliaMessage<>();
         pongKademliaMessage.setAlive(kademliaNode.isRunning());
         return pongKademliaMessage;
     }

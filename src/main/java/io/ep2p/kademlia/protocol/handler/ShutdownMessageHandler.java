@@ -6,12 +6,12 @@ import io.ep2p.kademlia.protocol.message.EmptyKademliaMessage;
 import io.ep2p.kademlia.protocol.message.KademliaMessage;
 import io.ep2p.kademlia.protocol.message.ShutdownKademliaMessage;
 
-public class ShutdownMessageHandler<ID extends Number, C extends ConnectionInfo> implements MessageHandler<ID, C> {
+public class ShutdownMessageHandler<I extends Number, C extends ConnectionInfo> implements MessageHandler<I, C> {
     @Override
     @SuppressWarnings("unchecked")
-    public <I extends KademliaMessage<ID, C, ?>, O extends KademliaMessage<ID, C, ?>> O handle(KademliaNodeAPI<ID, C> kademliaNode, I message) {
+    public <U extends KademliaMessage<I, C, ?>, O extends KademliaMessage<I, C, ?>> O handle(KademliaNodeAPI<I, C> kademliaNode, U message) {
         assert message instanceof ShutdownKademliaMessage;
         kademliaNode.getRoutingTable().delete(message.getNode());
-        return (O) new EmptyKademliaMessage<ID, C>();
+        return (O) new EmptyKademliaMessage<I, C>();
     }
 }

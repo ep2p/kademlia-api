@@ -8,46 +8,46 @@ import io.ep2p.kademlia.node.external.ExternalNode;
 
 import java.util.List;
 
-public abstract class RoutingTableDecorator<ID extends Number, C extends ConnectionInfo, B extends Bucket<ID, C>> implements RoutingTable<ID, C, B> {
+public abstract class RoutingTableDecorator<I extends Number, C extends ConnectionInfo, B extends Bucket<I, C>> implements RoutingTable<I, C, B> {
 
-    protected final RoutingTable<ID, C, B> routingTable;
+    protected final RoutingTable<I, C, B> routingTable;
 
-    protected RoutingTableDecorator(RoutingTable<ID, C, B> routingTable) {
+    protected RoutingTableDecorator(RoutingTable<I, C, B> routingTable) {
         this.routingTable = routingTable;
     }
 
     @Override
-    public int getNodePrefix(ID id) {
+    public int getNodePrefix(I id) {
         return this.routingTable.getNodePrefix(id);
     }
 
     @Override
-    public Bucket<ID, C> findBucket(ID id) {
+    public Bucket<I, C> findBucket(I id) {
         return this.routingTable.findBucket(id);
     }
 
     @Override
-    public boolean update(Node<ID, C> node) throws FullBucketException {
+    public boolean update(Node<I, C> node) throws FullBucketException {
         return this.routingTable.update(node);
     }
 
     @Override
-    public void forceUpdate(Node<ID, C> node) {
+    public void forceUpdate(Node<I, C> node) {
         this.routingTable.forceUpdate(node);
     }
 
     @Override
-    public void delete(Node<ID, C> node) {
+    public void delete(Node<I, C> node) {
         this.routingTable.delete(node);
     }
 
     @Override
-    public FindNodeAnswer<ID, C> findClosest(ID destinationId) {
+    public FindNodeAnswer<I, C> findClosest(I destinationId) {
         return this.routingTable.findClosest(destinationId);
     }
 
     @Override
-    public boolean contains(ID nodeId) {
+    public boolean contains(I nodeId) {
         return this.routingTable.contains(nodeId);
     }
 
@@ -57,12 +57,12 @@ public abstract class RoutingTableDecorator<ID extends Number, C extends Connect
     }
 
     @Override
-    public ID getDistance(ID id) {
+    public I getDistance(I id) {
         return this.routingTable.getDistance(id);
     }
 
     @Override
-    public ExternalNode<ID, C> getExternalNode(Node<ID, C> node) {
+    public ExternalNode<I, C> getExternalNode(Node<I, C> node) {
         return this.routingTable.getExternalNode(node);
     }
 }

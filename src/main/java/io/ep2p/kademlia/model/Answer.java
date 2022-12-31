@@ -9,11 +9,11 @@ import java.io.Serializable;
 
 /**
  * Model to hold base API call reply answer
- * @param <ID> Number type of node ID between supported types
+ * @param <I> Number type of node ID between supported types
  */
 @Getter
 @Setter
-public class Answer<ID extends Number, C extends ConnectionInfo> implements Serializable {
-    private Node<ID, C> node;
+public class Answer<I extends Number, C extends ConnectionInfo> implements Serializable {
+    private Node<I, C> node;
     private boolean isAlive;
 }

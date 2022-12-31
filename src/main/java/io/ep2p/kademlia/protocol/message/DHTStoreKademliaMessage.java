@@ -12,9 +12,9 @@ import lombok.ToString;
 import java.io.Serializable;
 
 @ToString(callSuper = true)
-public class DHTStoreKademliaMessage<ID extends Number, C extends ConnectionInfo, K extends Serializable, V extends Serializable> extends KademliaMessage<ID, C, DHTStoreKademliaMessage.DHTData<ID, C, K, V>> {
+public class DHTStoreKademliaMessage<I extends Number, C extends ConnectionInfo, K extends Serializable, V extends Serializable> extends KademliaMessage<I, C, DHTStoreKademliaMessage.DHTData<I, C, K, V>> {
 
-    public DHTStoreKademliaMessage(DHTData<ID, C, K, V> data) {
+    public DHTStoreKademliaMessage(DHTData<I, C, K, V> data) {
         this();
         setData(data);
     }
@@ -27,8 +27,8 @@ public class DHTStoreKademliaMessage<ID extends Number, C extends ConnectionInfo
     @AllArgsConstructor
     @NoArgsConstructor
     @ToString
-    public static class DHTData<ID extends Number, C extends ConnectionInfo, K extends Serializable, V extends Serializable> implements Serializable{
-        private Node<ID, C> requester;
+    public static class DHTData<I extends Number, C extends ConnectionInfo, K extends Serializable, V extends Serializable> implements Serializable{
+        private Node<I, C> requester;
         private K key;
         private V value;
 

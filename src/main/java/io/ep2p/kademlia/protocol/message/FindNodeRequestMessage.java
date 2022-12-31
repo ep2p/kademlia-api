@@ -5,12 +5,12 @@ import io.ep2p.kademlia.protocol.MessageType;
 import lombok.ToString;
 
 @ToString(callSuper = true)
-public class FindNodeRequestMessage<ID extends Number, C extends ConnectionInfo> extends KademliaMessage<ID, C, ID> {
+public class FindNodeRequestMessage<I extends Number, C extends ConnectionInfo> extends KademliaMessage<I, C, I> {
     public FindNodeRequestMessage() {
         super(MessageType.FIND_NODE_REQ);
     }
 
-    public ID getDestinationId(){
+    public I getDestinationId(){
         return this.getData();
     }
 }

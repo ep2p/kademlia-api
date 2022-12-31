@@ -8,29 +8,29 @@ import io.ep2p.kademlia.repository.KademliaRepository;
 import java.io.Serializable;
 import java.util.concurrent.Future;
 
-public abstract class DHTKademliaNodeAPIDecorator<ID extends Number, C extends ConnectionInfo, K extends Serializable, V extends Serializable> extends KademliaNodeAPIDecorator<ID, C> implements DHTKademliaNodeAPI<ID, C, K, V> {
+public abstract class DHTKademliaNodeAPIDecorator<I extends Number, C extends ConnectionInfo, K extends Serializable, V extends Serializable> extends KademliaNodeAPIDecorator<I, C> implements DHTKademliaNodeAPI<I, C, K, V> {
 
-    protected DHTKademliaNodeAPIDecorator(DHTKademliaNodeAPI<ID, C, K, V> kademliaNode) {
+    protected DHTKademliaNodeAPIDecorator(DHTKademliaNodeAPI<I, C, K, V> kademliaNode) {
         super(kademliaNode);
     }
 
     @Override
-    public Future<StoreAnswer<ID, C, K>> store(K key, V value) {
-        return ((DHTKademliaNodeAPI<ID, C, K, V>) getKademliaNode()).store(key, value);
+    public Future<StoreAnswer<I, C, K>> store(K key, V value) {
+        return ((DHTKademliaNodeAPI<I, C, K, V>) getKademliaNode()).store(key, value);
     }
 
     @Override
-    public Future<LookupAnswer<ID, C, K, V>> lookup(K key) {
-        return ((DHTKademliaNodeAPI<ID, C, K, V>) getKademliaNode()).lookup(key);
+    public Future<LookupAnswer<I, C, K, V>> lookup(K key) {
+        return ((DHTKademliaNodeAPI<I, C, K, V>) getKademliaNode()).lookup(key);
     }
 
     @Override
     public KademliaRepository<K, V> getKademliaRepository() {
-        return ((DHTKademliaNodeAPI<ID, C, K, V>) getKademliaNode()).getKademliaRepository();
+        return ((DHTKademliaNodeAPI<I, C, K, V>) getKademliaNode()).getKademliaRepository();
     }
 
     @Override
-    public KeyHashGenerator<ID, K> getKeyHashGenerator() {
-        return ((DHTKademliaNodeAPI<ID, C, K, V>) getKademliaNode()).getKeyHashGenerator();
+    public KeyHashGenerator<I, K> getKeyHashGenerator() {
+        return ((DHTKademliaNodeAPI<I, C, K, V>) getKademliaNode()).getKeyHashGenerator();
     }
 }

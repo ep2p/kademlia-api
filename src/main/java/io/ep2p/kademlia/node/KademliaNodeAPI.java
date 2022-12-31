@@ -15,14 +15,14 @@ import java.util.concurrent.Future;
 
 /**
  * Basic KademliaNodeAPI, contains core functionality of any sort of KademliaNode
- * @param <ID> Type of the node ID
+ * @param <I> Type of the node ID
  * @param <C> Type of the node ConnectionInfo
  */
-public interface KademliaNodeAPI<ID extends Number, C extends ConnectionInfo> extends Node<ID, C> {
+public interface KademliaNodeAPI<I extends Number, C extends ConnectionInfo> extends Node<I, C> {
     /**
      * @return RoutingTable set for this node
      */
-    RoutingTable<ID, C, Bucket<ID, C>> getRoutingTable();
+    RoutingTable<I, C, Bucket<I, C>> getRoutingTable();
     /**
      *  Starts the node. Shall be already bootstrapped.
      */
@@ -31,7 +31,7 @@ public interface KademliaNodeAPI<ID extends Number, C extends ConnectionInfo> ex
      * @param bootstrapNode Node information to bootstrap this node with then starts
      * @return Boolean Future, determines if node was bootstrapped successfully
      */
-    Future<Boolean> start(Node<ID, C> bootstrapNode);
+    Future<Boolean> start(Node<I, C> bootstrapNode);
     /**
      *  Stop the node, gracefully
      */
@@ -49,7 +49,7 @@ public interface KademliaNodeAPI<ID extends Number, C extends ConnectionInfo> ex
     /**
      * @return MessageSender set for this node
      */
-    MessageSender<ID, C> getMessageSender();
+    MessageSender<I, C> getMessageSender();
     /**
      * @return NodeSettings set for this node
      */
@@ -60,19 +60,19 @@ public interface KademliaNodeAPI<ID extends Number, C extends ConnectionInfo> ex
      * @return (optional) response message after handling
      * @throws HandlerNotFoundException when no handler is found for the message
      */
-    KademliaMessage<ID, C, ? extends Serializable> onMessage(KademliaMessage<ID, C, ? extends Serializable> message) throws HandlerNotFoundException;
+    KademliaMessage<I, C, ? extends Serializable> onMessage(KademliaMessage<I, C, ? extends Serializable> message) throws HandlerNotFoundException;
     /**
      * @param type type of the message that should be handled by messageHandler
      * @param messageHandler to handle the message
      */
-    void registerMessageHandler(String type, MessageHandler<ID, C> messageHandler);
+    void registerMessageHandler(String type, MessageHandler<I, C> messageHandler);
 
     /**
      * @param type type of the message to get the handler of
      * @return MessageHandler that is registered for the type
      * @throws HandlerNotFoundException when no handler is registered for type of the message
      */
-    MessageHandler<ID, C> getHandler(String type) throws HandlerNotFoundException;
+    MessageHandler<I, C> getHandler(String type) throws HandlerNotFoundException;
 
     /**
      * @param referencedNodesStrategy strategy to get nodes for ping and graceful shutdown

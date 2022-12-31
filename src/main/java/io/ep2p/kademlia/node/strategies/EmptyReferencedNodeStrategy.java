@@ -9,7 +9,7 @@ import java.util.List;
 
 public class EmptyReferencedNodeStrategy implements ReferencedNodesStrategy{
     @Override
-    public <ID extends Number, C extends ConnectionInfo> List<Node<ID, C>> getReferencedNodes(KademliaNodeAPI<ID, C> kademliaNode) {
+    public <I extends Number, C extends ConnectionInfo> List<Node<I, C>> getReferencedNodes(KademliaNodeAPI<I, C> kademliaNode) {
         return new ArrayList<>();
     }
 }

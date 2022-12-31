@@ -18,23 +18,23 @@ import java.util.concurrent.ScheduledExecutorService;
 
 
 /**
- * @param <ID> Type of ID (number)
+ * @param <I> Type of ID (number)
  * @param <C> Type of connection info
  * @param <K> Type of keys in DHT (serializable)
  * @param <V> Type of values in DHT (serializable)
  */
-public class DHTKademliaNodeBuilder<ID extends Number, C extends ConnectionInfo, K extends Serializable, V extends Serializable> {
-    private ID id;
+public class DHTKademliaNodeBuilder<I extends Number, C extends ConnectionInfo, K extends Serializable, V extends Serializable> {
+    private I id;
     private C connectionInfo;
-    private RoutingTable<ID, C, Bucket<ID, C>> routingTable;
-    private MessageSender<ID, C> messageSender;
-    private KeyHashGenerator<ID, K> keyHashGenerator;
+    private RoutingTable<I, C, Bucket<I, C>> routingTable;
+    private MessageSender<I, C> messageSender;
+    private KeyHashGenerator<I, K> keyHashGenerator;
     private KademliaRepository<K, V> kademliaRepository;
     private NodeSettings nodeSettings;
     private ScheduledExecutorService scheduledExecutorService;
     private ExecutorService dhtExecutorService;
-    private DHTStoreServiceFactory<ID, C, K, V> dhtStoreServiceFactory;
-    private DHTLookupServiceFactory<ID, C, K, V> dhtLookupServiceFactory;
+    private DHTStoreServiceFactory<I, C, K, V> dhtStoreServiceFactory;
+    private DHTLookupServiceFactory<I, C, K, V> dhtLookupServiceFactory;
 
     /**
      * @param id ID of the node
@@ -44,7 +44,7 @@ public class DHTKademliaNodeBuilder<ID extends Number, C extends ConnectionInfo,
      * @param keyHashGenerator DHT KeyHashGenerator implementation
      * @param kademliaRepository DHT repository
      */
-    public DHTKademliaNodeBuilder(ID id, C connectionInfo, RoutingTable<ID, C, Bucket<ID, C>> routingTable, MessageSender<ID, C> messageSender, KeyHashGenerator<ID, K> keyHashGenerator, KademliaRepository<K, V> kademliaRepository){
+    public DHTKademliaNodeBuilder(I id, C connectionInfo, RoutingTable<I, C, Bucket<I, C>> routingTable, MessageSender<I, C> messageSender, KeyHashGenerator<I, K> keyHashGenerator, KademliaRepository<K, V> kademliaRepository){
         setId(id);
         setConnectionInfo(connectionInfo);
         setRoutingTable(routingTable);
@@ -56,70 +56,70 @@ public class DHTKademliaNodeBuilder<ID extends Number, C extends ConnectionInfo,
     /**
      * @return built DHTKademliaNodeAPI
      */
-    public DHTKademliaNodeAPI<ID, C, K, V> build(){
+    public DHTKademliaNodeAPI<I, C, K, V> build(){
         return new DHTKademliaNode<>(this.buildKademliaNode(), getKeyHashGenerator(), getKademliaRepository(), getDhtStoreServiceFactory(), getDhtLookupServiceFactory());
     }
 
-    protected KademliaNodeAPI<ID, C> buildKademliaNode(){
+    protected KademliaNodeAPI<I, C> buildKademliaNode(){
         return new KademliaNode<>(getId(), getConnectionInfo(), getRoutingTable(), getMessageSender(), getNodeSettings(), getScheduledExecutorService());
     }
 
-    public DHTKademliaNodeBuilder<ID, C, K, V> setId(ID id) {
+    public DHTKademliaNodeBuilder<I, C, K, V> setId(I id) {
         this.id = id;
         return this;
     }
 
-    public DHTKademliaNodeBuilder<ID, C, K, V> setConnectionInfo(C connectionInfo) {
+    public DHTKademliaNodeBuilder<I, C, K, V> setConnectionInfo(C connectionInfo) {
         this.connectionInfo = connectionInfo;
         return this;
     }
 
-    public DHTKademliaNodeBuilder<ID, C, K, V> setRoutingTable(RoutingTable<ID, C, Bucket<ID, C>> routingTable) {
+    public DHTKademliaNodeBuilder<I, C, K, V> setRoutingTable(RoutingTable<I, C, Bucket<I, C>> routingTable) {
         this.routingTable = routingTable;
         return this;
     }
 
-    public DHTKademliaNodeBuilder<ID, C, K, V> setMessageSender(MessageSender<ID, C> messageSender) {
+    public DHTKademliaNodeBuilder<I, C, K, V> setMessageSender(MessageSender<I, C> messageSender) {
         this.messageSender = messageSender;
         return this;
     }
 
-    public DHTKademliaNodeBuilder<ID, C, K, V> setNodeSettings(NodeSettings nodeSettings) {
+    public DHTKademliaNodeBuilder<I, C, K, V> setNodeSettings(NodeSettings nodeSettings) {
         this.nodeSettings = nodeSettings;
         return this;
     }
 
-    public DHTKademliaNodeBuilder<ID, C, K, V> setScheduledExecutorService(ScheduledExecutorService scheduledExecutorService) {
+    public DHTKademliaNodeBuilder<I, C, K, V> setScheduledExecutorService(ScheduledExecutorService scheduledExecutorService) {
         this.scheduledExecutorService = scheduledExecutorService;
         return this;
     }
 
-    public DHTKademliaNodeBuilder<ID, C, K, V> setDhtExecutorService(ExecutorService dhtExecutorService) {
+    public DHTKademliaNodeBuilder<I, C, K, V> setDhtExecutorService(ExecutorService dhtExecutorService) {
         this.dhtExecutorService = dhtExecutorService;
         return this;
     }
 
-    public DHTKademliaNodeBuilder<ID, C, K, V> setKeyHashGenerator(KeyHashGenerator<ID, K> keyHashGenerator) {
+    public DHTKademliaNodeBuilder<I, C, K, V> setKeyHashGenerator(KeyHashGenerator<I, K> keyHashGenerator) {
         this.keyHashGenerator = keyHashGenerator;
         return this;
     }
 
-    public DHTKademliaNodeBuilder<ID, C, K, V> setKademliaRepository(KademliaRepository<K, V> kademliaRepository) {
+    public DHTKademliaNodeBuilder<I, C, K, V> setKademliaRepository(KademliaRepository<K, V> kademliaRepository) {
         this.kademliaRepository = kademliaRepository;
         return this;
     }
 
-    public DHTKademliaNodeBuilder<ID, C, K, V> setDhtStoreServiceFactory(DHTStoreServiceFactory<ID, C, K, V> dhtStoreServiceFactory) {
+    public DHTKademliaNodeBuilder<I, C, K, V> setDhtStoreServiceFactory(DHTStoreServiceFactory<I, C, K, V> dhtStoreServiceFactory) {
         this.dhtStoreServiceFactory = dhtStoreServiceFactory;
         return this;
     }
 
-    public DHTKademliaNodeBuilder<ID, C, K, V> setDhtLookupServiceFactory(DHTLookupServiceFactory<ID, C, K, V> dhtLookupServiceFactory) {
+    public DHTKademliaNodeBuilder<I, C, K, V> setDhtLookupServiceFactory(DHTLookupServiceFactory<I, C, K, V> dhtLookupServiceFactory) {
         this.dhtLookupServiceFactory = dhtLookupServiceFactory;
         return this;
     }
 
-    protected ID getId() {
+    protected I getId() {
         return id;
     }
 
@@ -127,11 +127,11 @@ public class DHTKademliaNodeBuilder<ID extends Number, C extends ConnectionInfo,
         return connectionInfo;
     }
 
-    protected RoutingTable<ID, C, Bucket<ID, C>> getRoutingTable() {
+    protected RoutingTable<I, C, Bucket<I, C>> getRoutingTable() {
         return routingTable;
     }
 
-    protected MessageSender<ID, C> getMessageSender() {
+    protected MessageSender<I, C> getMessageSender() {
         return messageSender;
     }
 
@@ -150,7 +150,7 @@ public class DHTKademliaNodeBuilder<ID extends Number, C extends ConnectionInfo,
         return dhtExecutorService;
     }
 
-    protected KeyHashGenerator<ID, K> getKeyHashGenerator() {
+    protected KeyHashGenerator<I, K> getKeyHashGenerator() {
         return keyHashGenerator;
     }
 
@@ -158,13 +158,13 @@ public class DHTKademliaNodeBuilder<ID extends Number, C extends ConnectionInfo,
         return kademliaRepository;
     }
 
-    protected DHTStoreServiceFactory<ID, C, K, V> getDhtStoreServiceFactory() {
+    protected DHTStoreServiceFactory<I, C, K, V> getDhtStoreServiceFactory() {
         return dhtStoreServiceFactory != null ? dhtStoreServiceFactory : new DHTStoreServiceFactory.DefaultDHTStoreServiceFactory<>(
                 getDhtExecutorService()
         );
     }
 
-    protected DHTLookupServiceFactory<ID, C, K, V> getDhtLookupServiceFactory() {
+    protected DHTLookupServiceFactory<I, C, K, V> getDhtLookupServiceFactory() {
         return dhtLookupServiceFactory != null ? dhtLookupServiceFactory : new DHTLookupServiceFactory.DefaultDHTLookupServiceFactory<>(
                 getDhtExecutorService()
         );

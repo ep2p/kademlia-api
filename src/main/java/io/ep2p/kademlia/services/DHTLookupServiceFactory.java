@@ -7,10 +7,10 @@ import java.io.Serializable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public interface DHTLookupServiceFactory<ID extends Number, C extends ConnectionInfo, K extends Serializable, V extends Serializable> {
-    DHTLookupServiceAPI<ID, C, K, V> getDhtLookupService(DHTKademliaNodeAPI<ID, C, K, V> kademliaNodeAPI);
+public interface DHTLookupServiceFactory<I extends Number, C extends ConnectionInfo, K extends Serializable, V extends Serializable> {
+    DHTLookupServiceAPI<I, C, K, V> getDhtLookupService(DHTKademliaNodeAPI<I, C, K, V> kademliaNodeAPI);
 
-    class DefaultDHTLookupServiceFactory<ID extends Number, C extends ConnectionInfo, K extends Serializable, V extends Serializable> implements DHTLookupServiceFactory<ID, C, K, V> {
+    class DefaultDHTLookupServiceFactory<I extends Number, C extends ConnectionInfo, K extends Serializable, V extends Serializable> implements DHTLookupServiceFactory<I, C, K, V> {
         private final ExecutorService handlerExecutorService;
 
         public DefaultDHTLookupServiceFactory(ExecutorService handlerExecutorService) {
@@ -22,7 +22,7 @@ public interface DHTLookupServiceFactory<ID extends Number, C extends Connection
         }
 
         @Override
-        public DHTLookupServiceAPI<ID, C, K, V> getDhtLookupService(DHTKademliaNodeAPI<ID, C, K, V> kademliaNodeAPI) {
+        public DHTLookupServiceAPI<I, C, K, V> getDhtLookupService(DHTKademliaNodeAPI<I, C, K, V> kademliaNodeAPI) {
             return new DHTLookupService<>(kademliaNodeAPI, handlerExecutorService);
         }
     }

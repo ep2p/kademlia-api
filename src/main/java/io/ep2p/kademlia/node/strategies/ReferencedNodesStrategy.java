@@ -11,7 +11,7 @@ import java.util.List;
  *  ReferencedNodesStrategy returns list of nodes that should be pinged in a scheduler and also shutdown signal should be sent to
  */
 public interface ReferencedNodesStrategy {
-    <ID extends Number, C extends ConnectionInfo> List<Node<ID, C>> getReferencedNodes(KademliaNodeAPI<ID, C> kademliaNode);
+    <I extends Number, C extends ConnectionInfo> List<Node<I, C>> getReferencedNodes(KademliaNodeAPI<I, C> kademliaNode);
 
     enum Strategies {
         CLOSEST_PER_BUCKET(new ClosestPerBucketReferencedNodeStrategy()), EMPTY(new EmptyReferencedNodeStrategy()), ALL_ALIVE(new AllAliveNodesStrategy());

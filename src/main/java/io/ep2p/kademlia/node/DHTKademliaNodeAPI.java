@@ -10,23 +10,23 @@ import java.util.concurrent.Future;
 
 /**
  * KademliaNodeAPI for DHT operations, extends KademliaNodeAPI
- * @param <ID> Type of the node ID
+ * @param <I> Type of the node ID
  * @param <C> Type of the node ConnectionInfo
  * @param <K> Type of the serializable Key
  * @param <V> Type of the serializable Value
  */
-public interface DHTKademliaNodeAPI<ID extends Number, C extends ConnectionInfo, K extends Serializable, V extends Serializable> extends KademliaNodeAPI<ID, C> {
+public interface DHTKademliaNodeAPI<I extends Number, C extends ConnectionInfo, K extends Serializable, V extends Serializable> extends KademliaNodeAPI<I, C> {
     /**
      * @param key Serializable key of the data to store
      * @param value Serializable value of the data to store
      * @return Future object of StoreAnswer, contains result status and node that stored the data
      */
-    Future<StoreAnswer<ID, C, K>> store(K key, V value);
+    Future<StoreAnswer<I, C, K>> store(K key, V value);
     /**
      * @param key Serializable key of the data to look up
      * @return Future object of LookupAnswer, contains value, result status and node that stored the data
      */
-    Future<LookupAnswer<ID, C, K, V>> lookup(K key);
+    Future<LookupAnswer<I, C, K, V>> lookup(K key);
     /**
      * @return KademliaRepository of this node
      */
@@ -34,5 +34,5 @@ public interface DHTKademliaNodeAPI<ID extends Number, C extends ConnectionInfo,
     /**
      * @return KeyHashGenerator of this node
      */
-    KeyHashGenerator<ID, K> getKeyHashGenerator();
+    KeyHashGenerator<I, K> getKeyHashGenerator();
 }

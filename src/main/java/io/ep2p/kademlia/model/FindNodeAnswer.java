@@ -18,21 +18,21 @@ import java.util.List;
 
 /**
  * Answer to a "FIND_NODE" query. Contains the nodes closest to an id given
- * @param <ID> Number type of node ID between supported types
+ * @param <I> Number type of node ID between supported types
  * @param <C> Your implementation of connection info
  */
 @Getter
 @Setter
-public class FindNodeAnswer<ID extends Number, C extends ConnectionInfo> implements Serializable {
-  private ID destinationId;
+public class FindNodeAnswer<I extends Number, C extends ConnectionInfo> implements Serializable {
+  private I destinationId;
   /* Closest nodes in the answer. */
-  private List<ExternalNode<ID, C>> nodes;
+  private List<ExternalNode<I, C>> nodes;
 
   public FindNodeAnswer() {
     nodes = new ArrayList<>();
   }
 
-  public FindNodeAnswer(ID destinationId) {
+  public FindNodeAnswer(I destinationId) {
     this();
     this.destinationId = destinationId;
   }
@@ -45,11 +45,11 @@ public class FindNodeAnswer<ID extends Number, C extends ConnectionInfo> impleme
     nodes.remove(index);
   }
 
-  public void add(ExternalNode<ID, C> externalNode) {
+  public void add(ExternalNode<I, C> externalNode) {
     nodes.add(externalNode);
   }
 
-  public void update(List<ExternalNode<ID, C>> nodes){
+  public void update(List<ExternalNode<I, C>> nodes){
     this.nodes = nodes;
   }
 
@@ -60,10 +60,10 @@ public class FindNodeAnswer<ID extends Number, C extends ConnectionInfo> impleme
    * @param findNodeSize maximum size of nodes to keep in FindNodeAnswer
    * @return number of nodes added to answer
    */
-  public int merge(FindNodeAnswer<ID, C> findNodeAnswer, int findNodeSize) {
+  public int merge(FindNodeAnswer<I, C> findNodeAnswer, int findNodeSize) {
     int nbAdded = 0;
 
-    for (ExternalNode<ID, C> c: findNodeAnswer.getNodes()) {
+    for (ExternalNode<I, C> c: findNodeAnswer.getNodes()) {
       if (!nodes.contains(c)) {
         nbAdded++;
         nodes.add(c);
@@ -85,7 +85,7 @@ public class FindNodeAnswer<ID extends Number, C extends ConnectionInfo> impleme
     if (nodes.size() < 1) {
       return false;
     }
-    ExternalNode<ID, C> tail = nodes.get(0);
+    ExternalNode<I, C> tail = nodes.get(0);
     return tail.getDistance().equals(0);
   }
 

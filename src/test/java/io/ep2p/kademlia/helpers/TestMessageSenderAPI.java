@@ -16,34 +16,34 @@ import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class TestMessageSenderAPI<ID extends Number, C extends ConnectionInfo> implements MessageSender<ID, C> {
-    public final Map<ID, KademliaNodeAPI<ID, C>> map = new HashMap<>();
+public class TestMessageSenderAPI<I extends Number, C extends ConnectionInfo> implements MessageSender<I, C> {
+    public final Map<I, KademliaNodeAPI<I, C>> map = new HashMap<>();
     private final ExecutorService executorService = Executors.newFixedThreadPool(1);
 
-    public void registerNode(KademliaNodeAPI<ID, C> node){
+    public void registerNode(KademliaNodeAPI<I, C> node){
         map.put(node.getId(), node);
     }
 
     @SneakyThrows
     @Override
     @SuppressWarnings("unchecked")
-    public <I extends Serializable, O extends Serializable> KademliaMessage<ID, C, I> sendMessage(KademliaNodeAPI<ID, C> caller, Node<ID, C> receiver, KademliaMessage<ID, C, O> message) {
+    public <U extends Serializable, O extends Serializable> KademliaMessage<I, C, O> sendMessage(KademliaNodeAPI<I, C> caller, Node<I, C> receiver, KademliaMessage<I, C, U> message) {
         if (!this.map.containsKey(receiver.getId())){
-            EmptyKademliaMessage<ID, C> kademliaMessage = new EmptyKademliaMessage<>();
+            EmptyKademliaMessage<I, C> kademliaMessage = new EmptyKademliaMessage<>();
             kademliaMessage.setAlive(false);
             kademliaMessage.setNode(receiver);
-            return (KademliaMessage<ID, C, I>) kademliaMessage;
+            return (KademliaMessage<I, C, O>) kademliaMessage;
         }
 
         message.setNode(new DateAwareNodeDecorator<>(caller));
-        var response = (KademliaMessage<ID, C, I>) this.map.get(receiver.getId()).onMessage(message);
+        var response = (KademliaMessage<I, C, O>) this.map.get(receiver.getId()).onMessage(message);
         response.setNode(new DateAwareNodeDecorator<>(receiver));
         return response;
     }
 
     @SneakyThrows
     @Override
-    public <O extends Serializable> void sendAsyncMessage(KademliaNodeAPI<ID, C> caller, Node<ID, C> receiver, KademliaMessage<ID, C, O> message) {
+    public <O extends Serializable> void sendAsyncMessage(KademliaNodeAPI<I, C> caller, Node<I, C> receiver, KademliaMessage<I, C, O> message) {
         message.setNode(caller);
         this.executorService.submit(() -> {
             try {
@@ -53,7 +53,7 @@ public class TestMessageSenderAPI<ID extends Number, C extends ConnectionInfo> i
     }
 
     public void stopAll(){
-        for (KademliaNodeAPI<ID, C> kademliaNodeAPI : this.map.values()) {
+        for (KademliaNodeAPI<I, C> kademliaNodeAPI : this.map.values()) {
             kademliaNodeAPI.stopNow();
         }
     }

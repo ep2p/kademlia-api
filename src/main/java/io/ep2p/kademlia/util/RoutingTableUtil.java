@@ -13,13 +13,13 @@ import java.io.Serializable;
 
 public class RoutingTableUtil {
 
-    public static  <ID extends Number, C extends ConnectionInfo> boolean softUpdate(KademliaNodeAPI<ID, C> node, Node<ID, C> nodeToAdd) throws HandlerNotFoundException {
+    public static  <I extends Number, C extends ConnectionInfo> boolean softUpdate(KademliaNodeAPI<I, C> node, Node<I, C> nodeToAdd) throws HandlerNotFoundException {
         try {
             return node.getRoutingTable().update(node);
         } catch (FullBucketException e) {
-            Bucket<ID, C> bucket = node.getRoutingTable().findBucket(node.getId());
-            for (ID nodeId : bucket.getNodeIds()) {
-                KademliaMessage<ID, C, Serializable> response = node.getMessageSender().sendMessage(node, bucket.getNode(nodeId), new PingKademliaMessage<>());
+            Bucket<I, C> bucket = node.getRoutingTable().findBucket(node.getId());
+            for (I nodeId : bucket.getNodeIds()) {
+                KademliaMessage<I, C, Serializable> response = node.getMessageSender().sendMessage(node, bucket.getNode(nodeId), new PingKademliaMessage<>());
                 node.onMessage(response);
                 if (!response.isAlive()){
                     bucket.remove(nodeId);

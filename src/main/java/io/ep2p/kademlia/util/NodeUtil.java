@@ -18,14 +18,14 @@ public class NodeUtil {
      * @param kademliaNodeAPI Node to send message from
      * @param externalNode Node to check
      * @param date Date to use for comparing
-     * @param <ID> ID type of the node
+     * @param <I> ID type of the node
      * @param <C> ConnectionInfo type of the node
      * @return boolean True if node is alive
      */
-    public static <ID extends Number, C extends ConnectionInfo> boolean recentlySeenOrAlive(KademliaNodeAPI<ID, C> kademliaNodeAPI, ExternalNode<ID, C> externalNode, Date date) {
+    public static <I extends Number, C extends ConnectionInfo> boolean recentlySeenOrAlive(KademliaNodeAPI<I, C> kademliaNodeAPI, ExternalNode<I, C> externalNode, Date date) {
         if (externalNode.getLastSeen().after(date))
             return true;
-        KademliaMessage<ID, C, ?> pingAnswer = kademliaNodeAPI.getMessageSender().sendMessage(kademliaNodeAPI, externalNode, new PingKademliaMessage<>());
+        KademliaMessage<I, C, ?> pingAnswer = kademliaNodeAPI.getMessageSender().sendMessage(kademliaNodeAPI, externalNode, new PingKademliaMessage<>());
         if (!pingAnswer.isAlive()){
             try {
                 kademliaNodeAPI.onMessage(pingAnswer);

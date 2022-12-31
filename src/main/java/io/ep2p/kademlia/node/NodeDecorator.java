@@ -2,10 +2,10 @@ package io.ep2p.kademlia.node;
 
 import io.ep2p.kademlia.connection.ConnectionInfo;
 
-public class NodeDecorator<ID extends Number, C extends ConnectionInfo> implements Node<ID, C> {
-    protected final Node<ID, C> node;
+public class NodeDecorator<I extends Number, C extends ConnectionInfo> implements Node<I, C> {
+    protected final Node<I, C> node;
 
-    public NodeDecorator(Node<ID, C> node) {
+    public NodeDecorator(Node<I, C> node) {
         this.node = node;
     }
 
@@ -15,7 +15,7 @@ public class NodeDecorator<ID extends Number, C extends ConnectionInfo> implemen
     }
 
     @Override
-    public ID getId() {
+    public I getId() {
         return this.node.getId();
     }
 

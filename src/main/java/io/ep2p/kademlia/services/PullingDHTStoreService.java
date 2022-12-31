@@ -24,23 +24,24 @@ import static io.ep2p.kademlia.protocol.MessageType.DHT_STORE_PULL;
 
 
 @Slf4j
-public class PullingDHTStoreService<ID extends Number, C extends ConnectionInfo, K extends Serializable, V extends Serializable> extends PushingDHTStoreService<ID, C, K, V> {
+public class PullingDHTStoreService<I extends Number, C extends ConnectionInfo, K extends Serializable, V extends Serializable> extends PushingDHTStoreService<I, C, K, V> {
 
+    @SuppressWarnings("unchecked")
     public PullingDHTStoreService(
-            DHTKademliaNodeAPI<ID, C, K, V> dhtKademliaNode,
+            DHTKademliaNodeAPI<I, C, K, V> dhtKademliaNode,
             ExecutorService executorService
     ) {
         super(dhtKademliaNode, executorService);
         this.handlerMapping.put(DHT_STORE_PULL, (kademliaNodeAPI, message) -> {
             if (!(message instanceof DHTStorePullKademliaMessage))
                 throw new IllegalArgumentException("Cant handle message. Required: DHTStorePullKademliaMessage");
-            return handlePullStore((DHTStorePullKademliaMessage<ID, C, K>) message);
+            return handlePullStore((DHTStorePullKademliaMessage<I, C, K>) message);
         });
     }
 
-    public Future<StoreAnswer<ID, C, K>> store(K key, @Nullable V value) {
+    public Future<StoreAnswer<I, C, K>> store(K key, @Nullable V value) {
         this.dhtKademliaNode.getKademliaRepository().store(key, value);
-        CompletableFuture<StoreAnswer<ID, C, K>> completableFuture = (CompletableFuture<StoreAnswer<ID, C, K>>) super.store(key, null);
+        CompletableFuture<StoreAnswer<I, C, K>> completableFuture = (CompletableFuture<StoreAnswer<I, C, K>>) super.store(key, null);
         completableFuture.whenComplete((a, t) -> {
             if ((a != null && a.getResult().equals(StoreAnswer.Result.FAILED)) || t != null){
                 this.dhtKademliaNode.getKademliaRepository().remove(key);
@@ -49,9 +50,9 @@ public class PullingDHTStoreService<ID extends Number, C extends ConnectionInfo,
         return completableFuture;
     }
 
-    protected StoreAnswer<ID, C, K> handleStore(Node<ID, C> caller, Node<ID, C> requester, K key, @Nullable V value){
-        StoreAnswer<ID, C, K> storeAnswer;
-        ID hash = this.dhtKademliaNode.getKeyHashGenerator().generateHash(key);
+    protected StoreAnswer<I, C, K> handleStore(Node<I, C> caller, Node<I, C> requester, K key, @Nullable V value){
+        StoreAnswer<I, C, K> storeAnswer;
+        I hash = this.dhtKademliaNode.getKeyHashGenerator().generateHash(key);
 
         // If some other node is calling the store, and that other node is not this node,
         // But the origin request is by this node, then persist it or just return `STORED` result if its pulling (value = null).
@@ -64,7 +65,7 @@ public class PullingDHTStoreService<ID extends Number, C extends ConnectionInfo,
         // If current node should persist the data, do it immediately
         // For smaller networks this helps to avoid the process of finding alive close nodes to pass data to
 
-        FindNodeAnswer<ID, C> findNodeAnswer = this.dhtKademliaNode.getRoutingTable().findClosest(hash);
+        FindNodeAnswer<I, C> findNodeAnswer = this.dhtKademliaNode.getRoutingTable().findClosest(hash);
         storeAnswer = storeDataToClosestNode(caller, requester, findNodeAnswer.getNodes(), key, value);
 
         if(storeAnswer.getResult().equals(StoreAnswer.Result.FAILED)){
@@ -73,8 +74,9 @@ public class PullingDHTStoreService<ID extends Number, C extends ConnectionInfo,
         return storeAnswer;
     }
 
-    protected StoreAnswer<ID, C, K> pullAndStore(Node<ID, C> pullFrom, K key){
-        KademliaMessage<ID, C, ? extends Serializable> kademliaMessage = this.dhtKademliaNode.getMessageSender().sendMessage(
+    @SuppressWarnings("unchecked")
+    protected StoreAnswer<I, C, K> pullAndStore(Node<I, C> pullFrom, K key){
+        KademliaMessage<I, C, ? extends Serializable> kademliaMessage = this.dhtKademliaNode.getMessageSender().sendMessage(
                 this.dhtKademliaNode,
                 pullFrom,
                 new DHTStorePullKademliaMessage<>(
@@ -82,7 +84,7 @@ public class PullingDHTStoreService<ID extends Number, C extends ConnectionInfo,
                 )
         );
         if (kademliaMessage instanceof DHTLookupResultKademliaMessage){
-            DHTLookupResultKademliaMessage<ID, C, K, V> dhtLookupResultKademliaMessage = (DHTLookupResultKademliaMessage<ID, C, K, V>) kademliaMessage;
+            DHTLookupResultKademliaMessage<I, C, K, V> dhtLookupResultKademliaMessage = (DHTLookupResultKademliaMessage<I, C, K, V>) kademliaMessage;
             if (dhtLookupResultKademliaMessage.getData().getResult().equals(LookupAnswer.Result.FOUND)) {
                 return this.doStore(key, dhtLookupResultKademliaMessage.getData().getValue());
             }
@@ -90,7 +92,7 @@ public class PullingDHTStoreService<ID extends Number, C extends ConnectionInfo,
         return getNewStoreAnswer(key, StoreAnswer.Result.FAILED, this.dhtKademliaNode);
     }
 
-    protected StoreAnswer<ID, C, K> doStore(Node<ID, C> requester, K key, V value){
+    protected StoreAnswer<I, C, K> doStore(Node<I, C> requester, K key, V value){
         if (value != null)
             return doStore(key, value);
         else {
@@ -98,9 +100,9 @@ public class PullingDHTStoreService<ID extends Number, C extends ConnectionInfo,
         }
     }
 
-    protected StoreAnswer<ID, C, K> storeDataToClosestNode(Node<ID, C> caller, Node<ID, C> requester, List<ExternalNode<ID, C>> externalNodeList, K key, V value){
+    protected StoreAnswer<I, C, K> storeDataToClosestNode(Node<I, C> caller, Node<I, C> requester, List<ExternalNode<I, C>> externalNodeList, K key, V value){
         Date date = DateUtil.getDateOfSecondsAgo(this.dhtKademliaNode.getNodeSettings().getMaximumLastSeenAgeToConsiderAlive());
-        for (ExternalNode<ID, C> externalNode : externalNodeList) {
+        for (ExternalNode<I, C> externalNode : externalNodeList) {
             //if current node is the closest node, store the value (Scenario A)
             if(externalNode.getId().equals(this.dhtKademliaNode.getId())){
                 return doStore(requester, key, value);
@@ -124,7 +126,7 @@ public class PullingDHTStoreService<ID extends Number, C extends ConnectionInfo,
             // if close node is alive, tell it to store the data
             // to know if it's alive the last seen should either be close or we ping and check the result
             if(NodeUtil.recentlySeenOrAlive(this.dhtKademliaNode, externalNode, date)){
-                KademliaMessage<ID, C, Serializable> response = this.dhtKademliaNode.getMessageSender().sendMessage(
+                KademliaMessage<I, C, Serializable> response = this.dhtKademliaNode.getMessageSender().sendMessage(
                         this.dhtKademliaNode,
                         externalNode,
                         new DHTStoreKademliaMessage<>(
@@ -140,8 +142,8 @@ public class PullingDHTStoreService<ID extends Number, C extends ConnectionInfo,
         return getNewStoreAnswer(key, StoreAnswer.Result.FAILED, requester);
     }
 
-    protected void finalizeStoreResult(K key, StoreAnswer.Result result, Node<ID, C> node) {
-        CompletableFuture<StoreAnswer<ID, C, K>> completableFuture = this.storeFutureMap.get(key);
+    protected void finalizeStoreResult(K key, StoreAnswer.Result result, Node<I, C> node) {
+        CompletableFuture<StoreAnswer<I, C, K>> completableFuture = this.storeFutureMap.get(key);
         if (completableFuture != null){
             if (!node.getId().equals(this.dhtKademliaNode.getId()) && result.equals(StoreAnswer.Result.STORED)){
                 this.dhtKademliaNode.getKademliaRepository().remove(key);
@@ -150,7 +152,7 @@ public class PullingDHTStoreService<ID extends Number, C extends ConnectionInfo,
         }
     }
 
-    protected DHTLookupResultKademliaMessage<ID, C, K, V> handlePullStore(DHTStorePullKademliaMessage<ID, C, K> dhtStorePullKademliaMessage){
+    protected DHTLookupResultKademliaMessage<I, C, K, V> handlePullStore(DHTStorePullKademliaMessage<I, C, K> dhtStorePullKademliaMessage){
         K key = dhtStorePullKademliaMessage.getData().getKey();
         if (!this.dhtKademliaNode.getKademliaRepository().contains(key)) {
             return new DHTLookupResultKademliaMessage<>(new DHTLookupResultKademliaMessage.DHTLookupResult<>(LookupAnswer.Result.FAILED, key, null));
@@ -158,8 +160,8 @@ public class PullingDHTStoreService<ID extends Number, C extends ConnectionInfo,
         return new DHTLookupResultKademliaMessage<>(new DHTLookupResultKademliaMessage.DHTLookupResult<>(LookupAnswer.Result.FOUND, key, this.dhtKademliaNode.getKademliaRepository().get(key)));
     }
 
-    protected EmptyKademliaMessage<ID, C> handleStoreRequest(DHTStoreKademliaMessage<ID,C,K,V> dhtStoreKademliaMessage){
-        DHTStoreKademliaMessage.DHTData<ID, C, K, V> data = dhtStoreKademliaMessage.getData();
+    protected EmptyKademliaMessage<I, C> handleStoreRequest(DHTStoreKademliaMessage<I,C,K,V> dhtStoreKademliaMessage){
+        DHTStoreKademliaMessage.DHTData<I, C, K, V> data = dhtStoreKademliaMessage.getData();
         if (data.getRequester().getId().equals(this.dhtKademliaNode.getId())){
             finalizeStoreResult(data.getKey(), StoreAnswer.Result.STORED, this.dhtKademliaNode);
             return new EmptyKademliaMessage<>();

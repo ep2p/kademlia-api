@@ -25,15 +25,15 @@ import java.util.concurrent.*;
 
 
 @Slf4j
-public class KademliaNode<ID extends Number, C extends ConnectionInfo> implements KademliaNodeAPI<ID, C> {
+public class KademliaNode<I extends Number, C extends ConnectionInfo> implements KademliaNodeAPI<I, C> {
     @Getter
-    private final ID id;
+    private final I id;
     @Getter
     private final C connectionInfo;
     @Getter
-    private final RoutingTable<ID, C, Bucket<ID, C>> routingTable;
+    private final RoutingTable<I, C, Bucket<I, C>> routingTable;
     @Getter
-    private final transient MessageSender<ID, C> messageSender;
+    private final transient MessageSender<I, C> messageSender;
     @Getter
     private final transient NodeSettings nodeSettings;
 
@@ -46,15 +46,15 @@ public class KademliaNode<ID extends Number, C extends ConnectionInfo> implement
     private transient ReferencedNodesStrategy referencedNodesStrategy = ReferencedNodesStrategy.Strategies.CLOSEST_PER_BUCKET.getReferencedNodesStrategy();
 
     //** None Accessible Fields **//
-    protected final transient Map<String, MessageHandler<ID, C>> messageHandlerRegistry = new ConcurrentHashMap<>();
+    protected final transient Map<String, MessageHandler<I, C>> messageHandlerRegistry = new ConcurrentHashMap<>();
     private volatile boolean isRunning;
 
 
-    public KademliaNode(ID id, C connectionInfo, RoutingTable<ID, C, Bucket<ID, C>> routingTable, MessageSender<ID, C> messageSender, NodeSettings nodeSettings) {
+    public KademliaNode(I id, C connectionInfo, RoutingTable<I, C, Bucket<I, C>> routingTable, MessageSender<I, C> messageSender, NodeSettings nodeSettings) {
         this(id, connectionInfo, routingTable, messageSender, nodeSettings, Executors.newSingleThreadScheduledExecutor());
     }
 
-    public KademliaNode(ID id, C connectionInfo, RoutingTable<ID, C, Bucket<ID, C>> routingTable, MessageSender<ID, C> messageSender, NodeSettings nodeSettings, ScheduledExecutorService scheduledExecutorService) {
+    public KademliaNode(I id, C connectionInfo, RoutingTable<I, C, Bucket<I, C>> routingTable, MessageSender<I, C> messageSender, NodeSettings nodeSettings, ScheduledExecutorService scheduledExecutorService) {
         this.id = id;
         this.connectionInfo = connectionInfo;
         this.routingTable = routingTable;
@@ -72,7 +72,7 @@ public class KademliaNode<ID extends Number, C extends ConnectionInfo> implement
     }
 
     @Override
-    public Future<Boolean> start(Node<ID, C> bootstrapNode) {
+    public Future<Boolean> start(Node<I, C> bootstrapNode) {
         Future<Boolean> booleanFuture = this.bootstrap(bootstrapNode);
         this.start();
         return booleanFuture;
@@ -103,24 +103,24 @@ public class KademliaNode<ID extends Number, C extends ConnectionInfo> implement
     }
 
     @Override
-    public KademliaMessage<ID, C, ? extends Serializable> onMessage(KademliaMessage<ID, C, ? extends Serializable> message) throws HandlerNotFoundException {
+    public KademliaMessage<I, C, ? extends Serializable> onMessage(KademliaMessage<I, C, ? extends Serializable> message) throws HandlerNotFoundException {
         if (message == null) {
             throw new IllegalArgumentException("Message can not be null");
         }
-        MessageHandler<ID, C> messageHandler = messageHandlerRegistry.get(message.getType());
+        MessageHandler<I, C> messageHandler = messageHandlerRegistry.get(message.getType());
         if (messageHandler == null)
             throw new HandlerNotFoundException(message.getType());
         return messageHandler.handle(this, message);
     }
 
     @Override
-    public void registerMessageHandler(String type, MessageHandler<ID, C> messageHandler) {
+    public void registerMessageHandler(String type, MessageHandler<I, C> messageHandler) {
         this.messageHandlerRegistry.put(type, messageHandler);
     }
 
     @Override
-    public MessageHandler<ID, C> getHandler(String type) throws HandlerNotFoundException {
-        MessageHandler<ID, C> handler = this.messageHandlerRegistry.get(type);
+    public MessageHandler<I, C> getHandler(String type) throws HandlerNotFoundException {
+        MessageHandler<I, C> handler = this.messageHandlerRegistry.get(type);
         if (handler == null){
             throw new HandlerNotFoundException(type);
         }
@@ -146,15 +146,15 @@ public class KademliaNode<ID extends Number, C extends ConnectionInfo> implement
     }
 
 
-    protected Future<Boolean> bootstrap(Node<ID, C> bootstrapNode) {
+    protected Future<Boolean> bootstrap(Node<I, C> bootstrapNode) {
         this.getRoutingTable().forceUpdate(bootstrapNode);
 
-        KademliaNode<ID, C> node = this;
+        KademliaNode<I, C> node = this;
         return this.executorService.submit(() -> {
-            FindNodeRequestMessage<ID, C> message = new FindNodeRequestMessage<>();
+            FindNodeRequestMessage<I, C> message = new FindNodeRequestMessage<>();
             message.setData(node.getId());
             try {
-                KademliaMessage<ID, C, ?> response = node.getMessageSender().sendMessage(node, bootstrapNode, message);
+                KademliaMessage<I, C, ?> response = node.getMessageSender().sendMessage(node, bootstrapNode, message);
                 onMessage(response);
                 return true;
             } catch (Exception e) {
@@ -169,12 +169,12 @@ public class KademliaNode<ID extends Number, C extends ConnectionInfo> implement
     protected void pingSchedule(){
         this.scheduledExecutorService.scheduleAtFixedRate(
                 () -> {
-                    List<Node<ID, C>> referencedNodes = this.referencedNodesStrategy.getReferencedNodes(this);
+                    List<Node<I, C>> referencedNodes = this.referencedNodesStrategy.getReferencedNodes(this);
 
-                    PingKademliaMessage<ID, C> message = new PingKademliaMessage<>();
+                    PingKademliaMessage<I, C> message = new PingKademliaMessage<>();
                     referencedNodes.forEach(node -> {
                         try {
-                            KademliaMessage<ID, C, ?> response = getMessageSender().sendMessage(this, node, message);
+                            KademliaMessage<I, C, ?> response = getMessageSender().sendMessage(this, node, message);
                             onMessage(response);
                         } catch (HandlerNotFoundException e) {
                             log.error(e.getMessage(), e);

@@ -12,29 +12,30 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 @Slf4j
-public class FindNodeResponseMessageHandler<ID extends Number, C extends ConnectionInfo> implements MessageHandler<ID, C> {
+public class FindNodeResponseMessageHandler<I extends Number, C extends ConnectionInfo> implements MessageHandler<I, C> {
     private final ExecutorService executorService = Executors.newFixedThreadPool(1);
 
     @Override
     @SuppressWarnings("unchecked")
-    public <I extends KademliaMessage<ID, C, ?>, O extends KademliaMessage<ID, C, ?>> O handle(KademliaNodeAPI<ID, C> kademliaNode, I message) {
-        executorService.submit(() -> ((FindNodeResponseMessage<ID, C>) message).getData().getNodes().forEach(externalNode -> {
+    public <U extends KademliaMessage<I, C, ?>, O extends KademliaMessage<I, C, ?>> O handle(KademliaNodeAPI<I, C> kademliaNode, U message) {
+        executorService.submit(() -> ((FindNodeResponseMessage<I, C>) message).getData().getNodes().forEach(externalNode -> {
             // ignore self
             if (externalNode.getId().equals(kademliaNode.getId())){
                 return;
             }
             try {
-                KademliaMessage<ID, C, Serializable> response = kademliaNode.getMessageSender().sendMessage(kademliaNode, externalNode, new PingKademliaMessage<>());
+                KademliaMessage<I, C, Serializable> response = kademliaNode.getMessageSender().sendMessage(kademliaNode, externalNode, new PingKademliaMessage<>());
                 if (response.isAlive() && kademliaNode.getRoutingTable().update(response.getNode())) {
-                    FindNodeRequestMessage<ID, C> findNodeRequestMessage = new FindNodeRequestMessage<>();
+                    FindNodeRequestMessage<I, C> findNodeRequestMessage = new FindNodeRequestMessage<>();
                     findNodeRequestMessage.setData(kademliaNode.getId());
-                    KademliaMessage<ID, C, Serializable> findNodeResponse = kademliaNode.getMessageSender().sendMessage(kademliaNode, message.getNode(), findNodeRequestMessage);
+                    KademliaMessage<I, C, Serializable> findNodeResponse = kademliaNode.getMessageSender().sendMessage(kademliaNode, message.getNode(), findNodeRequestMessage);
                     kademliaNode.onMessage(findNodeResponse);
                 }
             } catch (HandlerNotFoundException | FullBucketException e) {
                 log.error(e.getMessage(), e);
             }
         }));
-        return (O) new EmptyKademliaMessage<ID, C>();
+        return (O) new EmptyKademliaMessage<I, C>();
     }
+
 }

@@ -12,10 +12,10 @@ import java.io.Serializable;
 @Getter
 @Setter
 @ToString
-public abstract class KademliaMessage<ID extends Number, C extends ConnectionInfo, D extends Serializable> {
+public abstract class KademliaMessage<I extends Number, C extends ConnectionInfo, D extends Serializable> {
     private D data;
     private String type;
-    private Node<ID, C> node;
+    private Node<I, C> node;
     private boolean isAlive = true;
 
     public KademliaMessage() {

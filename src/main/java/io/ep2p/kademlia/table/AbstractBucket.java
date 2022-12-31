@@ -15,14 +15,14 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
- * @param <ID> Number type of node ID between supported types
+ * @param <I> Number type of node ID between supported types
  * @param <C> Your implementation of connection info
  */
-public class AbstractBucket<ID extends Number, C extends ConnectionInfo> implements Bucket<ID, C> {
+public class AbstractBucket<I extends Number, C extends ConnectionInfo> implements Bucket<I, C> {
   private static final long serialVersionUID = -6049494618368168254L;
   protected final int id;
-  protected final CopyOnWriteArrayList<ID> nodeIds;
-  protected final ConcurrentHashMap<ID, ExternalNode<ID, C>> nodeMap = new ConcurrentHashMap<>();
+  protected final CopyOnWriteArrayList<I> nodeIds;
+  protected final ConcurrentHashMap<I, ExternalNode<I, C>> nodeMap = new ConcurrentHashMap<>();
 
   /**
    * Create a bucket for prefix `id`
@@ -41,11 +41,11 @@ public class AbstractBucket<ID extends Number, C extends ConnectionInfo> impleme
     return nodeIds.size();
   }
 
-  public boolean contains(ID id) {
+  public boolean contains(I id) {
     return nodeIds.contains(id);
   }
 
-  public boolean contains(Node<ID, C> node){
+  public boolean contains(Node<I, C> node){
     return nodeIds.contains(node.getId());
   }
 
@@ -53,18 +53,18 @@ public class AbstractBucket<ID extends Number, C extends ConnectionInfo> impleme
    * @param node to add to this bucket
    */
   @Override
-  public void add(ExternalNode<ID, C> node) {
+  public void add(ExternalNode<I, C> node) {
     nodeIds.add(0,node.getId());
     nodeMap.put(node.getId(), node);
   }
 
   @Override
-  public void remove(Node<ID, C> node){
+  public void remove(Node<I, C> node){
     this.remove(node.getId());
   }
 
   @Override
-  public void remove(ID nodeId){
+  public void remove(I nodeId){
     nodeIds.remove(nodeId);
     nodeMap.remove(nodeId);
   }
@@ -73,19 +73,19 @@ public class AbstractBucket<ID extends Number, C extends ConnectionInfo> impleme
    * @param node the node to push
    */
   @Override
-  public synchronized void pushToFront(ExternalNode<ID, C> node) {
+  public synchronized void pushToFront(ExternalNode<I, C> node) {
     nodeIds.remove(node.getId());
     nodeIds.add(0, node.getId());
     nodeMap.get(node.getId()).setLastSeen(node.getLastSeen());
   }
 
   @Override
-  public ExternalNode<ID, C> getNode(ID id) {
+  public ExternalNode<I, C> getNode(I id) {
     return nodeMap.get(id);
   }
 
   @Override
-  public List<ID> getNodeIds() {
+  public List<I> getNodeIds() {
     return nodeIds;
   }
 
