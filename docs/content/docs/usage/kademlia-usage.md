@@ -34,15 +34,22 @@ You can start the node by calling `start()` method, or you can bootstrap it by c
 You can stop the node by calling `stop()` method which should gracefully stop the node and its executor services, or you can stop it by calling `stopNow()` method which will immediately the running jobs.
 
 ### Generics
-Note that KademliaNode and all its subclasses are Generic.
+Note that KademliaNodeAPI and all its implementations are Generic (`KademliaNodeAPI<ID, C>`).
 
-The first generic type is for ID of the node, and you can choose between `Integer`, `Long`, `BigInteger` as these are the only ones supported and you should decide on which on to use based on your GUID space size. For example on **Eleuth Node System** Biginteger is being used since node IDs are `SHA1` of a public keys. You can [choose the appropriate `RoutingTable`](https://github.com/ep2p/kademlia-api/tree/main/src/main/java/io/ep2p/kademlia/table) implementation based on this key size. There is an implementation available for all of the three supported ID types.
+The first generic type is for `ID` of the node, and you can choose between `Integer`, `Long`, `BigInteger`, and you should decide on which on to use based on your GUID space size. 
 
-The second generic type is type of your class that implements `ConnectionInfo`.
+For example on _the other software I am developing_ `BigInteger` is being used as ID since node IDs are `SHA1` of a cryptographic public keys.
+
+You can [choose the appropriate `RoutingTable`](https://github.com/ep2p/kademlia-api/tree/main/src/main/java/io/ep2p/kademlia/table) implementation based on this key size. There is an implementation available for all of the three supported ID types.
+
+The second generic type is type of your class that implements `ConnectionInfo`. 
+You are not limited on how to implement this class. The purpose of this class is to give information to other nodes on how to connect to this/current node.
+
+For example, this could simply be TCP (or UDP if you prefer) IP/PORT of a node. In our **Kademlia Netty** implementation we are using "host" and "port" [for example](https://github.com/ep2p/kademlia-netty/blob/main/src/main/java/io/ep2p/kademlia/netty/common/NettyConnectionInfo.java).
 
 ## DHT Kademlia Node
 
-For **Distributed Hash Table** you should consider using `DHTKademliaNodeAPI` interface. The main implementation is `DHTKademliaNode` class.
+By default, `KademliaAPI` class does not focus on **[D]istributed [H]ash [T]able**. In case you want to use DHT, you should consider using `DHTKademliaNodeAPI` interface. The main implementation is `DHTKademliaNode` class.
 
 This class decorates `KademliaNodeAPI` as explained earlier. So you can instantiate it in 2 ways.
 
